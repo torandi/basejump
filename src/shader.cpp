@@ -228,7 +228,10 @@ void Shader::print_log(GLint object, const filemap& included_files){
 		}
 
 		if ( match ) {
-			const char* filename = "<unknown>";
+			char orig[12];
+			snprintf(orig, 12, "%d", file_id);
+
+			const char* filename = orig;
 			if ( file_id >= 0 ){
 				for ( filepair p : included_files ){
 					if ( p.second != (unsigned int)file_id ) continue;
