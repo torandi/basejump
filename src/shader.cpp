@@ -147,10 +147,7 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 
 	const int file_id = included_files.size() + 1;
 	included_files[filename] = file_id;
-
-	if ( file_id > 1 ){
-		parsed_content << "#line 0 " << file_id << std::endl;
-	}
+	parsed_content << "#line 0 " << file_id << std::endl;
 
 	while(!fp.eof()) {
 		parser.linenr++;
