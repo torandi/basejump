@@ -78,6 +78,7 @@ const GLenum Shader::global_uniform_usage_[] = {
 GLuint Shader::global_uniform_buffers_[Shader::NUM_GLOBAL_UNIFORMS];
 
 Shader* Shader::current = nullptr;
+static std::vector<std::string> filetable;
 
 void Shader::initialize() {
 	/* determine vendor */
@@ -90,6 +91,8 @@ void Shader::initialize() {
 	} else {
 		fprintf(stderr, "Unknown vendor ID: `%s'\n", vendor_id);
 	}
+
+	filetable.push_back("<unknown file>");
 
 	//Generate global uniforms:
 	glGenBuffers(NUM_GLOBAL_UNIFORMS, (GLuint*)&global_uniform_buffers_);
@@ -119,12 +122,13 @@ Shader::Shader(const std::string &name_, GLuint program) : name(name_), program_
 	glUseProgram(0);
 }
 
-std::string Shader::parse_shader(const std::string &filename, filemap& included_files){
+std::string Shader::parse_shader(const std::string &filename){
+	std::set<std::string> included_files;
 	parser_context ctx = {"", 0};
 	return parse_shader(filename, included_files, ctx);
 }
 
-std::string Shader::parse_shader(const std::string &filename, filemap& included_files, const parser_context& parent){
+std::string Shader::parse_shader(const std::string &filename, std::set<std::string>& included_files, const parser_context& parent){
 	char buffer[2048];
 
 	if ( included_files.find(filename) != included_files.end() ){
@@ -146,8 +150,9 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 
 	fprintf(verbose, "Loading %s\n", parser.filename);
 
-	const int file_id = included_files.size() + 1;
-	included_files[filename] = file_id;
+	included_files.insert(filename);
+	filetable.push_back(filename);
+	unsigned int file_id = filetable.size() - 1;
 	parsed_content << "#line 0 " << file_id << std::endl;
 
 	while(!fp.eof()) {
@@ -182,7 +187,7 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 	return parsed_content.str();
 }
 
-void Shader::print_log(GLint object, const filemap& included_files, const char* fmt, ...){
+void Shader::print_log(GLint object, const char* fmt, ...){
 	char buffer[2048];
 	GLint len = sizeof(buffer);
 
@@ -236,18 +241,8 @@ void Shader::print_log(GLint object, const filemap& included_files, const char* 
 		}
 
 		if ( match ) {
-			char orig[12];
-			snprintf(orig, 12, "%d", file_id);
-
-			const char* filename = orig;
-			if ( file_id >= 0 ){
-				for ( filepair p : included_files ){
-					if ( p.second != (unsigned int)file_id ) continue;
-					filename = p.first.c_str();
-				}
-			}
-
-			fprintf(stderr, "%s:%s\n", filename, line);
+			const char* filename = filetable[file_id].c_str();
+			fprintf(stderr, "%s(%d):%s\n", filename, file_id, line);
 		} else {
 			fprintf(stderr, "%s\n", line);
 		}
@@ -257,14 +252,13 @@ void Shader::print_log(GLint object, const filemap& included_files, const char* 
 }
 
 GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
-	filemap included_files;
-	std::string source = parse_shader(strFilename, included_files);
+	std::string source = parse_shader(strFilename);
 	const char * source_ptr = source.c_str();
 
 	GLuint shader = glCreateShader(eShaderType);
 	glShaderSource(shader, 1,&source_ptr , NULL);
 	glCompileShader(shader);
-	print_log(shader, included_files, "Compiling `%s'", strFilename.c_str());
+	print_log(shader, "Compiling `%s'", strFilename.c_str());
 
 	GLint compile_status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_status);
@@ -286,7 +280,7 @@ GLuint Shader::create_program(const std::string &shader_name, const std::vector<
 	/* Perform linking */
 	glLinkProgram(program);
 	checkForGLErrors("glLinkProgram");
-	print_log(program, filemap(), "When linking shader `%s':", shader_name.c_str());
+	print_log(program, "When linking shader `%s':", shader_name.c_str());
 
 	/* Mark shaders for deletion */
 	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);

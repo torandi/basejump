@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 //Muste be same as in uniforms.glsl
 #define MAX_NUM_LIGHTS 4
@@ -77,16 +78,13 @@ private:
 	static const GLsizeiptr global_uniform_buffer_sizes_[];
 	static const GLenum global_uniform_usage_[];
 
+	typedef struct { const char* filename; unsigned int linenr; } parser_context;
 	static GLuint load_shader(GLenum eShaderType, const std::string &strFilename);
 	static GLuint create_program(const std::string &shader_name, const std::vector<GLuint> &shaderList);
+	static std::string parse_shader(const std::string &filename);
+	static std::string parse_shader(const std::string &filename, std::set<std::string>& included_files, const parser_context& ctx);
 
-	typedef std::pair<std::string, unsigned int> filepair;
-	typedef std::map<std::string, unsigned int> filemap;
-	typedef struct { const char* filename; unsigned int linenr; } parser_context;
-	static std::string parse_shader(const std::string &filename, filemap& included_files);
-	static std::string parse_shader(const std::string &filename, filemap& included_files, const parser_context& ctx);
-
-	static void print_log(GLint object, const filemap& included_files, const char* fmt, ...) __attribute__((format(printf, 3,4)));
+	static void print_log(GLint object, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
 
 	GLint local_uniform_locations_[NUM_LOCAL_UNIFORMS];
 	GLint global_uniform_block_index_[NUM_GLOBAL_UNIFORMS];
