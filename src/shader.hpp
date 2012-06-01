@@ -86,7 +86,7 @@ private:
 	static std::string parse_shader(const std::string &filename, filemap& included_files);
 	static std::string parse_shader(const std::string &filename, filemap& included_files, const parser_context& ctx);
 
-	static void print_log(GLint object, const filemap& included_files);
+	static void print_log(GLint object, const filemap& included_files, const char* fmt, ...) __attribute__((format(printf, 3,4)));
 
 	GLint local_uniform_locations_[NUM_LOCAL_UNIFORMS];
 	GLint global_uniform_block_index_[NUM_GLOBAL_UNIFORMS];

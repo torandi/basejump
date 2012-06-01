@@ -15,8 +15,9 @@
 #include <cstring>
 #include <string>
 #include <vector>
-
+#include <cstdarg>
 #include <cassert>
+
 
 #include <GL/glew.h>
 
@@ -181,7 +182,7 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 	return parsed_content.str();
 }
 
-void Shader::print_log(GLint object, const filemap& included_files){
+void Shader::print_log(GLint object, const filemap& included_files, const char* fmt, ...){
 	char buffer[2048];
 	GLint len = sizeof(buffer);
 
@@ -190,6 +191,13 @@ void Shader::print_log(GLint object, const filemap& included_files){
 	} else {
 		glGetProgramInfoLog(object, sizeof(buffer), &len, buffer);
 	}
+	if ( len == 0 ) return;
+
+	va_list ap;
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	fputc('\n', stderr);
 
 	char* line = strtok(buffer, "\n");
 	while ( line ){
@@ -239,9 +247,9 @@ void Shader::print_log(GLint object, const filemap& included_files){
 				}
 			}
 
-			printf("%s:%s\n", filename, line);
+			fprintf(stderr, "%s:%s\n", filename, line);
 		} else {
-			printf("%s\n", line);
+			fprintf(stderr, "%s\n", line);
 		}
 
 		line = strtok(nullptr, "\n");
@@ -256,7 +264,7 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 	GLuint shader = glCreateShader(eShaderType);
 	glShaderSource(shader, 1,&source_ptr , NULL);
 	glCompileShader(shader);
-	print_log(shader, included_files);
+	print_log(shader, included_files, "Compiling `%s'", strFilename.c_str());
 
 	GLint compile_status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_status);
@@ -278,7 +286,7 @@ GLuint Shader::create_program(const std::string &shader_name, const std::vector<
 	/* Perform linking */
 	glLinkProgram(program);
 	checkForGLErrors("glLinkProgram");
-	print_log(program, filemap());
+	print_log(program, filemap(), "When linking shader `%s':", shader_name.c_str());
 
 	/* Mark shaders for deletion */
 	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
