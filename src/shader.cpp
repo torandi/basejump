@@ -259,7 +259,7 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 	GLuint shader = glCreateShader(eShaderType);
 	glShaderSource(shader, 1,&source_ptr , NULL);
 	glCompileShader(shader);
-	print_log(shader, "Compiling `%s'", strFilename.c_str());
+	print_log(shader, "When compiling `%s':", strFilename.c_str());
 
 	GLint compile_status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_status);
