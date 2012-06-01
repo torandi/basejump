@@ -28,6 +28,12 @@
 #define FRAG_SHADER_EXTENTION ".frag"
 #define GEOM_SHADER_EXTENTION ".geom"
 
+static enum Vendor {
+	VENDOR_NVIDIA,
+	VENDOR_ATI,
+	VENDOR_UNKNOWN,
+} vendor;
+
 struct state_data {
 	float time;
 	float width;
@@ -73,6 +79,17 @@ GLuint Shader::global_uniform_buffers_[Shader::NUM_GLOBAL_UNIFORMS];
 Shader* Shader::current = nullptr;
 
 void Shader::initialize() {
+	/* determine vendor */
+	const char* vendor_id = (const char*)glGetString(GL_VENDOR);
+	vendor = VENDOR_UNKNOWN;
+	if ( strcmp(vendor_id, "ATI Technologies Inc.") == 0 ){
+		vendor = VENDOR_ATI;
+	} else if ( strcmp(vendor_id, "NVIDIA Corporation") == 0 ){
+		vendor = VENDOR_NVIDIA;
+	} else {
+		fprintf(stderr, "Unknown vendor ID: `%s'\n", vendor_id);
+	}
+
 	//Generate global uniforms:
 	glGenBuffers(NUM_GLOBAL_UNIFORMS, (GLuint*)&global_uniform_buffers_);
 
