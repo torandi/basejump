@@ -183,7 +183,7 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 
 void Shader::print_log(GLint object, const filemap& included_files){
 	char buffer[2048];
-	GLint len;
+	GLint len = sizeof(buffer);
 
 	if ( glIsShader(object) ){
 		glGetShaderInfoLog(object, sizeof(buffer), &len, buffer);
@@ -266,42 +266,40 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 }
 
 GLuint Shader::create_program(const std::string &shader_name, const std::vector<GLuint> &shaderList) {
-	GLint gl_tmp;
 	GLuint program = glCreateProgram();
 	checkForGLErrors("glCreateProgram");
 
+	/* Attach all shaders */
 	for(GLuint shader : shaderList) {
 		glAttachShader(program, shader);
 		checkForGLErrors("glAttachShader");
 	}
 
+	/* Perform linking */
 	glLinkProgram(program);
 	checkForGLErrors("glLinkProgram");
+	print_log(program, filemap());
 
+	/* Mark shaders for deletion */
 	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
 
-	glGetProgramiv(program, GL_LINK_STATUS, &gl_tmp);
-
-	if(!gl_tmp) {
-		char buffer[2048];
-		glGetProgramInfoLog(program, 2048, NULL, buffer);
-		fprintf(stderr, "Link error in shader %s: %s\n", shader_name.c_str(), buffer);
+	/* Ensure program was linked properly */
+	GLint link_status;
+	glGetProgramiv(program, GL_LINK_STATUS, &link_status);
+	if ( !link_status ){
+		fprintf(stderr, "Failed to link shader `%s'\n", shader_name.c_str());
 		abort();
 	}
 
-#ifdef VALIDATE_SHADERS
+	/* Ensure we will be able to use this program */
 	glValidateProgram(program);
-
-	glGetProgramiv(program, GL_VALIDATE_STATUS, &gl_tmp);
-
-	if(!gl_tmp) {
-		char buffer[2048];
-		glGetProgramInfoLog(program, 2048, NULL, buffer);
-		fprintf(stderr, "Validate error in shader %s: %s\n", shader_name.c_str(), buffer);
+	checkForGLErrors("glValidateProgram");
+	GLint validate_status;
+	glGetProgramiv(program, GL_LINK_STATUS, &validate_status);
+	if ( !validate_status ){
+		fprintf(stderr, "Shader `%s' was linked successfully but you are not able to execute this shader. Hardware too old?\n", shader_name.c_str());
 		abort();
 	}
-
-#endif
 
 	return program;
 }
