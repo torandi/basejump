@@ -153,12 +153,20 @@ std::string Shader::parse_shader(const std::string &filename, std::set<std::stri
 	included_files.insert(filename);
 	filetable.push_back(filename);
 	unsigned int file_id = filetable.size() - 1;
-	parsed_content << "#line 0 " << file_id << std::endl;
 
 	while(!fp.eof()) {
 		parser.linenr++;
 		fp.getline(buffer, 2048);
 		std::string line(buffer);
+
+		if ( parser.linenr == 1 ){
+			if ( line.substr(0, 8) == "#version" ){
+				parsed_content << line << std::endl;
+				parsed_content << "#line 0 " << file_id << std::endl;
+				continue;
+			}
+			parsed_content << "#line 0 " << file_id << std::endl;
+		}
 
 		//Parse preprocessor:
 		if(line.find(PP_INCLUDE) == 0) {
