@@ -101,36 +101,32 @@ Shader::Shader(const std::string &name_, GLuint program) : name(name_), program_
    glUseProgram(0);
 }
 
-
-void Shader::load_file(const std::string &filename, std::stringstream &shaderData, std::string included_from) {
-	std::ifstream shaderFile(filename.c_str());
-	if(shaderFile.fail()) {
-		if(included_from.empty())
-			fprintf(stderr, "Shader preprocessor error: File %s not found\n", filename.c_str());
-		else
-			fprintf(stderr, "Shader preprocessor error: File %s not found (included from %s)\n", filename.c_str(), included_from.c_str());
-		abort();
-	}
-	shaderData << shaderFile.rdbuf();
-	shaderFile.close();
-	fprintf(verbose, "Loaded %s\n", filename.c_str());
+std::string Shader::parse_shader(const std::string &filename, filemap& included_files){
+	parser_context ctx = {"", 0};
+	return parse_shader(filename, included_files, ctx);
 }
 
-std::string Shader::parse_shader(const std::string &filename){
-	filemap included_files;
-	return parse_shader(filename, included_files, "");
-}
-
-std::string Shader::parse_shader(const std::string &filename, filemap& included_files, const std::string& included_from){
+std::string Shader::parse_shader(const std::string &filename, filemap& included_files, const parser_context& parent){
 	char buffer[2048];
 
 	if ( included_files.find(filename) != included_files.end() ){
 		return "";
 	}
 
-	std::stringstream raw_content;
+	parser_context parser = {filename != "" ? filename.c_str() : nullptr, 0};
 	std::stringstream parsed_content;
-	load_file(filename, raw_content, included_from);
+
+	std::ifstream fp(filename.c_str());
+	if ( fp.fail() ){
+		if ( parent.filename ){
+			fprintf(stderr, "%s:%d: %s: No such file or directory\n", parent.filename, parent.linenr, parser.filename);
+		} else {
+			fprintf(stderr, "%s: No such file or directory\n", filename.c_str());
+		}
+		abort();
+	}
+
+	fprintf(verbose, "Loading %s\n", parser.filename);
 
 	const int file_id = included_files.size() + 1;
 	included_files[filename] = file_id;
@@ -139,11 +135,11 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 		parsed_content << "#line 0 " << file_id << std::endl;
 	}
 
-	int linenr = 0;
-	while(!raw_content.eof()) {
-		++linenr;
-		raw_content.getline(buffer, 2048);
+	while(!fp.eof()) {
+		parser.linenr++;
+		fp.getline(buffer, 2048);
 		std::string line(buffer);
+
 		//Parse preprocessor:
 		if(line.find(PP_INCLUDE) == 0) {
 			line = line.substr(line.find_first_not_of(" ", strlen(PP_INCLUDE)));
@@ -152,7 +148,7 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 			if(first_quote != std::string::npos) {
 				size_t end_quote = line.find_last_of('"');
 				if(end_quote == std::string::npos || end_quote == first_quote) {
-					fprintf(stderr, "%s\nShader preprocessor error in %s:%d: Missing closing quote for #include command\n", buffer, filename.c_str(),  linenr);
+					fprintf(stderr, "%s\nShader preprocessor error in %s:%d: Missing closing quote for #include command\n", buffer, parser.filename, parser.linenr);
 					abort();
 				}
 				//Trim quotes
@@ -160,21 +156,22 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 			}
 
 			//Include the file:
-			char loc[256];
-			sprintf(loc, "%s:%d", filename.c_str(), linenr);
-			parsed_content << parse_shader(PATH_SHADERS+line, included_files, std::string(loc));
-			parsed_content << "#line " << linenr << " " << file_id << std::endl;
-		} else {
-			parsed_content << line << std::endl;
+			parsed_content << parse_shader(PATH_SHADERS+line, included_files, parser);
+			parsed_content << "#line " << parser.linenr << " " << file_id << std::endl;
+			continue;
 		}
+
+		parsed_content << line << std::endl;
 	}
+
 	return parsed_content.str();
 }
 
 GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 	GLint gl_tmp;
 
-	std::string source = parse_shader(strFilename);
+	filemap included_files;
+	std::string source = parse_shader(strFilename, included_files);
 
 	GLuint shader = glCreateShader(eShaderType);
 
@@ -196,7 +193,7 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 			fprintf(stderr, "%d %s\n", ++linenr, buffer);
 		}
 		glGetShaderInfoLog(shader, 2048, NULL, buffer);
-		fprintf(stderr, "Error in shader %s: %s\n",strFilename.c_str(),  buffer);
+		fprintf(stderr, "Error in shader %s:\n%s\n",strFilename.c_str(),  buffer);
 		abort();
 	}
 	return shader;
