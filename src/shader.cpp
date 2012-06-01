@@ -178,6 +178,7 @@ std::string Shader::parse_shader(const std::string &filename, std::set<std::stri
 			//Include the file:
 			parsed_content << parse_shader(PATH_SHADERS+line, included_files, parser);
 			parsed_content << "#line " << parser.linenr << " " << file_id << std::endl;
+			parsed_content << std::endl; /* put an extra newline to retain line-numbering during linkage */
 			continue;
 		}
 
