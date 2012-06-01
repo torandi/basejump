@@ -184,35 +184,84 @@ std::string Shader::parse_shader(const std::string &filename, filemap& included_
 	return parsed_content.str();
 }
 
-GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
-	GLint gl_tmp;
+void Shader::print_log(GLint object, const filemap& included_files){
+	char buffer[2048];
+	GLint len;
 
+	if ( glIsShader(object) ){
+		glGetShaderInfoLog(object, sizeof(buffer), &len, buffer);
+	} else {
+		glGetProgramInfoLog(object, sizeof(buffer), &len, buffer);
+	}
+
+	char* line = strtok(buffer, "\n");
+	while ( line ){
+		bool match = false;
+		unsigned int file_id = 0;
+
+		switch ( vendor ){
+		case VENDOR_ATI:
+			/* ERROR: 0:19: error(#160) Cannot convert from '4-component vector of float' to 'default out mediump 2-component vector of float' */
+			while ( !isspace(*++line) ){} /* ignore first severity */
+			line += 2;
+			if ( !isdigit(*line) ) break;
+			file_id = atoi(line);
+			while ( *line && isdigit(*++line) ){} /* ignore digits */
+			if ( *line != ':' ) break;
+			match = true;
+			break;
+
+		case VENDOR_NVIDIA:
+			/* 0(5) : warning C7533: global variable gl_ModelViewProjectionMatrix is deprecated after version 120 */
+			if ( !isdigit(*line) ) break;
+			file_id = atoi(line);
+			while ( *line && isdigit(*++line) ){} /* ignore digits */
+			if ( *line != '(' ) break;
+			line++;
+			{
+				char* tmp = line;
+				while ( *tmp && isdigit(*++tmp) ){} /* ignore digits */
+				*tmp = ' ';
+			}
+			match = true;
+			break;
+
+		case VENDOR_UNKNOWN:
+			break;
+		}
+
+		if ( match ) {
+			const char* filename = "<unknown>";
+			if ( file_id >= 0 ){
+				for ( filepair p : included_files ){
+					if ( p.second != (unsigned int)file_id ) continue;
+					filename = p.first.c_str();
+				}
+			}
+
+			printf("%s:%s\n", filename, line);
+		} else {
+			printf("%s\n", line);
+		}
+
+		line = strtok(nullptr, "\n");
+	}
+}
+
+GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 	filemap included_files;
 	std::string source = parse_shader(strFilename, included_files);
-
-	GLuint shader = glCreateShader(eShaderType);
-
 	const char * source_ptr = source.c_str();
 
+	GLuint shader = glCreateShader(eShaderType);
 	glShaderSource(shader, 1,&source_ptr , NULL);
 	glCompileShader(shader);
+	print_log(shader, included_files);
 
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &gl_tmp);
+	GLint compile_status;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_status);
+	if ( !compile_status ) abort();
 
-	if(!gl_tmp) {
-		char buffer[2048];
-
-		fprintf(stderr, "Shader compile error (%s). Preproccessed source: \n", strFilename.c_str());
-		std::stringstream code(source);
-		int linenr=0;
-		while(!code.eof()) {
-			code.getline(buffer, 2048);
-			fprintf(stderr, "%d %s\n", ++linenr, buffer);
-		}
-		glGetShaderInfoLog(shader, 2048, NULL, buffer);
-		fprintf(stderr, "Error in shader %s:\n%s\n",strFilename.c_str(),  buffer);
-		abort();
-	}
 	return shader;
 }
 

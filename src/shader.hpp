@@ -80,10 +80,13 @@ private:
 	static GLuint load_shader(GLenum eShaderType, const std::string &strFilename);
 	static GLuint create_program(const std::string &shader_name, const std::vector<GLuint> &shaderList);
 
+	typedef std::pair<std::string, unsigned int> filepair;
 	typedef std::map<std::string, unsigned int> filemap;
 	typedef struct { const char* filename; unsigned int linenr; } parser_context;
 	static std::string parse_shader(const std::string &filename, filemap& included_files);
 	static std::string parse_shader(const std::string &filename, filemap& included_files, const parser_context& ctx);
+
+	static void print_log(GLint object, const filemap& included_files);
 
 	GLint local_uniform_locations_[NUM_LOCAL_UNIFORMS];
 	GLint global_uniform_block_index_[NUM_GLOBAL_UNIFORMS];
