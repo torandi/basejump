@@ -116,22 +116,29 @@ void Shader::load_file(const std::string &filename, std::stringstream &shaderDat
 	fprintf(verbose, "Loaded %s\n", filename.c_str());
 }
 
-std::string Shader::parse_shader(
-			const std::string &filename,
-			std::set<std::string> included_files,
-			std::string included_from
-		) {
+std::string Shader::parse_shader(const std::string &filename){
+	filemap included_files;
+	return parse_shader(filename, included_files, "");
+}
+
+std::string Shader::parse_shader(const std::string &filename, filemap& included_files, const std::string& included_from){
 	char buffer[2048];
 
-	std::pair<std::set<std::string>::iterator, bool> ret = included_files.insert(filename);
-	if(ret.second == false) {
-		fprintf(stderr, "Shader preprocessor error: Found include loop when including %s from %s\n", filename.c_str(), included_from.c_str());
-		abort();
+	if ( included_files.find(filename) != included_files.end() ){
+		return "";
 	}
 
 	std::stringstream raw_content;
-	load_file(filename, raw_content, included_from);
 	std::stringstream parsed_content;
+	load_file(filename, raw_content, included_from);
+
+	const int file_id = included_files.size() + 1;
+	included_files[filename] = file_id;
+
+	if ( file_id > 1 ){
+		parsed_content << "#line 0 " << file_id << std::endl;
+	}
+
 	int linenr = 0;
 	while(!raw_content.eof()) {
 		++linenr;
@@ -156,6 +163,7 @@ std::string Shader::parse_shader(
 			char loc[256];
 			sprintf(loc, "%s:%d", filename.c_str(), linenr);
 			parsed_content << parse_shader(PATH_SHADERS+line, included_files, std::string(loc));
+			parsed_content << "#line " << linenr << " " << file_id << std::endl;
 		} else {
 			parsed_content << line << std::endl;
 		}

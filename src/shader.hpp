@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <set>
+#include <map>
 
 //Muste be same as in uniforms.glsl
 #define MAX_NUM_LIGHTS 4
@@ -81,7 +81,10 @@ private:
 	static GLuint create_program(const std::string &shader_name, const std::vector<GLuint> &shaderList);
 
 	static void load_file(const std::string &filename, std::stringstream &shaderData, std::string included_from);
-	static std::string parse_shader(const std::string &filename, std::set<std::string> included_files=std::set<std::string>(), std::string included_from="");
+
+	typedef std::map<std::string, unsigned int> filemap;
+	static std::string parse_shader(const std::string &filename);
+	static std::string parse_shader(const std::string &filename, filemap& included_files, const std::string& included_from);
 
 	GLint local_uniform_locations_[NUM_LOCAL_UNIFORMS];
 	GLint global_uniform_block_index_[NUM_GLOBAL_UNIFORMS];
