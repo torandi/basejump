@@ -217,31 +217,31 @@ void Shader::print_log(GLint object, const char* fmt, ...){
 	while ( line ){
 		bool match = false;
 		unsigned int file_id = 0;
+		char* parsed = line;
 
 		switch ( vendor ){
 		case VENDOR_ATI:
 			/* ERROR: 0:19: error(#160) Cannot convert from '4-component vector of float' to 'default out mediump 2-component vector of float' */
-			while ( !isspace(*++line) ){} /* ignore first severity */
-			line += 2;
-			if ( !isdigit(*line) ) break;
-			file_id = atoi(line);
-			while ( *line && isdigit(*++line) ){} /* ignore digits */
-			if ( *line != ':' ) break;
+			while ( !isspace(*++parsed) ){} /* ignore first severity */
+			parsed += 1;
+			if ( !isdigit(*parsed) ) break;
+			file_id = atoi(parsed);
+			while ( *parsed && isdigit(*++parsed) ){} /* ignore digits */
+			if ( *parsed != ':' ) break;
+			parsed++; /* ignore : too */
 			match = true;
 			break;
 
 		case VENDOR_NVIDIA:
 			/* 0(5) : warning C7533: global variable gl_ModelViewProjectionMatrix is deprecated after version 120 */
-			if ( !isdigit(*line) ) break;
-			file_id = atoi(line);
-			while ( *line && isdigit(*++line) ){} /* ignore digits */
-			if ( *line != '(' ) break;
-			line++;
-			{
-				char* tmp = line;
-				while ( *tmp && isdigit(*++tmp) ){} /* ignore digits */
-				*tmp = ' ';
-			}
+			if ( !isdigit(*parsed) ) break;
+			file_id = atoi(parsed);
+			while ( *parsed && isdigit(*++parsed) ){} /* ignore digits */
+			if ( *parsed != '(' ) break;
+			parsed++;
+			while ( *parsed && isdigit(*++parsed) ){} /* ignore digits */
+			*parsed = ' ';
+			parsed += 3;
 			match = true;
 			break;
 
@@ -251,7 +251,7 @@ void Shader::print_log(GLint object, const char* fmt, ...){
 
 		if ( match ) {
 			const char* filename = filetable[file_id].c_str();
-			fprintf(stderr, "%s(%d):%s\n", filename, file_id, line);
+			fprintf(stderr, "%s:%s\n", filename, parsed);
 		} else {
 			fprintf(stderr, "%s\n", line);
 		}
