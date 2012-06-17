@@ -18,6 +18,7 @@
 #include <cstdarg>
 #include <cassert>
 
+#include <regex>
 
 #include <GL/glew.h>
 
@@ -198,14 +199,24 @@ std::string Shader::parse_shader(const std::string &filename, std::set<std::stri
 
 void Shader::print_log(GLint object, const char* fmt, ...){
 	char buffer[2048];
+	std::regex compile_success = create_regex("^.*successfully compiled to run on hardware\\.$");
+	std::regex link_success = create_regex("^[:alpha]+ shader\\(s\\) linked(, \\w+ shader\\(s\\) linked)*\\.$");
+	std::regex * success_regex;
 	GLint len = sizeof(buffer);
 
 	if ( glIsShader(object) ){
 		glGetShaderInfoLog(object, sizeof(buffer), &len, buffer);
+		success_regex = &compile_success;
 	} else {
 		glGetProgramInfoLog(object, sizeof(buffer), &len, buffer);
+		success_regex = &link_success;
 	}
 	if ( len == 0 ) return;
+
+	if(std::regex_match(buffer, *success_regex)) {
+		printf("Regex match\n");
+		return;
+	}
 
 	va_list ap;
 	va_start(ap, fmt);
