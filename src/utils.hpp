@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include "shader.hpp"
 #include <functional>
+#include <regex>
 
 /**
  * Get the current in-engine time.
@@ -31,5 +32,9 @@ bool file_exists(const std::string& filename);
  * @return 0 if successful and errno on errors.
  */
 int timetable_parse(const std::string& filename, std::function<void(const std::string&, float, float)> func);
+
+const char * regex_error_msg(const std::regex_error &e);
+
+std::regex create_regex(const std::string &s);
 
 #endif

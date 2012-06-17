@@ -88,3 +88,60 @@ int timetable_parse(const std::string& filename, std::function<void(const std::s
 
 	return 0;
 }
+
+const char * regex_error_msg(const std::regex_error &e) {
+	switch(e.code()) {
+		case std::regex_constants::error_collate:
+			return "The expression contained an invalid collating element name.";
+
+		case std::regex_constants::error_ctype:
+			return "The expression contained an invalid character class name.";
+
+		case std::regex_constants::error_escape:
+			return "The expression contained an invalid escaped character, or a trailing escape.";
+
+		case std::regex_constants::error_backref:
+			return "The expression contained an invalid back reference.";
+
+		case std::regex_constants::error_brack:
+			return "The expression contained mismatched [ and ].";
+
+		case std::regex_constants::error_paren:
+			return "The expression contained mismatched ( and ).";
+
+		case std::regex_constants::error_brace:
+			return "The expression contained mismatched { and }";
+
+		case std::regex_constants::error_badbrace:
+			return "The expression contained an invalid range in a {} expression.";
+
+		case std::regex_constants::error_range:
+			return "The expression contained an invalid character range, such as [b-a] in most encodings.";
+
+		case std::regex_constants::error_space:
+			return "There was insufficient memory to convert the expression into a finite state machine.";
+
+		case std::regex_constants::error_badrepeat:
+			return "One of *?+{ was not preceded by a valid regular expression.";
+
+		case std::regex_constants::error_complexity:
+			return "The complexity of an attempted match against a regular expression exceeded a pre-set level.";
+
+		case std::regex_constants::error_stack:
+			return "There was insufficient memory to determine whether the regular expression could match the specified character sequence.";
+		
+		default:
+			return "unknown error";
+	}
+}
+
+std::regex create_regex(const std::string &s) {
+	try {
+		std::regex regex(s, std::regex_constants::extended);
+		return regex;
+	} catch(std::regex_error e) {
+		printf("Error in regex \"%s\": %s\n", s.c_str(), regex_error_msg(e));
+		abort();
+	}
+	return std::regex(); //This will never happen
+}
