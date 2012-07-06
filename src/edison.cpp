@@ -52,7 +52,7 @@ namespace Engine {
 	}
 
 	void init(){
-		scene["grass"] = SceneFactory::create("Grass", glm::ivec2(resolution.x, resolution.y));
+		scene["Winter"] = SceneFactory::create("Winter", glm::ivec2(resolution.x, resolution.y));
 		composition = new RenderTarget(resolution,           GL_RGB8, false);
 		blend = new RenderTarget(glm::ivec2(1,1), GL_RGBA8, false);
 
@@ -92,9 +92,7 @@ namespace Engine {
 		glViewport(0, 0, resolution.x, resolution.y);
 
 		blend->texture_bind(Shader::TEXTURE_BLEND_S);
-		scene["grass"]->draw(shaders[SHADER_BLEND]);
-
-		const float t = global_time.get();
+		scene["Winter"]->draw(shaders[SHADER_BLEND]);
 	}
 
 	static void render_display(){
