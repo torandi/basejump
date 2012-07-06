@@ -57,7 +57,7 @@ if INPUT_ENABLED
 libfrob_a_SOURCES += src/input.cpp src/input.hpp
 endif
 
-demo_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"demo\"" -DTITLE="\"Experimental demo\"" -DNOLOAD
+demo_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"demo\"" -DTITLE="\"Experimental demo\""
 demo_LDADD = libfrob.a ${engine_LIBS}
 demo_SOURCES = src/main.cpp src/testing.cpp
 demo_LDFLAGS = -pthread
