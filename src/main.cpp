@@ -274,7 +274,6 @@ static void poll(){
 			running = false;
 			break;
 
-#ifdef ENABLE_INPUT
 		case SDL_KEYDOWN:
 			if ( event.key.keysym.sym == SDLK_ESCAPE ){
 				running = false;
@@ -283,6 +282,7 @@ static void poll(){
 				running = false;
 			}
 
+#ifdef ENABLE_INPUT
 			bool scale_updated = false;
 
 			if ( event.key.keysym.sym == SDLK_SPACE ){
