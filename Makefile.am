@@ -5,7 +5,7 @@ engine_LIBS = ${ASSIMP_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${C
 AM_CXXFLAGS = -Wall -I${top_srcdir}/src ${engine_CXXFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo nox2
+bin_PROGRAMS = demo edison
 TESTS =
 
 if BUILD_EDITOR
@@ -39,12 +39,13 @@ libfrob_a_SOURCES = \
 	src/scene.cpp src/scenefactory.cpp src/scene.hpp \
 	src/shader.cpp src/shader.hpp \
 	src/skybox.cpp src/skybox.hpp \
+	src/terrain.cpp src/terrain.hpp \
 	src/texture.cpp src/texture.hpp \
 	src/time.cpp src/time.hpp \
 	src/timetable.cpp src/timetable.hpp \
 	src/utils.cpp src/utils.hpp \
 	src/quad.cpp src/quad.hpp \
-	src/scene/nox.cpp \
+	src/scene/winter.cpp \
 	src/scene/particles.cpp \
 	src/scene/test.cpp \
 	src/scene/tunnel.cpp \
@@ -56,15 +57,15 @@ if INPUT_ENABLED
 libfrob_a_SOURCES += src/input.cpp src/input.hpp
 endif
 
-demo_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"demo\"" -DTITLE="\"Experimental demo\""
+demo_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"demo\"" -DTITLE="\"Experimental demo\"" -DNOLOAD
 demo_LDADD = libfrob.a ${engine_LIBS}
 demo_SOURCES = src/main.cpp src/testing.cpp
 demo_LDFLAGS = -pthread
 
-nox2_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"nox2\"" -DTITLE="\"NördtroXy II Invitation\""
-nox2_LDADD = libfrob.a ${engine_LIBS}
-nox2_LDFLAGS = -pthread
-nox2_SOURCES = src/main.cpp src/nox2.cpp
+edison_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"edison\"" -DTITLE="\"Frobnicators - Edison\""
+edison_LDADD = libfrob.a ${engine_LIBS}
+edison_LDFLAGS = -pthread
+edison_SOURCES = src/main.cpp src/edison.cpp
 
 editor_CXXFLAGS = ${AM_CXXFLAGS} $(gtk3_CFLAGS)
 editor_LDFLAGS = -Wl,--export-dynamic -pthread

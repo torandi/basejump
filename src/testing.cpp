@@ -59,39 +59,39 @@ namespace Engine {
 
 	void init(){
 		/* Instantiate all scenes */
-		scene["Test"] = SceneFactory::create("Test", glm::ivec2(resolution.x, resolution.y/3));
-		scene["particle"] = SceneFactory::create("Particles", glm::ivec2(resolution.x, resolution.y));
+//		scene["Test"] = SceneFactory::create("Test", glm::ivec2(resolution.x, resolution.y/3));
+//		scene["particle"] = SceneFactory::create("Particles", glm::ivec2(resolution.x, resolution.y));
 		//scene["TV"] = SceneFactory::create("TV", glm::ivec2(resolution.x/2, 2*resolution.y/3));
-		scene["TV"] = SceneFactory::create("TV", glm::ivec2(resolution.x, resolution.y));
-		scene["Water"] = SceneFactory::create("Water", glm::ivec2(resolution.x, resolution.y));
-		scene["NOX"] = SceneFactory::create("NördtroXy II", glm::ivec2(resolution.x, resolution.y));
+//		scene["Water"] = SceneFactory::create("Water", glm::ivec2(resolution.x, resolution.y));
+//		scene["NOX"] = SceneFactory::create("NördtroXy II", glm::ivec2(resolution.x, resolution.y));
+		scene["Winter"] = SceneFactory::create("Winter", glm::ivec2(resolution.x, resolution.y));
 
 		load_timetable(PATH_SRC "timetable.txt");
-
+/*
 		particle_pos = new XYLerpTable("scene/particles_pos.txt");
 		tv_pos = new XYLerpTable("scene/tv_pos.txt");
 		test_pos = new XYLerpTable("scene/test_pos.txt");
-
+*/
 		composition = new RenderTarget(resolution, GL_RGB8, false);
 		downsample[0] = new RenderTarget(glm::ivec2(200, 200), GL_RGB8, false, GL_LINEAR);
 		downsample[1] = new RenderTarget(glm::ivec2(100, 100), GL_RGB8, false, GL_LINEAR);
 		downsample[2] = new RenderTarget(glm::ivec2( 50, 50), GL_RGB8, false, GL_LINEAR);
 
-		music = new Music("jumping.ogg");
+//		music = new Music("jumping.ogg");
 	}
 
 	void start(double seek) {
-		if(seek > 0.1) {
+		/*if(seek > 0.1) {
 			music->seek(seek);
 		}
-		music->play();
+		music->play();*/
 	}
 
 	void cleanup(){
 		for ( std::pair<std::string,Scene*> p : scene ){
 			delete p.second;
 		}
-		delete music;
+		//delete music;
 	}
 
 	static void render_scene(){
@@ -130,7 +130,8 @@ namespace Engine {
 		//scene["Water" ]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["Water"]->texture_size())));
 		//scene["TV" ]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["TV"]->texture_size())));
 		//scene["TV" ]->draw(shaders[SHADER_PASSTHRU], screen_pos(tv_pos->at(t), glm::vec2(scene["TV"]->texture_size())));
-		scene["particle"]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["particle"]->texture_size())));
+		//scene["particle"]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["particle"]->texture_size())));
+		scene["Winter"]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["Winter"]->texture_size())));
 	}
 
 	static void render_display(){
@@ -141,7 +142,7 @@ namespace Engine {
 
 	void render(){
 		render_scene();
-		downsample_tv();
+		//downsample_tv();
 		composition->with(render_composition);
 		render_display();
 	}
@@ -150,6 +151,5 @@ namespace Engine {
 		for ( std::pair<std::string,Scene*> p: scene ){
 			p.second->update_scene(t, dt);
 		}
-		printf("TIME: %lf\n", music->time());
 	}
 }
