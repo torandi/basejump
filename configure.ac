@@ -44,6 +44,16 @@ AS_IF([test "x$enable_editor" = "xyes"],
    [enable_editor=no])
 AM_CONDITIONAL([BUILD_EDITOR], [test "x$enable_editor" = "xyes"])
 
+loadingscene="yes"
+AC_ARG_ENABLE([loading], [AS_HELP_STRING([--enable-loading], [Enable loadingscene. @<:@default=disabled@:>@])])
+AS_IF([test "x$enable_loading" != "xyes"], [
+  AC_DEFINE([NOLOAD],  [1], [Define to 1 to disable loadingscene])
+  loadingscene="no"
+])
+
+AC_ARG_ENABLE([autoload], [AS_HELP_STRING([--enable-autoload], [Automatically loads all scenes. If disabled you need to make autoload.lst yourself. @<:@default=enabled@:>@])], [], [enable_autoload="yes"])
+AM_CONDITIONAL([AUTOLOAD], [test "x$enable_autoload" == "xyes"])
+
 dnl Setup paths
 AC_ARG_VAR([DATA_PATH], [Data path prefix. Default is relative path to top srcdir])
 AS_IF([test "x${DATA_PATH}" == "x"], [DATA_PATH="${srcdir}"])
@@ -68,6 +78,8 @@ echo
 echo "         Data path: $DATA_PATH"
 echo "    Editor enabled: $enable_editor"
 echo "     Input enabled: $enable_input"
+echo "     Loading scene: $loadingscene"
+echo " Scene autoloading: $enable_autoload"
 echo "          CXXFLAGS: $CXXFLAGS"
 echo "           LDFLAGS: $LDFLAGS"
 echo
