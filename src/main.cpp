@@ -28,6 +28,7 @@
 #include <pthread.h>
 
 #include "light.hpp"
+#include "datapack/datapack.h"
 
 static const unsigned int framerate = 60;
 static const uint64_t per_frame = 1000000 / framerate;
@@ -219,6 +220,8 @@ static void init(bool fullscreen, bool vsync, double seek){
 		fprintf(stderr, "Failed to initialize GLEW: %s\n", glewGetErrorString(ret));
 		exit(1);
 	}
+
+	//unpack_override("data");
 
 	Engine::setup_opengl();
 	Shader::initialize();

@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <sys/time.h>
+#include "datapack/datapack.h"
 
 int checkForGLErrors( const char *s ) {
 	int errors = 0 ;
@@ -45,7 +46,18 @@ void print_mat4(const glm::mat4 &m) {
 }
 
 bool file_exists(const std::string& filename){
-	return access(filename.c_str(), R_OK) == 0;
+	extern struct datapack_file_entry* filetable[];
+	struct datapack_file_entry* cur = filetable[0];
+
+	int i = 0;
+	while ( cur ){
+		if ( strcmp(filename.c_str(), cur->filename) == 0 ){
+			return true;
+		}
+		cur = filetable[++i];
+	}
+
+	return false;
 }
 
 int timetable_parse(const std::string& filename, std::function<void(const std::string&, float, float)> func){

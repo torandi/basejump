@@ -23,7 +23,7 @@ class Data {
 		const size_t &size() const;
 
 		ssize_t getline(char **lineptr, size_t *n) const;
-		
+
 
 		/*
 		 * Non-static access functions:
@@ -36,6 +36,14 @@ class Data {
 		bool eof() const;
 
 		~Data();
+
+		typedef void * file_load_func(const char * filename, size_t &size);
+		static file_load_func * load_file;
+
+
+		static void * load_from_file(const char * filename, size_t &size);
+		static void * load_from_packed(const char * filename, size_t &size);
+
 	private:
 		Data(void * data, const size_t &size);
 
@@ -49,10 +57,7 @@ class Data {
 		 *
 		 * Should point to a actual function that loads the data (from file or memory)
 		 */
-		typedef void * file_load_func(const char * filename, size_t &size);
-		static file_load_func * load_file;
 
-		static void * load_from_file(const char * filename, size_t &size);
 
 };
 

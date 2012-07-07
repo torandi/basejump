@@ -1,9 +1,10 @@
 #include "data.hpp"
+#include "datapack/datapack.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-Data::file_load_func * Data::load_file = &Data::load_from_file;
+Data::file_load_func * Data::load_file = &Data::load_from_packed;
 
 Data * Data::open(const std::string &filename) {
 	return open(filename.c_str());
@@ -36,7 +37,17 @@ void * Data::load_from_file(const char * filename, size_t &size) {
 		abort();
 	}
 	fclose(file);
-	
+
+	return data;
+}
+
+void * Data::load_from_packed(const char * filename, size_t &size){
+	char* data;
+	int ret = unpack_filename(filename, &data, &size);
+	if ( ret != 0 ){
+		fprintf(stderr, "failed to unpack file `%s': %s\n", filename, strerror(ret));
+		abort();
+	}
 	return data;
 }
 
@@ -113,7 +124,7 @@ ssize_t Data::getline(char **lineptr, size_t *n) const{
 		*lineptr = (char*)realloc(*lineptr, (next + 1));
 		*n = (next + 1);
 	}
-	
+
 	return read((void*)*lineptr, sizeof(char), next);
 }
 

@@ -13,6 +13,7 @@
 #include "shader.hpp"
 #include "timetable.hpp"
 #include "skybox.hpp"
+#include "data.hpp"
 
 #define HOLOGRAM_SCALE 2.f
 #define HOLOGRAM_FRAMERATE 30
@@ -101,6 +102,8 @@ public:
 		u_video_index = hologram_shader->uniform_location("texture_index");
 		video_index = 0;
 
+		Data::load_file = &Data::load_from_file;
+
 		std::vector<std::string> frames;
 		char buffer[64];
 		for(int i=1;i<=HOLOGRAM_FRAMES; ++i) {
@@ -109,7 +112,7 @@ public:
 		}
 
 		hologram = TextureArray::from_filename(frames);
-
+		Data::load_file = &Data::load_from_packed;
 
 		video.set_rotation(glm::vec3(0, 1.f, 0), 45.f);
 	}
@@ -153,7 +156,7 @@ public:
 			glDisable(GL_CULL_FACE);
 			hologram_shader->bind();
 			glUniform1i(u_video_index, video_index);
-		
+
 			hologram->texture_bind(Shader::TEXTURE_ARRAY_0);
 
 			video.render();
@@ -175,7 +178,7 @@ public:
 
 		fog.update(dt);
 
-		
+
 		//Extra light
 		if(t > 30 && t < 40) {
 			float s = (t-30.f)/10.f;

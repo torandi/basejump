@@ -2,10 +2,11 @@ ACLOCAL_AMFLAGS = -I m4
 
 engine_CXXFLAGS = ${ASSIMP_CFLAGS} ${GL_CFLAGS} ${GLU_CFLAGS} ${GLEW_CFLAGS} ${GLM_CFLAGS} ${SDL_CFLAGS} ${CL_CFLAGS} ${VORBISFILE_CFLAGS} ${PULSE_CFLAGS} ${portaudio_CFLAGS}
 engine_LIBS = ${ASSIMP_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${CL_LIBS} ${VORBISFILE_LIBS} ${PULSE_LIBS} ${portaudio_LIBS} -lSDL_image
+AM_CFLAGS = -Wall -I${top_srcdir}/datapack
 AM_CXXFLAGS = -Wall -I${top_srcdir}/src ${engine_CXXFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo nox2
+bin_PROGRAMS = demo nox2 datapacker
 TESTS =
 
 if BUILD_EDITOR
@@ -50,7 +51,17 @@ libfrob_a_SOURCES = \
 	src/scene/tunnel.cpp \
 	src/scene/tv.cpp \
 	src/scene/water.cpp \
+	datapack/unpack.c \
+	fubar.c \
 	autoload.cpp autoload.h
+
+datapacker_LDADD = -lz
+datapacker_SOURCES = datapack/pack.c datapack/datapack.h
+
+CLEANFILES = fubar.c
+fubar.c: datapacker ${top_srcdir}/fubar.lst Makefile
+	$(AM_V_GEN)./datapacker -f ${top_srcdir}/fubar.lst -s ${top_srcdir} -d $(DEPDIR)/fubar.data -o fubar.c -e fubar.h
+-include ./$(DEPDIR)/fubar.data
 
 if INPUT_ENABLED
 libfrob_a_SOURCES += src/input.cpp src/input.hpp
@@ -82,7 +93,7 @@ test_editor_classify_SOURCES = test/editor_classify.cpp src/editor/classify.cpp
 
 .PHONY: .autoload.tmp
 BUILT_SOURCES = .autoload.tmp autoload.h autoload.cpp
-CLEANFILES = .autoload.tmp autoload.lst autoload.cpp autoload.h stamp-autoload
+CLEANFILES += .autoload.tmp autoload.lst autoload.cpp autoload.h stamp-autoload
 
 .autoload.tmp: Makefile
 	@grep "^[[:blank:]]*REGISTER_SCENE_TYPE" -r ${top_srcdir}/src/scene/*.cpp | sed 's/.*(\(.*\),[ \t]*\"\(.*\)\"[ \t]*,.*).*/_register_\1:\2/g' > .autoload.tmp

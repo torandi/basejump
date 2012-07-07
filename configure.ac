@@ -6,10 +6,16 @@ AM_SILENT_RULES([yes])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
-AH_BOTTOM([#include "forward.hpp"])
+AH_BOTTOM([
+#ifdef __cplusplus
+#include "forward.hpp"
+#endif
+])
 
 AC_GNU_SOURCE
 AC_USE_SYSTEM_EXTENSIONS
+AM_PROG_CC_C_O
+AC_PROG_CC_C99
 AC_PROG_CXX
 AC_PROG_RANLIB
 AX_CHECK_COMPILE_FLAG([-std=c++0x], [CXXFLAGS="$CXXFLAGS -std=c++0x"])
