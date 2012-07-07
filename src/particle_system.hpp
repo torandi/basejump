@@ -61,6 +61,8 @@ class ParticleSystem : public MovableObject {
 			int num_textures;
 			int max_num_particles;
 
+			glm::vec4 map_offset;
+			glm::vec2 map_area;
 		} config __attribute__ ((aligned (16)));
 
 		float avg_spawn_rate; //Number of particles to spawn per second
@@ -72,6 +74,8 @@ class ParticleSystem : public MovableObject {
 			float scale;
 			int texture_index;
 		} __attribute__ ((aligned (16)));
+
+		void set_maps(Texture2D * heightmap, Texture2D * hitmap);
 
 		virtual void callback_position(const glm::vec3 &position);
 
@@ -85,6 +89,7 @@ class ParticleSystem : public MovableObject {
 		// Both are set in the opencl-kernel
 		GLuint gl_buffer_;
 		std::vector<cl::Memory> cl_gl_buffers_;
+		cl::Image2DGL hitmap_, heightmap_;
 		cl::Buffer particles_, config_, random_, spawn_rate_;
 
 		cl::Program program_;

@@ -12,7 +12,14 @@
 #include "globals.hpp"
 #include "utils.hpp"
 
-ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* texture)
+void ParticleSystem::set_maps(Texture2D * heightmap, Texture2D * hitmap) {
+	heightmap_ = opencl->create_from_gl_2d_image(CL_MEM_READ_ONLY, heightmap);
+	hitmap_ = opencl->create_from_gl_2d_image(CL_MEM_READ_WRITE, hitmap);
+	run_kernel_.setArg(2, heightmap_);
+	run_kernel_.setArg(3, hitmap_);
+}
+
+ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* texture) 
 	:
 		avg_spawn_rate(max_num_particles/10.f)
 	, spawn_rate_var(avg_spawn_rate/100.f)
@@ -56,7 +63,6 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	particles_ = opencl->create_buffer(CL_MEM_READ_WRITE, sizeof(particle_t)*max_num_particles);
 	config_ = opencl->create_buffer(CL_MEM_READ_ONLY, sizeof(config));
 	spawn_rate_  = opencl->create_buffer(CL_MEM_READ_WRITE, sizeof(cl_int));
-
 	random_ = opencl->create_buffer(CL_MEM_READ_ONLY, sizeof(float)*max_num_particles);
 	srand(time(0));
 
@@ -81,9 +87,9 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	CL::check_error(err, "[ParticleSystem] run: Set arg 0");
 	err = run_kernel_.setArg(1, particles_);
 	CL::check_error(err, "[ParticleSystem] run: Set arg 1");
-	err = run_kernel_.setArg(2, config_);
+	err = run_kernel_.setArg(4, config_);
 	CL::check_error(err, "[ParticleSystem] run: Set arg 2");
-	err = run_kernel_.setArg(3, random_);
+	err = run_kernel_.setArg(5, random_);
 	CL::check_error(err, "[ParticleSystem] run: Set arg 3");
 
 	err = spawn_kernel_.setArg(0, cl_gl_buffers_[0]);
@@ -169,9 +175,9 @@ void ParticleSystem::update(float dt) {
 	CL::check_error(err, "[ParticleSystem] acquire gl objects");
 
 
-	err = run_kernel_.setArg(4, dt);
+	err = run_kernel_.setArg(6, dt);
 	CL::check_error(err, "[ParticleSystem] run: set dt");
-	err = run_kernel_.setArg(5, (int)(time(0)%UINT_MAX));
+	err = run_kernel_.setArg(7, (int)(time(0)%UINT_MAX));
 	CL::check_error(err, "[ParticleSystem] run: set time");
 
 	err = spawn_kernel_.setArg(5, (int)(time(0)%UINT_MAX));

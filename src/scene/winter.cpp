@@ -16,7 +16,7 @@ class WinterScene : public Scene {
 public:
 	WinterScene (const glm::ivec2 &size)
 		: Scene(size)
-		, camera(75.f, size.x/(float)size.y, 0.1f, 100.f)
+		, camera(75.f, size.x/(float)size.y, 0.1f, 1000.f)
 		, snow(500000, TextureArray::from_filename("snow1.png", nullptr))
 	 {
 			camera.set_position(glm::vec3(35.750710, 17.926385, 6.305542));
@@ -33,7 +33,9 @@ public:
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			Texture2D * blendmap = Texture2D::from_filename("park_blend.png");
 			terrain = new Terrain("park", 1.f, 20.f, blendmap, color, normal);
-			//terrain->absolute_move(glm::vec3(0.f, -10.f, 0.f));
+			terrain->absolute_move(glm::vec3(0.f, 0.f, 0.f));
+
+			snow.set_maps(terrain->heightmap(), terrain->blendmap());
 
 			lights.ambient_intensity() = glm::vec3(0.0f);
 			lights.num_lights() = 1;
@@ -45,15 +47,16 @@ public:
 			snow.avg_spawn_rate = 500000.f;
 			snow.spawn_rate_var = 100000.f;
 
-			snow.config.spawn_position = glm::vec4(-100.f, 0.f, -100.f, 1.f);
-			snow.config.spawn_area = glm::vec4(200.0f, 20.f, 200.0f, 0.0f);
+			snow.set_position(glm::vec3(-128.f, 0.f, -128.f));
+			snow.config.spawn_position = glm::vec4(0., 0.f, 0.f, 1.f);
+			snow.config.spawn_area = glm::vec4(256.0f, 20.f, 256.0f, 0.0f);
 			snow.config.spawn_direction = glm::vec4(0, -1.f, 0.f, 1.f);
 			snow.config.direction_var = glm::vec4(0.3f, 0.0f, 0.3f, 0.f);
 			snow.config.avg_spawn_speed= 0.03f;
 			snow.config.spawn_speed_var = 0.01f;
 			snow.config.avg_ttl = 10.f;
 			snow.config.ttl_var = 5.f;
-			snow.config.avg_scale = 1.0f;
+			snow.config.avg_scale = 2.0f;
 			snow.config.scale_var = 0.3f;
 			snow.config.avg_scale_change = 0.05f;
 			snow.config.scale_change_var = 0.01f;
@@ -62,8 +65,10 @@ public:
 			snow.config.birth_color = glm::vec4(1.0f, 1.0f, 1.0f, 0.8);
 			snow.config.death_color = glm::vec4(1.0f ,1.0f, 1.0f, 0.6f);
 			snow.config.motion_rand = glm::vec4(0.001f, 0.f, 0.001f, 0);
-			snow.config.directional_speed = glm::vec4(0.1f, 0.f, .1f, 0.f);
-			snow.config.directional_speed_var = glm::vec4(0.05f, 0.f, 0.05f, 0.f);
+			/*snow.config.directional_speed = glm::vec4(0.1f, 0.f, .1f, 0.f);
+			snow.config.directional_speed_var = glm::vec4(0.05f, 0.f, 0.05f, 0.f);*/
+			snow.config.map_offset = glm::vec4(terrain->position().x, terrain->position().y, terrain->position().z, 0.f);
+			snow.config.map_area = glm::vec2(256.f);
 			snow.update_config();
 			snow.update(1.f);
 			snow.update(1.f);
@@ -101,7 +106,7 @@ public:
 	virtual void update(float t, float dt){
 		snow.update(dt);
 		#ifdef ENABLE_INPUT
-			Input::movement_speed = 5.f;
+			Input::movement_speed = 10.f;
 			input.update_object(camera, dt);
 			if(input.current_value(Input::ACTION_1) > 0.5f) {
 				printf("Current position: (%f, %f, %f)\n", camera.position().x, camera.position().y, camera.position().z);

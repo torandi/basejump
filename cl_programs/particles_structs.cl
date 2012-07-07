@@ -54,4 +54,6 @@ typedef struct config_t {
 	int num_textures;
 	int max_num_particles;
 
+	float4 map_offset;
+	float2 area_size;
 } config_t __attribute__ ((aligned (16))) ;
