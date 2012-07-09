@@ -93,6 +93,8 @@ CLEANFILES += .autoload.tmp autoload.lst stamp-autoload
 	@grep "^[[:blank:]]*REGISTER_SCENE_TYPE" -r ${top_srcdir}/src/scene/*.cpp | sed 's/.*(\(.*\),[ \t]*\"\(.*\)\"[ \t]*,.*).*/_register_\1:\2/g' > .autoload.tmp
 	@cmp -s autoload.lst .autoload.tmp || touch stamp-autoload
 
+stamp-autoload: .autoload.tmp
+
 autoload.lst: stamp-autoload
 	$(AM_V_GEN)cp .autoload.tmp autoload.lst
 endif
