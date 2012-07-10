@@ -1,11 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include "shader.hpp"
 #include "time.hpp"
 #include <glm/glm.hpp>
-
-#include "cl.hpp"
 
 #ifdef ENABLE_INPUT
 	#include "input.hpp"
