@@ -4,14 +4,12 @@
 
 #include "cl.hpp"
 #include "data.hpp"
-
-#include <GL/glew.h>
+#include "texture.hpp"
 
 #ifdef HAVE_GL_GLX_H
 #include <GL/glx.h>
 #endif
 
-#include <vector>
 #include <sstream>
 
 #define PP_INCLUDE "#include"

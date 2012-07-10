@@ -1,17 +1,10 @@
 #ifndef FROB_CL_H
 #define FROB_CL_H
 
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
-
 #include <GL/glew.h>
-
 #include <CL/cl.hpp>
 
 #include <glm/glm.hpp>
-#include "texture.hpp"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -59,7 +52,7 @@ class CL {
 
       cl::Platform platform_;
 
-      std::vector<cl::Device> devices_; 
+      std::vector<cl::Device> devices_;
 			cl::Device context_device_;
 
 };
