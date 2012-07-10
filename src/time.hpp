@@ -3,7 +3,6 @@
 
 #include <time.h>
 #include <sys/time.h>
-#include "music.hpp"
 
 class Time {
 public:
@@ -71,7 +70,7 @@ public:
 	float dt() const;
 
 	/**
-	 * Sync time to music. 
+	 * Sync time to music.
 	 * Returns true if it was possible, false if it failed (eg can't get time data from sound device)
 	 */
 	bool sync_to_music(const Music * music);

@@ -5,6 +5,7 @@ class Data;
 class Light;
 class Mesh;
 class MovableObject;
+class Music;
 class ParticleSystem;
 class PointTable;
 class Quad;

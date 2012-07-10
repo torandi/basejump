@@ -3,6 +3,7 @@
 #endif
 
 #include "time.hpp"
+#include "music.hpp"
 #include <cstdlib>
 
 #define USDIVIDER 1000000
