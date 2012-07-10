@@ -4,6 +4,7 @@
 
 #include "particle_system.hpp"
 #include "globals.hpp"
+#include "texture.hpp"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>

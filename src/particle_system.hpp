@@ -2,8 +2,6 @@
 #define PARTICLE_SYSTEM_H
 
 #include "movable_object.hpp"
-#include "texture.hpp"
-
 #include "cl.hpp"
 #include <glm/glm.hpp>
 
