@@ -1,8 +1,6 @@
 #ifndef MUSIC_HPP
 #define MUSIC_HPP
 
-#include "data.hpp"
-
 #include <fmodex/fmod.hpp>
 
 /**
@@ -44,13 +42,13 @@ class Music {
 		static void terminate_fmod();
 
 		static void errcheck(const char * contex);
-		
+
 		static FMOD_RESULT result_;
 
 		Data * source;
 		FMOD::Sound * sound_;
 		FMOD::Channel * channel_;
-	
+
 		double start_time;
 };
 #endif

@@ -3,6 +3,7 @@
 #endif
 
 #include "music.hpp"
+#include "data.hpp"
 #include "globals.hpp"
 
 #include <fmodex/fmod_errors.h>
@@ -45,7 +46,7 @@ Music::Music(const char * file) {
 		printf("[Music] Couldn't open file %s\n", real_path);
 		abort();
 	}
-	
+
 	free(real_path);
 
 	FMOD_CREATESOUNDEXINFO info = {0, };

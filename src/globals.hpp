@@ -3,6 +3,7 @@
 
 #include "time.hpp"
 #include <glm/glm.hpp>
+#include <cstdio>
 
 #ifdef ENABLE_INPUT
 	#include "input.hpp"

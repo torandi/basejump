@@ -1,6 +1,7 @@
 class Camera;
 class CL;
 class Color;
+class Data;
 class Light;
 class Mesh;
 class MovableObject;
