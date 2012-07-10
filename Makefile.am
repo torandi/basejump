@@ -104,7 +104,10 @@ autoload.h: autoload.lst Makefile
 	$(AM_V_GEN)sed 's/\(.*\):\(.*\)/void \1();/' autoload.lst > autoload.h
 
 autoload.cpp: autoload.lst Makefile
-	@echo '#include "autoload.h"' > autoload.cpp
+	@echo '#ifdef HAVE_CONFIG_H' > autoload.cpp
+	@echo '#include "config.h"' >> autoload.cpp
+	@echo '#endif' >> autoload.cpp
+	@echo '#include "autoload.h"' >> autoload.cpp
 	@echo '#include "globals.hpp"' >> autoload.cpp
 	@echo '#include <cstdio>' >> autoload.cpp
 	@echo 'namespace Engine { void autoload_scenes(){' >> autoload.cpp

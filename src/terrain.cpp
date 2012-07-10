@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "terrain.hpp"
 #include "texture.hpp"
 #include "mesh.hpp"
@@ -32,7 +36,7 @@ Terrain::Terrain(const std::string &name, float horizontal_scale, float vertical
 	height_texture_ = Texture2D::from_filename(base_ + "_map.png");
 	width_ = size.x;
 	height_ = size.y;
-	generate_terrain();	
+	generate_terrain();
 	SDL_FreeSurface(heightmap_);
 
 	absolute_move(-glm::vec3(width_*horizontal_scale_, 0, height_*horizontal_scale_)/2.0f);
@@ -58,7 +62,7 @@ void Terrain::generate_terrain() {
 			int i = y * width_ + x;
 			glm::vec4 color = get_pixel_color(x, y);
 			float h = height_from_color(color);
-			v.position = glm::vec3(horizontal_scale_*x, h*vertical_scale_, horizontal_scale_*y); 
+			v.position = glm::vec3(horizontal_scale_*x, h*vertical_scale_, horizontal_scale_*y);
 			v.tex_coord = glm::vec2(1.f-v.position.x/(width_*horizontal_scale_), 1.f-v.position.z/(height_*horizontal_scale_));
 			vertices_[i] = v;
 			map_[i] =  h*vertical_scale_;
@@ -150,7 +154,7 @@ glm::vec4 Terrain::get_pixel_color(int x, int y) {
 	color.b = (float)blue/0xFF;
 	color.a = (float)alpha/0xFF;
 
-	return color;	
+	return color;
 }
 
 void Terrain::render() {
