@@ -2,12 +2,18 @@ ACLOCAL_AMFLAGS = -I m4
 
 engine_CXXFLAGS = ${ASSIMP_CFLAGS} ${GL_CFLAGS} ${GLU_CFLAGS} ${GLEW_CFLAGS} ${GLM_CFLAGS} ${SDL_CFLAGS} ${CL_CFLAGS} ${VORBISFILE_CFLAGS} ${PULSE_CFLAGS} ${portaudio_CFLAGS}
 engine_LIBS = ${ASSIMP_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${CL_LIBS} ${VORBISFILE_LIBS} ${PULSE_LIBS} ${portaudio_LIBS} -lSDL_image
-AM_CFLAGS = -Wall -I${top_srcdir}/datapack
+AM_CFLAGS = -Wall
 AM_CXXFLAGS = -Wall -I${top_srcdir}/src ${engine_CXXFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo nox2 datapacker
+bin_PROGRAMS = demo nox2
 TESTS =
+CLEANFILES =
+
+if DATAPACKER
+AM_CFLAGS += -I${top_srcdir}/datapack
+bin_PROGRAMS += datapacker
+endif
 
 if BUILD_EDITOR
 bin_PROGRAMS += editor
@@ -51,17 +57,18 @@ libfrob_a_SOURCES = \
 	src/scene/tunnel.cpp \
 	src/scene/tv.cpp \
 	src/scene/water.cpp \
-	datapack/unpack.c \
-	fubar.c \
 	autoload.cpp autoload.h
 
+if DATAPACKER
+libfrob_a_SOURCES += 	datapack/unpack.c fubar.c
 datapacker_LDADD = -lz
 datapacker_SOURCES = datapack/pack.c datapack/datapack.h
 
-CLEANFILES = fubar.c
+CLEANFILES += fubar.c
 fubar.c: datapacker ${top_srcdir}/fubar.lst Makefile
 	$(AM_V_GEN)./datapacker -f ${top_srcdir}/fubar.lst -s ${top_srcdir} -d $(DEPDIR)/fubar.data -o fubar.c -e fubar.h
 -include ./$(DEPDIR)/fubar.data
+endif
 
 if INPUT_ENABLED
 libfrob_a_SOURCES += src/input.cpp src/input.hpp

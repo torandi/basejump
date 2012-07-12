@@ -46,6 +46,7 @@ void print_mat4(const glm::mat4 &m) {
 }
 
 bool file_exists(const std::string& filename){
+#ifdef HAVE_DATAPACKER
 	extern struct datapack_file_entry* filetable[];
 	struct datapack_file_entry* cur = filetable[0];
 
@@ -58,6 +59,9 @@ bool file_exists(const std::string& filename){
 	}
 
 	return false;
+#else /* HAVE_DATAPACKER */
+	return access(filename.c_str(), R_OK) == 0;
+#endif /* HAVE_DATAPACKER */
 }
 
 int timetable_parse(const std::string& filename, std::function<void(const std::string&, float, float)> func){

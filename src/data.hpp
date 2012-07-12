@@ -42,7 +42,10 @@ class Data {
 
 
 		static void * load_from_file(const char * filename, size_t &size);
+
+#ifdef HAVE_DATAPACKER
 		static void * load_from_packed(const char * filename, size_t &size);
+#endif /* HAVE_DATAPACKER */
 
 	private:
 		Data(void * data, const size_t &size);

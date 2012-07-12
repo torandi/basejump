@@ -1,10 +1,19 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "data.hpp"
 #include "datapack/datapack.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-Data::file_load_func * Data::load_file = &Data::load_from_packed;
+Data::file_load_func * Data::load_file =
+#ifdef HAVE_DATAPACKER
+&Data::load_from_packed;
+#else
+&Data::load_from_file;
+#endif
 
 Data * Data::open(const std::string &filename) {
 	return open(filename.c_str());
@@ -41,6 +50,7 @@ void * Data::load_from_file(const char * filename, size_t &size) {
 	return data;
 }
 
+#ifdef HAVE_DATAPACKER
 void * Data::load_from_packed(const char * filename, size_t &size){
 	char* data;
 	int ret = unpack_filename(filename, &data, &size);
@@ -50,6 +60,7 @@ void * Data::load_from_packed(const char * filename, size_t &size){
 	}
 	return data;
 }
+#endif /* HAVE_DATAPACKER */
 
 bool Data::eof() const {
 	return ((char*)_pos >= ((char*)_data+_size));

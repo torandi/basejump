@@ -102,7 +102,9 @@ public:
 		u_video_index = hologram_shader->uniform_location("texture_index");
 		video_index = 0;
 
+#ifdef HAVE_DATAPACKER
 		Data::load_file = &Data::load_from_file;
+#endif
 
 		std::vector<std::string> frames;
 		char buffer[64];
@@ -112,7 +114,10 @@ public:
 		}
 
 		hologram = TextureArray::from_filename(frames);
+
+#ifdef HAVE_DATAPACKER
 		Data::load_file = &Data::load_from_packed;
+#endif
 
 		video.set_rotation(glm::vec3(0, 1.f, 0), 45.f);
 	}

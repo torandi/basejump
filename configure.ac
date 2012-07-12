@@ -50,6 +50,11 @@ AS_IF([test "x$enable_editor" = "xyes"],
    [enable_editor=no])
 AM_CONDITIONAL([BUILD_EDITOR], [test "x$enable_editor" = "xyes"])
 
+AC_ARG_ENABLE([datapacker], [AS_HELP_STRING([Pack datafiles into binary])], [], [enable_datapacker="no"])
+AS_IF([test "x$enable_datapacker" = "xyes"], [
+  AC_DEFINE([HAVE_DATAPACKER], [1], [Set to 1 to enable packing of datafiles])])
+AM_CONDITIONAL([DATAPACKER], [test "x$enable_datapacker" = "xyes"])
+
 dnl Setup paths
 AC_ARG_VAR([DATA_PATH], [Data path prefix. Default is relative path to top srcdir])
 AS_IF([test "x${DATA_PATH}" == "x"], [DATA_PATH="${srcdir}"])
@@ -61,6 +66,8 @@ AC_DEFINE_UNQUOTED([PATH_OPENCL],  ["${DATA_PATH}/cl_programs/"], [Path to OpenC
 AC_DEFINE_UNQUOTED([PATH_ICON],    ["${DATA_PATH}/icons/"],       [Path to editor icons])
 AC_DEFINE_UNQUOTED([PATH_MUSIC],   ["${DATA_PATH}/music/"],       [Path to music])
 
+AS_IF([test "x$enable_datapacker" = "xyes" -a $DATA_PATH != "."], [AC_MSG_ERROR([DATA_PATH must be . when using datapacker.])])
+
 dnl Defaults
 AC_ARG_VAR([FULLSCREEN], [If non-empty fullscreen is used by default])
 AS_IF([test "x${FULLSCREEN}" == "x" -o "x${FULLSCREEN}" == "x0"], [FULLSCREEN=0], [FULLSCREEN=1])
@@ -71,7 +78,7 @@ AM_CONDITIONAL([BUILD_TESTS], [test "x$no_cppunit" != "xyes"])
 
 dnl Show config
 echo
-echo "         Data path: $DATA_PATH"
+echo "         Data path: $DATA_PATH (packed: $enable_datapacker)"
 echo "    Editor enabled: $enable_editor"
 echo "     Input enabled: $enable_input"
 echo "          CXXFLAGS: $CXXFLAGS"
