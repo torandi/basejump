@@ -108,7 +108,7 @@ public:
 			frames.push_back(std::string(buffer));
 		}
 
-		hologram = TextureArray::from_filename(frames);
+		hologram = TextureArray::from_filename(frames, false);
 
 
 		video.set_rotation(glm::vec3(0, 1.f, 0), 45.f);
