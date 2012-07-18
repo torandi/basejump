@@ -93,7 +93,12 @@ private:
 	static void init_vbo();
 
 	glm::mat4 projection;
+
+	/* parameters */
 	int flags;
+	GLenum format;
+	GLenum filter;
+
 	GLuint id;
 	GLuint front;
 	GLuint back;
