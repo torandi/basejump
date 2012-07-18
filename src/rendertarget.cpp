@@ -15,6 +15,8 @@ GLuint RenderTarget::vbo[2] = {0,0};
 RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLenum filter) throw()
 	: TextureBase()
 	, flags(flags)
+	, format(format)
+	, filter(filter)
 	, id(0)
 	, front(0)
 	, back(0)
