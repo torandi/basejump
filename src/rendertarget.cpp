@@ -17,6 +17,7 @@ RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLe
 	, flags(flags)
 	, format(format)
 	, filter(filter)
+	, color_buffers(flags & DOUBLE_BUFFER ? 2 : 1)
 	, id(0)
 	, front(0)
 	, back(0)
@@ -24,6 +25,12 @@ RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLe
 
 	checkForGLErrors("RenderTarget()");
 	this->size = size;
+
+	/* doublebuffer and MRT does not work together, yet. Because I'm to lazy to implement it */
+	if ( (flags & DOUBLE_BUFFER) && (flags & MULTIPLE_RENDER_TARGETS) ){
+		fprintf(stderr, "MRT with RenderTarget does not support doublebuffering, because I'm lazy.\n");
+		abort();
+	}
 
 	/* init_vbo is a no-op if it already is initialized */
 	init_vbo();
@@ -34,7 +41,7 @@ RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLe
 	projection = glm::translate(projection, glm::vec3(0.0f, -(float)size.y, 0.0f));
 
 	glGenFramebuffers(1, &id);
-	glGenTextures(2, color);
+	glGenTextures(color_buffers, color);
 	glGenTextures(1, &depth);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
@@ -113,8 +120,51 @@ RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLe
 
 RenderTarget::~RenderTarget(){
 	glDeleteFramebuffers(1, &id);
-	glDeleteTextures(2, color);
+	glDeleteTextures(color_buffers, color);
 	glDeleteTextures(1, &depth);
+}
+
+RenderTarget* RenderTarget::MRT(unsigned int targets){
+	static const GLenum mrt[] = {
+		GL_COLOR_ATTACHMENT0_EXT,
+		GL_COLOR_ATTACHMENT1_EXT,
+		GL_COLOR_ATTACHMENT2_EXT,
+		GL_COLOR_ATTACHMENT3_EXT,
+	};
+
+	/* sanity check */
+	if ( !(flags & MULTIPLE_RENDER_TARGETS) ){
+		fprintf(stderr, "RenderTarget::MRT(..) called without MRT enabled on target. Set flag RenderTarget::MULTIPLE_RENDER_TARGETS when allocating RenderTarget.\n");
+		abort();
+	}
+	if ( targets > 4 ){
+		fprintf(stderr, "RenderTarget::MRT only supports 4 units, can be raised in code.\n");
+		abort();
+	}
+
+	/* generate new textures */
+	glDeleteTextures(color_buffers, color);
+	glGenTextures(targets, color);
+	color_buffers = targets;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, id);
+	glDrawBuffers(targets, mrt);
+
+	/* bind color buffers */
+	for ( unsigned int i = 0; i < color_buffers; i++ ){
+		glBindTexture(GL_TEXTURE_2D, color[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, size.x, size.y, 0, format == GL_RGB8 ? GL_RGB : GL_RGBA, GL_UNSIGNED_INT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, color[i], 0);
+		checkForGLErrors("glFramebufferTexture2D::color");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return this;
 }
 
 void RenderTarget::init_vbo(){
@@ -174,8 +224,8 @@ void RenderTarget::with(const std::function<void()>& func){
 	unbind();
 }
 
-GLuint RenderTarget::texture() const {
-	return color[front];
+GLuint RenderTarget::texture(unsigned int target) const {
+	return color[front + target];
 }
 
 GLuint RenderTarget::depthbuffer() const {
@@ -186,9 +236,13 @@ const glm::mat4& RenderTarget::ortho() const {
 	return projection;
 }
 
-void RenderTarget::texture_bind(Shader::TextureUnit unit) const {
+void RenderTarget::texture_bind(Shader::TextureUnit unit, unsigned int target) const {
 	glActiveTexture(unit);
-	glBindTexture(GL_TEXTURE_2D, texture());
+	glBindTexture(GL_TEXTURE_2D, texture(target));
+}
+
+void RenderTarget::texture_bind(Shader::TextureUnit unit) const {
+	texture_bind(unit, 0);
 }
 
 void RenderTarget::texture_unbind() const {
@@ -234,8 +288,18 @@ void RenderTarget::draw(Shader* shader, const glm::vec2& pos, const glm::vec2& s
 	Shader::upload_model_matrix(model);
 
 	shader->bind();
-	texture_bind(Shader::TEXTURE_2D_0);
-	depth_bind(Shader::TEXTURE_2D_1);
+
+	/* bind colorbuffers */
+	const unsigned int units = flags & DOUBLE_BUFFER ? 1 : color_buffers;
+	for ( unsigned int i = 0; i < units; i++ ){
+		texture_bind((Shader::TextureUnit)(Shader::TEXTURE_2D_0 + i), i);
+	}
+
+	/* bind depth buffer */
+	if ( flags & DEPTH_BUFFER ){
+		depth_bind(Shader::TEXTURE_DEPTHMAP);
+	}
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
 

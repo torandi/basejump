@@ -57,6 +57,7 @@ public:
 		/* Aliases */
 		TEXTURE_COLORMAP = TEXTURE_2D_0,
 		TEXTURE_NORMALMAP = TEXTURE_2D_1,
+		TEXTURE_DEPTHMAP = TEXTURE_2D_7,
 
 		/* Blending aliases */
 		TEXTURE_BLEND_0 = TEXTURE_2D_0,
