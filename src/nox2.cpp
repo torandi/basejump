@@ -91,6 +91,8 @@ namespace Engine {
 			delete p.second;
 		}
 		delete music;
+
+		Shader::usage_report(stderr);
 		Shader::cleanup();
 	}
 
