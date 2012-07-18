@@ -18,10 +18,40 @@ class LightsData;
 class Shader {
 public:
 
-	static Shader * create_shader(std::string base_name);
+	/**
+	 * Create a new shader, or if the shader is already loaded the same instance
+	 * is retrieved.
+	 *
+	 * @param base_name is used to build the filename: PATH_BASE + "/shaders/" + base_name + EXTENSION.
+	 * @param cache If true it uses caching. Uncached shaders should be removed
+	 *              with Shader::release(). Normally you do _not_ want to use
+	 *              uncached shaders.
+	 * @return A borrowed pointer. Do not delete yourself, call Shader::cleanup()
+	 *         to remove all shaders.
+	 */
+	static Shader* create_shader(const std::string& base_name, bool cache = true);
 
-	//Must be called before first call to create_shader
+	/**
+	 * Preload shader into GPU memory.
+	 */
+	static void preload(const std::string& base_name);
+
+	/**
+	 * Write a usage report to dst with details about which shaders has been
+	 * loaded and the files it depends.
+	 */
+	static void usage_report(FILE* dst = stderr);
+
+	/**
+	 * Initialize shader engine.
+	 * Must be called before first call to create_shader.
+	 */
 	static void initialize();
+
+	/**
+	 * Release all resources owned by shader engine. No shaders is valid after call to this function.
+	 */
+	static void cleanup();
 
 	enum global_uniforms_t {
 		UNIFORM_PROJECTION_VIEW_MATRICES=0,
@@ -103,9 +133,16 @@ public:
 		Light lights[MAX_NUM_LIGHTS];
 	};
 
+	/**
+	 * Used *ONLY* for uncached shaders. Will delete the pointer. Shader is not
+	 * valid for any use after this call and user should pointer to nullptr.
+	 */
+	void release();
+
 private:
 
 	Shader(const std::string &name_, GLuint program);
+	~Shader();
 
 	static const char *global_uniform_names_[];
 	static const GLsizeiptr global_uniform_buffer_sizes_[];

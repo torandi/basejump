@@ -172,7 +172,6 @@ static void do_loading_scene() {
 			usleep(delay);
 		}
 	}
-	delete loading_shader;
 }
 
 static void free_loading() {
@@ -182,7 +181,6 @@ static void free_loading() {
 	for(Quad * q : loading_quad) {
 		delete q;
 	}
-	//delete loading_shader;
 }
 
 static void init(bool fullscreen, bool vsync, double seek){

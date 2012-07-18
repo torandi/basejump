@@ -16,7 +16,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
-
+#include <map>
 #include <cassert>
 
 #include <GL/glew.h>
@@ -63,8 +63,12 @@ const GLenum Shader::global_uniform_usage_[] = {
 };
 
 GLuint Shader::global_uniform_buffers_[Shader::NUM_GLOBAL_UNIFORMS];
-
 Shader* Shader::current = nullptr;
+
+typedef std::map<std::string, Shader*> ShaderMap;
+typedef std::pair<std::string, Shader*> ShaderPair;
+static ShaderMap shadercache;
+static bool initialized = false;
 
 void Shader::initialize() {
 	//Generate global uniforms:
@@ -86,6 +90,17 @@ void Shader::initialize() {
 	for ( int i = 0; i < NUM_ATTR; ++i ) {
 		glEnableVertexAttribArray(i);
 	}
+
+	initialized = true;
+}
+
+void Shader::cleanup(){
+	glDeleteBuffers(NUM_GLOBAL_UNIFORMS, global_uniform_buffers_);
+
+	/* remove all shaders */
+	for ( ShaderPair p: shadercache ){
+		delete p.second;
+	}
 }
 
 Shader::Shader(const std::string &name_, GLuint program) :
@@ -102,6 +117,13 @@ Shader::Shader(const std::string &name_, GLuint program) :
 	glUseProgram(0);
 }
 
+Shader::~Shader(){
+	glDeleteProgram(program_);
+}
+
+void Shader::release(){
+	delete this;
+}
 
 void Shader::load_file(const std::string &filename, std::stringstream &shaderData, std::string included_from) {
 	Data * file = Data::open(filename);
@@ -237,7 +259,18 @@ GLuint Shader::create_program(const std::string &shader_name, const std::vector<
 	return program;
 }
 
-Shader * Shader::create_shader(std::string base_name) {
+Shader* Shader::create_shader(const std::string& base_name, bool cache) {
+	/* sanity check */
+	if ( !initialized ){
+		fprintf(stderr, "Shader::create_shader(..) called before Shader::initialize()\n");
+		abort();
+	}
+
+	const auto it = shadercache.find(base_name);
+	if ( cache && it != shadercache.end() ){
+		return it->second;
+	}
+
 	fprintf(verbose, "Compiling shader %s\n", base_name.c_str());
 
 	const std::string vs = PATH_BASE"/shaders/"+base_name+VERT_SHADER_EXTENTION;
@@ -253,7 +286,47 @@ Shader * Shader::create_shader(std::string base_name) {
 		shader_list.push_back(load_shader(GL_GEOMETRY_SHADER, gs));
 	}
 
-	return new Shader(base_name, create_program(base_name, shader_list));
+	Shader* shader = new Shader(base_name, create_program(base_name, shader_list));
+	shadercache[base_name] = shader;
+	return shader;
+}
+
+void Shader::preload(const std::string& base_name){
+	create_shader(base_name);
+}
+
+void Shader::usage_report(FILE* dst){
+	fprintf(dst, "Shader usage\n"
+	             "============\n");
+
+	for ( ShaderPair p: shadercache ){
+		const GLuint id = p.second->program_;
+
+		GLint num_attached;
+		glGetProgramiv(id, GL_ATTACHED_SHADERS, &num_attached);
+
+		GLuint shader[num_attached];
+		glGetAttachedShaders(id, num_attached, nullptr, shader);
+
+		for ( int i = 0; i < num_attached; i++ ){
+			static const std::string extlut[] = { VERT_SHADER_EXTENTION, FRAG_SHADER_EXTENTION, GEOM_SHADER_EXTENTION, ".<unknown>" };
+			unsigned int extension;
+
+			GLint type;
+			glGetShaderiv(shader[i], GL_SHADER_TYPE, &type);
+			switch ( type ){
+			case GL_VERTEX_SHADER:   extension = 0; break;
+			case GL_FRAGMENT_SHADER: extension = 1; break;
+			case GL_GEOMETRY_SHADER: extension = 2; break;
+			default:                 extension = 3; break;
+			}
+
+			std::string filename = PATH_BASE"/shaders/"+p.first+extlut[extension];
+			if ( !file_exists(filename) ) filename = PATH_BASE"/shaders/default"+extlut[extension];
+
+			fprintf(dst, "%s:%s\n", p.first.c_str(), filename.c_str());
+		}
+	}
 }
 
 void Shader::init_uniforms() {
