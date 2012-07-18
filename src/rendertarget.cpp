@@ -44,7 +44,7 @@ RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLe
 	}
 
 	/* bind color buffers */
-	for ( int i = 0; i < max; i++ ){
+	for ( unsigned int i = 0; i < max; i++ ){
 		glBindTexture(GL_TEXTURE_2D, color[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, size.x, size.y, 0, format == GL_RGB8 ? GL_RGB : GL_RGBA, GL_UNSIGNED_INT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
