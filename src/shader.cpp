@@ -188,20 +188,17 @@ std::string Shader::parse_shader(
 }
 
 GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
-	GLint gl_tmp;
-
-	std::string source = parse_shader(strFilename);
-
-	GLuint shader = glCreateShader(eShaderType);
+	const std::string source = parse_shader(strFilename);
+	const GLuint shader = glCreateShader(eShaderType);
 
 	const char * source_ptr = source.c_str();
-
 	glShaderSource(shader, 1,&source_ptr , NULL);
 	glCompileShader(shader);
 
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &gl_tmp);
+	GLint compile_status;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_status);
 
-	if(!gl_tmp) {
+	if ( compile_status == GL_FALSE ) {
 		char buffer[2048];
 
 		fprintf(stderr, "Shader compile error (%s). Preproccessed source: \n", strFilename.c_str());
@@ -216,6 +213,7 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 		checkForGLErrors("shader");
 		abort();
 	}
+
 	return shader;
 }
 
