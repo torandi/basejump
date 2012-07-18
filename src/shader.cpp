@@ -166,10 +166,21 @@ std::string Shader::parse_shader(
 
 GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 	const std::string source = parse_shader(strFilename);
-	const GLuint shader = glCreateShader(eShaderType);
+	const std::string definition = [&](){
+		switch ( eShaderType ){
+		case GL_VERTEX_SHADER:   return "#define VERTEX_SHADER\n";
+		case GL_GEOMETRY_SHADER: return "#define GEOMETRY_SHADER\n";
+		case GL_FRAGMENT_SHADER: return "#define FRAGMENT_SHADER\n";
+		default: return "";
+		}
+	}();
 
-	const char * source_ptr = source.c_str();
-	glShaderSource(shader, 1,&source_ptr , NULL);
+	const char* source_ptr[] = {
+		definition.c_str(),
+		source.c_str(),
+	};
+	const GLuint shader = glCreateShader(eShaderType);
+	glShaderSource(shader, 2, source_ptr, nullptr);
 	glCompileShader(shader);
 
 	GLint compile_status;
@@ -179,7 +190,10 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 		char buffer[2048];
 
 		fprintf(stderr, "Shader compile error (%s). Preproccessed source: \n", strFilename.c_str());
-		std::stringstream code(source);
+		std::stringstream code;
+		code << definition;
+		code << source;
+
 		int linenr=0;
 		while(!code.eof()) {
 			code.getline(buffer, 2048);
