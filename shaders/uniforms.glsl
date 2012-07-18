@@ -19,6 +19,13 @@ layout(binding=13) uniform samplerCube texture_cube1;
 layout(binding=14) uniform samplerCube texture_cube2;
 layout(binding=15) uniform samplerCube texture_cube3;
 
+#ifdef FRAGMENT_SHADER
+layout(location=0) out vec4 ocolor0;
+layout(location=1) out vec4 ocolor1;
+layout(location=2) out vec4 ocolor2;
+layout(location=3) out vec4 ocolor3;
+#endif
+
 const int maxNumberOfLights = 4;
 
 layout(std140) uniform projectionViewMatrices {
