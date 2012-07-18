@@ -91,6 +91,7 @@ namespace Engine {
 			delete p.second;
 		}
 		delete music;
+		Shader::cleanup();
 	}
 
 	static void render_scene(){
