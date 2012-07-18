@@ -24,7 +24,7 @@ public:
 		: Scene(size)
 		, tunnel("nox2/tunnel.obj", false)
 		, logo("nox.obj", false)
-		, geometry(size, GL_RGB8, true)
+		, geometry(size, GL_RGB8, RenderTarget::DEPTH_BUFFER)
 		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
 		, cam_pos1("scene/nox_cam1.txt")
 		, cam_pos2("scene/nox_cam2.txt")
@@ -153,7 +153,7 @@ public:
 			glDisable(GL_CULL_FACE);
 			hologram_shader->bind();
 			glUniform1i(u_video_index, video_index);
-		
+
 			hologram->texture_bind(Shader::TEXTURE_ARRAY_0);
 
 			video.render();
@@ -175,7 +175,7 @@ public:
 
 		fog.update(dt);
 
-		
+
 		//Extra light
 		if(t > 30 && t < 40) {
 			float s = (t-30.f)/10.f;

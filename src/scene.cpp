@@ -7,7 +7,7 @@
 #include <cstring>
 
 Scene::Scene(const glm::ivec2& size, GLenum format)
-	: RenderTarget(size, format, true)
+	: RenderTarget(size, format, RenderTarget::DEPTH_BUFFER)
 	, match(false)
 	, current(timetable.end())
 	, meta_definition(nullptr) {

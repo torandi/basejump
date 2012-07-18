@@ -59,8 +59,8 @@ namespace Engine {
 
 	void init(){
 		scene["NOX"] = SceneFactory::create("NördtroXy II", glm::ivec2(resolution.x, resolution.y));
-		composition = new RenderTarget(resolution,           GL_RGB8, false);
-		blend = new RenderTarget(glm::ivec2(1,1), GL_RGBA8, false);
+		composition = new RenderTarget(resolution, GL_RGB8);
+		blend = new RenderTarget(glm::ivec2(1,1), GL_RGBA8);
 		char filename[64];
 		for(int i=0; i < NUM_TEXT_TEXTURES; ++i) {
 			sprintf(filename, "nox2/text%d.png", i);

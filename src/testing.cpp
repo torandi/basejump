@@ -72,10 +72,10 @@ namespace Engine {
 		tv_pos = new XYLerpTable("scene/tv_pos.txt");
 		test_pos = new XYLerpTable("scene/test_pos.txt");*/
 
-		composition = new RenderTarget(resolution, GL_RGB8, false);
-		downsample[0] = new RenderTarget(glm::ivec2(200, 200), GL_RGB8, false, GL_LINEAR);
-		downsample[1] = new RenderTarget(glm::ivec2(100, 100), GL_RGB8, false, GL_LINEAR);
-		downsample[2] = new RenderTarget(glm::ivec2( 50, 50), GL_RGB8, false, GL_LINEAR);
+		composition = new RenderTarget(resolution, GL_RGB8);
+		downsample[0] = new RenderTarget(glm::ivec2(200, 200), GL_RGB8, 0, GL_LINEAR);
+		downsample[1] = new RenderTarget(glm::ivec2(100, 100), GL_RGB8, 0, GL_LINEAR);
+		downsample[2] = new RenderTarget(glm::ivec2( 50, 50),  GL_RGB8, 0, GL_LINEAR);
 
 		music = new Music("jumping.ogg");
 	}
