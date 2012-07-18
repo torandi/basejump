@@ -1,16 +1,8 @@
-#version 150
-#extension GL_ARB_explicit_attrib_location: enable
-
+#version 330
 #include "uniforms.glsl"
 
 uniform vec2 wave1;
 uniform vec2 wave2;
-
-layout (location = 0) in vec4 in_position;
-layout (location = 1) in vec2 in_texcoord;
-layout (location = 2) in vec4 in_normal;
-layout (location = 3) in vec4 in_tangent;
-layout (location = 4) in vec4 in_bitangent;
 
 out vec3 position;
 out vec3 normal;
@@ -31,8 +23,6 @@ void main() {
 	tangent = (normalMatrix * in_tangent).xyz;
 	bitangent = (normalMatrix * in_bitangent).xyz;
 
-	tex_coord1 = in_texcoord + state.time*wave1;
-	tex_coord2 = in_texcoord + state.time*wave2;
-
+	tex_coord1 = in_texcoord.st + state.time*wave1;
+	tex_coord2 = in_texcoord.st + state.time*wave2;
 }
-

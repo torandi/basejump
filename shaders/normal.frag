@@ -1,8 +1,6 @@
-#version 150
-
-//NORMAL SHADER
-
+#version 330
 #include "uniforms.glsl"
+#include "light_calculations.glsl"
 
 in vec3 position;
 in vec3 normal;
@@ -10,12 +8,7 @@ in vec3 tangent;
 in vec3 bitangent;
 in vec2 texcoord;
 
-#include "light_calculations.glsl"
-
-out vec4 ocolor;
-
 void main() {
-
 	vec3 norm_normal, norm_tangent, norm_bitangent;
 	norm_normal = normalize(normal);
 	norm_tangent = normalize(tangent);
@@ -58,6 +51,5 @@ void main() {
             true, true);
    }
 
-
-   ocolor= clamp(accumLighting,0.0, 1.0);
+   ocolor = clamp(accumLighting,0.0, 1.0);
 }

@@ -2,7 +2,6 @@
 #include "uniforms.glsl"
 
 in vec2 uv;
-out vec4 ocolor;
 
 void main(){
 	vec4 t0 = vec4(texture2D(texture0, uv));

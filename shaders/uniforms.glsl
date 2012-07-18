@@ -19,7 +19,17 @@ layout(binding=13) uniform samplerCube texture_cube1;
 layout(binding=14) uniform samplerCube texture_cube2;
 layout(binding=15) uniform samplerCube texture_cube3;
 
+#ifdef VERTEX_SHADER
+layout (location = 0) in vec4 in_position;
+layout (location = 1) in vec4 in_texcoord;
+layout (location = 2) in vec4 in_normal;
+layout (location = 3) in vec4 in_tangent;
+layout (location = 4) in vec4 in_bitangent;
+layout (location = 5) in vec4 in_color;
+#endif
+
 #ifdef FRAGMENT_SHADER
+layout(location=0) out vec4 ocolor;
 layout(location=0) out vec4 ocolor0;
 layout(location=1) out vec4 ocolor1;
 layout(location=2) out vec4 ocolor2;

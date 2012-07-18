@@ -2,7 +2,6 @@
 #include "uniforms.glsl"
 
 in vec2 uv;
-out vec4 ocolor;
 
 const float offset_ratio = 0.6f;
 const float noise_ratio = 0.3f;

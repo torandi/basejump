@@ -1,6 +1,8 @@
-#version 150
+#version 330
 #include "uniforms.glsl"
 #include "screenspace.glsl"
+#include "skybox_color.glsl"
+#include "light_calculations.glsl"
 
 //const float water_sight = 5.0;
 
@@ -15,13 +17,7 @@ in vec3 bitangent;
 in vec2 tex_coord1;
 in vec2 tex_coord2;
 
-#include "skybox_color.glsl"
-#include "light_calculations.glsl"
-
-out vec4 ocolor;
-
 void main() {
-
 	vec3 norm_normal, norm_tangent, norm_bitangent;
 	norm_normal = normalize(normal);
 	norm_tangent = normalize(tangent);

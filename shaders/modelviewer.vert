@@ -1,12 +1,5 @@
-#version 410
+#version 330
 #include "uniforms.glsl"
-
-layout (location = 0) in vec4 in_position;
-layout (location = 1) in vec2 in_uv;
-layout (location = 2) in vec4 in_normal;
-layout (location = 3) in vec4 in_tangent;
-layout (location = 4) in vec4 in_bitangent;
-layout (location = 5) in vec4 in_color;
 
 /* unmodified values */
 out vec2 uv;
@@ -26,7 +19,7 @@ void main() {
    gl_Position = projectionViewMatrix *  mul_pos;
 
    /* passthru */
-   uv             = in_uv;
+   uv             = in_texcoord.st;
    color          = in_color;
    orig_normal    = in_normal.xyz;
    orig_tangent   = in_tangent.xyz;

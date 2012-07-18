@@ -2,7 +2,6 @@
 #include "uniforms.glsl"
 
 in vec2 uv;
-out vec4 ocolor;
 
 void main(){
 	float s = max(sin(state.time*0.7f), 0.0f);
