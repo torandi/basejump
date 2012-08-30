@@ -10,6 +10,8 @@ namespace Engine {
 	void update(float t, float dt);
 	void render();
 
+	void terminate(); //Implemented in main.cpp
+
 	/**
 	 * Called when the loading scene has faded
 	 * @param seek Time to start at
