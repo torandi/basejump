@@ -52,7 +52,16 @@ void print_mat4(const glm::mat4 &m) {
 }
 
 bool file_exists(const std::string& filename){
+#ifdef HAVE_ACCESS
 	return access(filename.c_str(), R_OK) == 0;
+#elif defined(WIN32)
+	const std::wstring stemp = std::wstring(filename.begin(), filename.end());
+	const DWORD dwAttrib = GetFileAttributes(stemp.c_str());
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+	        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else
+#error file_exists is not defined for this platform.
+#endif
 }
 
 int timetable_parse(const std::string& filename, std::function<void(const std::string&, float, float)> func){
