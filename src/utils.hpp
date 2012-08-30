@@ -16,6 +16,11 @@ float get_time();
  */
 unsigned long util_utime();
 
+/**
+ * Sleep µs.
+ */
+void util_usleep(unsigned long wait);
+
 int checkForGLErrors( const char *s );
 
 float radians_to_degrees(double rad);
