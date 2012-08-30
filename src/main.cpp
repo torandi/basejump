@@ -198,7 +198,7 @@ static void init(bool fullscreen, bool vsync, double seek){
 	}
 
 	/* show configuration */
-	fprintf(verbose, PACKAGE_NAME"-"VERSION"\n"
+	fprintf(verbose, PACKAGE_NAME "-" VERSION "\n"
 	        "Configuration:\n"
 	        "  Demo: " NAME " (" TITLE ")\n"
 	        "  Data path: %s\n"
@@ -367,7 +367,7 @@ static void magic_stuff(){
 }
 
 void show_usage(){
-	printf(NAME " ("PACKAGE_NAME"-" VERSION ")\n"
+	printf(NAME " (" PACKAGE_NAME "-" VERSION ")\n"
 	       "usage: %s [OPTIONS]\n"
 	       "\n"
 	       "  -r, --resolution=SIZE   Set window resultion (default: 800x600 in windowed and\n"
@@ -380,7 +380,7 @@ void show_usage(){
 	       "  -q, --quiet             Inverse of --verbose.\n"
 				 "  -l, --no-loading        Don't show loading scene (faster load).\n"
 	       "  -h, --help              This text\n",
-	       program_name, FULLSCREEN ? "true":"false");
+	       program_name, FULLSCREEN ? "true" : "false");
 }
 
 static int fullscreen = FULLSCREEN;
