@@ -28,7 +28,7 @@
 #endif
 
 #include "light.hpp"
-#include "music.hpp"
+#include "sound.hpp"
 
 static RenderTarget* composition = nullptr;
 static RenderTarget* downsample[2] = {nullptr,};
