@@ -24,7 +24,7 @@ Data * Data::open(const char * filename) {
 }
 
 void * Data::load_from_file(const char * filename, size_t &size) {
-	FILE * file = fopen(filename, "r");
+	FILE * file = fopen(filename, "rb");
 	void * data;
 	if(file == nullptr) {
 		fprintf(verbose, "[Data] Couldn't open file %s\n", filename);
