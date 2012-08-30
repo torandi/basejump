@@ -43,7 +43,11 @@ void * Data::load_from_file(const char * filename, size_t &size) {
 	void* data = malloc(size);
 	const size_t res = fread(data, 1, size, file);
 	if ( res != size ) {
-		fprintf(stderr, "Error in file read: read size was not the expected size (read %lu bytes, expected %lu)\n", res, size);
+		if ( ferror(file) ){
+			fprintf(stderr, "Error when reading file `%s': %s\n", filename, strerror(errno));
+		} else {
+			fprintf(stderr, "Error when reading file `%s': read size was not the expected size (read %lu bytes, expected %lu)\n", filename, res, size);
+		}
 		abort();
 	}
 	fclose(file);
