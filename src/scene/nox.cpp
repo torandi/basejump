@@ -101,6 +101,7 @@ public:
 		u_video_index = hologram_shader->uniform_location("texture_index");
 		video_index = 0;
 
+		/*
 		std::vector<std::string> frames;
 		char buffer[64];
 		for(int i=1;i<=HOLOGRAM_FRAMES; ++i) {
@@ -112,6 +113,7 @@ public:
 
 
 		video.set_rotation(glm::vec3(0, 1.f, 0), 45.f);
+		*/
 	}
 
 	virtual void render_geometry(const Camera& cam){
@@ -147,7 +149,7 @@ public:
 
 
 		const float t = global_time.get();
-
+/*
 		if( t  > 64 && t < 96) {
 			glPushAttrib(GL_ENABLE_BIT);
 			glDisable(GL_CULL_FACE);
@@ -160,7 +162,7 @@ public:
 
 			glPopAttrib();
 		}
-
+*/
 	}
 
 	virtual const Camera& get_current_camera(){
@@ -191,7 +193,7 @@ public:
 		} else if( t > 60) {
 			lights.num_lights() = 2;
 		}
-
+/*
 		//Hologram
 		if( t > 65 && t < 95) {
 			const float s = (t - 65);
@@ -224,6 +226,7 @@ public:
 			video.set_scale(glm::vec3(HOLOGRAM_SCALE, HOLOGRAM_SCALE*s, HOLOGRAM_SCALE));
 			video.set_position(glm::vec3(-29.59,-(HOLOGRAM_SCALE/2.f)*s,3.10));
 		}
+		*/
 	}
 
 	void render_scene(){
