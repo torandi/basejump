@@ -3,6 +3,7 @@
 #endif
 
 #include <glm/gtc/type_ptr.hpp>
+#include <stddef.h>
 
 #include "quad.hpp"
 #include "scene.hpp"
