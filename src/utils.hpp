@@ -11,6 +11,11 @@
  */
 float get_time();
 
+/**
+ * Read a monotonic clock with µs-precision.
+ */
+unsigned long util_utime();
+
 int checkForGLErrors( const char *s );
 
 float radians_to_degrees(double rad);
