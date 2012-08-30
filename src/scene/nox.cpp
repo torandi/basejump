@@ -18,6 +18,9 @@
 #define HOLOGRAM_FRAMERATE 30
 #define HOLOGRAM_FRAMES 900
 
+#define ENABLE_HOLOGRAM 0
+
+
 class NOX: public Scene {
 public:
 	NOX(const glm::ivec2& size)
@@ -97,6 +100,7 @@ public:
 		fog.config.motion_rand = glm::vec4(0.001f, 0.f, 0.001f, 0);
 		fog.update_config();
 
+#if ENABLE_HOLOGRAM
 		hologram_shader = Shader::create_shader("hologram");
 		u_video_index = hologram_shader->uniform_location("texture_index");
 		video_index = 0;
@@ -112,6 +116,8 @@ public:
 
 
 		video.set_rotation(glm::vec3(0, 1.f, 0), 45.f);
+#endif
+
 	}
 
 	virtual void render_geometry(const Camera& cam){
@@ -145,6 +151,7 @@ public:
 		shaders[SHADER_PARTICLES]->bind();
 		fog.render();
 
+#if ENABLE_HOLOGRAM 
 
 		const float t = global_time.get();
 
@@ -160,6 +167,7 @@ public:
 
 			glPopAttrib();
 		}
+#endif
 
 	}
 
@@ -192,6 +200,7 @@ public:
 			lights.num_lights() = 2;
 		}
 
+#if ENABLE_HOLOGRAM
 		//Hologram
 		if( t > 65 && t < 95) {
 			const float s = (t - 65);
@@ -224,6 +233,7 @@ public:
 			video.set_scale(glm::vec3(HOLOGRAM_SCALE, HOLOGRAM_SCALE*s, HOLOGRAM_SCALE));
 			video.set_position(glm::vec3(-29.59,-(HOLOGRAM_SCALE/2.f)*s,3.10));
 		}
+#endif
 	}
 
 	void render_scene(){
