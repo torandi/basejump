@@ -20,7 +20,7 @@ enum shader_t {
 	SHADER_NORMAL,
 	SHADER_MODELVIEWER,                    /* Texture, no lighting */
 	SHADER_PARTICLES,
-	SHADER_PARTICLES_LIGHT, //Particles with lighting
+	//SHADER_PARTICLES_LIGHT, //Particles with lighting
 	SHADER_DEBUG,
 	SHADER_SKYBOX,
 	SHADER_WATER,
