@@ -1,3 +1,5 @@
+#pragma OPENCL EXTENSION CL_KHR_gl_sharing : required
+
 #ifndef cl_khr_fp64
 	#define M_PI 3.14159
 #endif
