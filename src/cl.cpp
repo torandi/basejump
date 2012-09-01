@@ -94,6 +94,8 @@ CL::CL() {
 	if(deviceSize == 0) {
 		fprintf(stderr, "[OpenCL] Interop not possible\n");
 		abort();
+	} else {
+		printf("devices: %d\n", deviceSize / sizeof(cl_device_id));
 	}
 
 	cl_bool image_support, available;
@@ -296,6 +298,19 @@ cl::BufferGL CL::create_gl_buffer(cl_mem_flags flags, GLuint gl_buffer) const {
 		fprintf(stderr,"[OpenCL] Failed to create gl buffer: %s\n", errorString(err));
 		abort();
 	}
+	/*
+	//GET gl info:
+	cl_gl_object_type type;
+	GLuint gl_object_name;
+	err = buffer.getObjectInfo(&type, &gl_object_name);
+	if(err != CL_SUCCESS) {
+		fprintf(stderr,"[OpenCL] Failed to read cl-gl buffer info: %s\n", errorString(err));
+		abort();
+	}
+	if(gl_object_name != gl_buffer) {
+		fprintf(stderr, "[OpenCL] Name of gl buffer in cl buffer not correct: (is %u, should be %u)\n", gl_object_name, gl_buffer);
+	}
+	*/
 	return buffer;
 }
 
