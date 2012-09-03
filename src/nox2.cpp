@@ -229,7 +229,7 @@ namespace Engine {
 
 	void update(float t, float dt){
 		if(t >= 120) {
-			terminate();
+			Engine::terminate();
 		}
 		for ( std::pair<std::string,Scene*> p: scene ){
 			p.second->update_scene(t, dt);
