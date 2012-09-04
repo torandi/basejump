@@ -236,9 +236,11 @@ public:
 	static void upload_blank_material();
 
 	/**
-	 * Push vertex attribs and disable all
+	 * Push vertex attribs and disable all.
+	 *
+	 * @param Disable attrib from (inclusive) offset.
 	 */
-	static void push_vertex_attribs();
+	static void push_vertex_attribs(int offset = 0);
 
 	/**
 	 * Restore all vertex attribs
