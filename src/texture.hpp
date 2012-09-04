@@ -64,6 +64,7 @@ private:
 	virtual ~Texture2D();
 
 	GLuint _texture;
+	std::string entry_name;
 };
 
 class Texture3D: public TextureBase {

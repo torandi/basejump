@@ -48,10 +48,8 @@ public:
 
 			snow.config.spawn_position = glm::vec4(-100.f, 0.f, -100.f, 1.f);
 			snow.config.spawn_area = glm::vec4(200.0f, 20.f, 200.0f, 0.0f);
-			snow.config.spawn_direction = glm::vec4(0, -1.f, 0.f, 1.f);
-			snow.config.direction_var = glm::vec4(0.3f, 0.0f, 0.3f, 0.f);
-			snow.config.avg_spawn_speed= 0.03f;
-			snow.config.spawn_speed_var = 0.01f;
+      snow.config.avg_spawn_velocity = glm::vec4(0, -1.f, 0.f, 1.f);
+      snow.config.spawn_velocity_var = glm::vec4(0.3f, 0.0f, 0.3f, 0.f);
 			snow.config.avg_ttl = 10.f;
 			snow.config.ttl_var = 5.f;
 			snow.config.avg_scale = 1.0f;
@@ -63,8 +61,7 @@ public:
 			snow.config.birth_color = glm::vec4(1.0f, 1.0f, 1.0f, 0.8);
 			snow.config.death_color = glm::vec4(1.0f ,1.0f, 1.0f, 0.6f);
 			snow.config.motion_rand = glm::vec4(0.001f, 0.f, 0.001f, 0);
-			snow.config.directional_speed = glm::vec4(0.1f, 0.f, .1f, 0.f);
-			snow.config.directional_speed_var = glm::vec4(0.05f, 0.f, 0.05f, 0.f);
+			snow.config.wind_velocity = glm::vec4(0.1f, 0.f, .1f, 0.f);
 			snow.update_config();
 			snow.update(1.f);
 			snow.update(1.f);

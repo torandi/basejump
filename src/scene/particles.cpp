@@ -62,10 +62,8 @@ public:
 			expl.spawn_rate_var = 0.f;
 			expl.config.spawn_position = glm::vec4(0.f, 0.f, 2.f, 1.f);
 			expl.config.spawn_area = glm::vec4(0.0f, 0.f, 0.0f, 0.0f);
-			expl.config.spawn_direction = glm::vec4(0.f, 0.f, 0.f, 0.f);
-			expl.config.direction_var = glm::vec4(1.1f, 1.f, 1.1f, 0.f);
-			expl.config.avg_spawn_speed= 0.01f;
-			expl.config.spawn_speed_var = 0.005f;
+      expl.config.avg_spawn_velocity = glm::vec4(0.f, 0.f, 0.f, 0.f);
+      expl.config.spawn_velocity_var = glm::vec4(1.1f, 1.f, 1.1f, 0.f);
 			expl.config.avg_ttl = 5.f;
 			expl.config.ttl_var = 2.5f;
 			expl.config.avg_scale = 0.01f;
