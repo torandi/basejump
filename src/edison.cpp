@@ -21,9 +21,12 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <unistd.h>
 #include <getopt.h>
 #include <map>
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #include "light.hpp"
 #include "music.hpp"
