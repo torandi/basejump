@@ -18,6 +18,7 @@
 #include <vector>
 #include <map>
 #include <cassert>
+#include <memory>
 
 #include <GL/glew.h>
 
@@ -305,8 +306,8 @@ void Shader::usage_report(FILE* dst){
 		GLint num_attached;
 		glGetProgramiv(id, GL_ATTACHED_SHADERS, &num_attached);
 
-		GLuint shader[num_attached];
-		glGetAttachedShaders(id, num_attached, nullptr, shader);
+		std::unique_ptr<GLuint[]> shader(new GLuint[num_attached]);
+		glGetAttachedShaders(id, num_attached, nullptr, shader.get());
 
 		for ( int i = 0; i < num_attached; i++ ){
 			static const std::string extlut[] = { VERT_SHADER_EXTENTION, FRAG_SHADER_EXTENTION, GEOM_SHADER_EXTENTION, ".<unknown>" };
