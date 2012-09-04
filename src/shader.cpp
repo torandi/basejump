@@ -456,3 +456,14 @@ GLint Shader::uniform_location(const char * uniform_name) const{
 	checkForGLErrors((std::string("uniform_location")+std::string(uniform_name)+" from shader "+name).c_str());
 	return l;
 }
+
+void Shader::push_vertex_attribs() {
+	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+	for ( int i = 0; i < NUM_ATTR; ++i ) {
+		glDisableVertexAttribArray(i);
+	}
+}
+
+void Shader::pop_vertex_attribs() {
+	glPopClientAttrib();
+}
