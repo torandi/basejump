@@ -162,7 +162,6 @@ void Mesh::generate_vbos() {
 }
 
 void Mesh::render() {
-	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 	Shader::upload_model_matrix(matrix());
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers_[0]);
@@ -171,9 +170,7 @@ void Mesh::render() {
 	checkForGLErrors("Mesh::render(): Bind buffers");
 
 	/* Disable most attribs from Shader::vertex_x */
-	for ( int i = 5; i < Shader::NUM_ATTR; ++i ) {
-		glDisableVertexAttribArray(i);
-	}
+	Shader::push_vertex_attribs(5);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const GLvoid*) (sizeof(glm::vec3)));
@@ -190,7 +187,6 @@ void Mesh::render() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	Shader::pop_vertex_attribs();
 	checkForGLErrors("Mesh::render(): Teardown ");
-	glPopClientAttrib();
 }
-
