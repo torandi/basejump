@@ -67,11 +67,11 @@ const glm::mat4 Camera::view_matrix() const {
 
 const glm::mat4 Camera::projection_matrix() const { return projection_matrix_; }
 
-const float Camera::fov() const { return fov_; }
-const float Camera::aspect() const { return aspect_; }
-const float Camera::near() const { return near_; }
-const float Camera::far() const { return far_; }
-const float Camera::roll() const { return roll_; }
+float Camera::fov() const { return fov_; }
+float Camera::aspect() const { return aspect_; }
+float Camera::near() const { return near_; }
+float Camera::far() const { return far_; }
+float Camera::roll() const { return roll_; }
 const glm::vec3 &Camera::position() const { return position_; }
 const glm::vec3 Camera::up() const { return local_y(); };
 

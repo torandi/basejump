@@ -16,11 +16,11 @@ public:
 	const glm::mat4 view_matrix() const;
 	const glm::mat4 projection_matrix() const;
 
-	const float fov() const;
-	const float aspect() const;
-	const float near() const;
-	const float far() const;
-	const float roll() const;
+	float fov() const;
+	float aspect() const;
+	float near() const;
+	float far() const;
+	float roll() const;
 	const glm::vec3 up() const;
 
 	void set_aspect(float aspect);

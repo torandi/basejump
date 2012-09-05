@@ -189,7 +189,7 @@ public:
 	void bind();
 	static void unbind();
 
-	const GLint num_attributes() const;
+	GLint num_attributes() const;
 
 	GLint uniform_location(const char * uniform_name) const;
 

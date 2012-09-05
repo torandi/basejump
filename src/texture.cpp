@@ -206,7 +206,7 @@ void Texture2D::texture_unbind() const {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-const GLint Texture2D::gl_texture() const {
+GLint Texture2D::gl_texture() const {
 	return _texture;
 }
 
@@ -424,7 +424,7 @@ Texture3D::~Texture3D(){
 	glDeleteTextures(1, &_texture);
 }
 
-const int Texture3D::depth() const {
+int Texture3D::depth() const {
 	return _depth;
 }
 
@@ -437,6 +437,6 @@ void Texture3D::texture_unbind() const {
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
-const GLint Texture3D::gl_texture() const {
+GLint Texture3D::gl_texture() const {
 	return _texture;
 }
