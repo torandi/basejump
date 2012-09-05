@@ -2,7 +2,7 @@ class Camera;
 class CL;
 class Color;
 class Data;
-class Light;
+struct Light;
 class Mesh;
 class MovableObject;
 class Music;
