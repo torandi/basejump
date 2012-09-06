@@ -244,6 +244,7 @@ static void init(bool fullscreen, bool vsync, double seek){
 	fprintf(verbose, "Preloading textures\n");
 	Texture2D::preload("default.jpg");
 	Texture2D::preload("default_normalmap.jpg");
+	Texture2D::preload("white.jpg");
 
 	Engine::init();
 
