@@ -13,6 +13,12 @@ static long file_size(FILE* fp){
 	fseek (fp , 0 , SEEK_END);
 	const long bytes = ftell(fp);
 	fseek(fp, cur, SEEK_SET);
+
+	if ( bytes == -1 ){
+		fprintf(stderr, "ftell(%d) failed: %s\n", fileno(fp), strerror(errno));
+		abort();
+	}
+
 	return bytes;
 }
 
@@ -38,7 +44,7 @@ void * Data::load_from_file(const char * filename, size_t &size) {
 		return nullptr;
 	}
 
-	size = file_size(file);
+	size = (size_t)file_size(file);
 
 	void* data = malloc(size);
 	const size_t res = fread(data, 1, size, file);
