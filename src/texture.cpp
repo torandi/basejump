@@ -206,7 +206,7 @@ void Texture2D::texture_unbind() const {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-GLint Texture2D::gl_texture() const {
+GLuint Texture2D::gl_texture() const {
 	return _texture;
 }
 
@@ -437,6 +437,6 @@ void Texture3D::texture_unbind() const {
 	glBindTexture(GL_TEXTURE_3D, 0);
 }
 
-GLint Texture3D::gl_texture() const {
+GLuint Texture3D::gl_texture() const {
 	return _texture;
 }

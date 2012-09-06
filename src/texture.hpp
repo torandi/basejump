@@ -50,7 +50,7 @@ public:
 	static Texture2D* default_specularmap();
 	static Texture2D* default_alphamap();
 
-	GLint gl_texture() const;
+	GLuint gl_texture() const;
 
 	virtual void texture_bind(Shader::TextureUnit unit) const;
 	virtual void texture_unbind() const;
@@ -69,7 +69,7 @@ public:
 	static Texture3D * __SENTINEL__ from_filename(const char* filename, ...);
 	static Texture3D * from_filename(const std::vector<std::string>& paths, bool mipmap = false);
 
-	GLint gl_texture() const;
+	GLuint gl_texture() const;
 
 	virtual void texture_bind(Shader::TextureUnit unit) const;
 	virtual void texture_unbind() const;
