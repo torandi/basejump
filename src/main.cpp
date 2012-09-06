@@ -218,6 +218,7 @@ static void init(bool fullscreen, bool vsync, double seek){
 		fprintf(stderr, "Failed to initialize GLEW: %s\n", glewGetErrorString(ret));
 		exit(1);
 	}
+	fprintf(verbose,"OpenGL Device: %s - %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
 
 	Engine::setup_opengl();
 	Shader::initialize();
