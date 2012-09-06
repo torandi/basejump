@@ -66,7 +66,9 @@ int PointTable::parse(char* data){
 	if ( !(t && x && y && z) ){
 		return 1;
 	}
-	p.push_back(entry({(float)atof(t), glm::vec3(atof(x), atof(y), atof(z))}));
+
+	const entry tmp = {(float)atof(t), glm::vec3(atof(x), atof(y), atof(z))};
+	p.push_back(tmp);
 	return 0;
 }
 
@@ -111,7 +113,8 @@ XYLerpTable::XYLerpTable(const std::string& filename){
 		fprintf(stderr, "%s: XYLerpTable requires at least two points, table ignored.\n", filename.c_str());
 		p.clear();
 		while ( p.size() < 2 ){
-			p.push_back(entry({0.0f, glm::vec2(0.0f, 0.0f)}));
+			const entry tmp = {0.0f, glm::vec2(0.0f, 0.0f)};
+			p.push_back(tmp);
 		}
 	}
 }
@@ -123,7 +126,9 @@ int XYLerpTable::parse(char* data){
 	if ( !(t && x && y) ){
 		return 1;
 	}
-	p.push_back(entry({(float)atof(t), glm::vec2(atof(x), atof(y))}));
+	const entry tmp = {(float)atof(t), glm::vec2(atof(x), atof(y))};
+	p.push_back(tmp);
+
 	return 0;
 }
 
