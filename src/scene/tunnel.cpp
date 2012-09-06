@@ -13,6 +13,7 @@
 #include "shader.hpp"
 #include "timetable.hpp"
 #include "skybox.hpp"
+#include <memory>
 
 static glm::vec3 offset(0,1.5,0);
 
@@ -69,9 +70,8 @@ public:
 		const size_t num_segment = 8;
 		const size_t num_vertices = num_segment * per_segment;
 		num_indices = (per_segment-1)*4*(num_segment-1);
-		//num_indices = (per_segment-1)*4;
-		Shader::vertex_t vertices[num_vertices];
-		unsigned int indices[num_indices];
+		std::unique_ptr<Shader::vertex_t[]> vertices(new Shader::vertex_t[num_vertices]);
+		std::unique_ptr<unsigned int[]> indices(new unsigned int[num_indices]);
 
 		/* generate vertices */
 		for ( unsigned int seg = 0; seg < num_segment; seg++ ){
@@ -101,10 +101,10 @@ public:
 		/* upload to gpu */
 		glGenBuffers(2, vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Shader::vertex_t) * num_vertices, vertices.get(), GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, indices.get(), GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
@@ -131,7 +131,7 @@ public:
 		glVertexAttribPointer(Shader::ATTR_BITANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*)offsetof(Shader::vertex_t, bitangent));
 		glVertexAttribPointer(Shader::ATTR_COLOR,     4, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*)offsetof(Shader::vertex_t, color));
 
-		material.activate();		
+		material.activate();
 		glDrawElements(GL_QUADS, num_indices, GL_UNSIGNED_INT, 0);
 		material.deactivate();
 	}
