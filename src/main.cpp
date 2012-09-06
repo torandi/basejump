@@ -174,7 +174,7 @@ static void do_loading_scene() {
 
 		/* fixed framerate */
 		if ( delay > 0 ){
-			usleep(delay);
+			util_usleep(delay);
 		}
 	}
 }
@@ -366,7 +366,7 @@ static void magic_stuff(){
 
 		/* fixed framerate */
 		if ( delay > 0 ){
-			usleep(delay);
+			util_usleep(delay);
 		}
 	}
 }
