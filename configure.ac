@@ -72,7 +72,7 @@ VENDOR_CFLAGS=""
 VENDOR_LIBS=""
 AC_ARG_ENABLE([vendor-libs], [AS_HELP_STRING([--enable-vendor-libs], [Use libraries from vendor folder instead of system. @<:@default=enabled@:>@])], [], [enable_vendor_libs="yes"])
 AS_IF([test "x$enable_vendor_libs" == "xyes"], [
-	VENDOR_CFLAGS="-I \${top_srcdir}/vendor/include"
+	VENDOR_CFLAGS="-isystem \${top_srcdir}/vendor/include"
 	VENDOR_LIBS="-L \${top_srcdir}/vendor/libs/$arch -Wl,--rpath \${top_srcdir}/vendor/libs/$arch"
 ])
 AC_SUBST(VENDOR_CFLAGS)
