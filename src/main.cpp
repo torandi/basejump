@@ -332,13 +332,12 @@ static void magic_stuff(){
 	long t = util_utime();
 
 	while ( running ){
-		poll();
-
 		/* calculate dt */
 		const long cur = util_utime();
 		const long delta = cur - t;
 		const long delay = per_frame - delta;
 
+		poll();
 		global_time.update();
 		update(global_time.dt());
 		render();
