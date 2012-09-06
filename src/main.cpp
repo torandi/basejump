@@ -147,30 +147,21 @@ static void do_loading_scene() {
 
 	loading_shader->bind();
 	/* for calculating dt */
-	struct timeval t, last;
-	gettimeofday(&t, NULL);
-	last = t;
+	long t = util_utime();
 
 	while(running && ( ( loading && loading_time < 1.f) || (!loading && loading_time < 2.0f))) {
-		poll();
 		/* calculate dt */
-		struct timeval cur;
-		gettimeofday(&cur, NULL);
-		const uint64_t delta = (cur.tv_sec - t.tv_sec) * 1000000 + (cur.tv_usec - t.tv_usec);
-		const  int64_t delay = per_frame - delta;
+		const long cur = util_utime();
+		const long delta = cur - t;
+		const long delay = per_frame - delta;
 
 		loading_time += 1.0/framerate;
 
+		poll();
 		render_loading_scene();
 
-
 		/* move time forward */
-		last = cur;
-		t.tv_usec += per_frame;
-		if ( t.tv_usec > 1000000 ){
-			t.tv_usec -= 1000000;
-			t.tv_sec++;
-		}
+		t += per_frame;
 
 		/* fixed framerate */
 		if ( delay > 0 ){
@@ -338,18 +329,15 @@ static void update(float dt){
 
 static void magic_stuff(){
 	/* for calculating dt */
-	struct timeval t, last;
-	gettimeofday(&t, NULL);
-	last = t;
+	long t = util_utime();
 
 	while ( running ){
 		poll();
 
 		/* calculate dt */
-		struct timeval cur;
-		gettimeofday(&cur, NULL);
-		const uint64_t delta = (cur.tv_sec - t.tv_sec) * 1000000 + (cur.tv_usec - t.tv_usec);
-		const  int64_t delay = per_frame - delta;
+		const long cur = util_utime();
+		const long delta = cur - t;
+		const long delay = per_frame - delta;
 
 		global_time.update();
 		update(global_time.dt());
@@ -357,12 +345,7 @@ static void magic_stuff(){
 
 		/* move time forward */
 		frames++;
-		last = cur;
-		t.tv_usec += per_frame;
-		if ( t.tv_usec > 1000000 ){
-			t.tv_usec -= 1000000;
-			t.tv_sec++;
-		}
+		t += per_frame;
 
 		/* fixed framerate */
 		if ( delay > 0 ){
