@@ -63,9 +63,9 @@ public:
 	void reset();
 
 	/**
-	 * Get current time as timeval.
+	 * Get current time in µs.
 	 */
-	const struct timeval& timeval() const;
+	long utime() const;
 
 	/**
 	 * Get the previous (scaled) delta.
@@ -81,7 +81,7 @@ public:
 private:
 	void move(long int usec);
 
-	struct timeval current;
+	long current;
 	float prev;
 	int delta;
 	int scale;

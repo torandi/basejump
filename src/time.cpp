@@ -9,7 +9,7 @@
 #define USDIVIDER 1000000
 
 Time::Time(int delta)
-	: current({0,0})
+	: current(0)
 	, prev(0.0f)
 	, delta(delta)
 	, scale(0)
@@ -71,24 +71,18 @@ void Time::set_paused(bool state){
 }
 
 float Time::get() const {
-	return (float)current.tv_sec + (float)current.tv_usec / USDIVIDER;
+	return (float)current / USDIVIDER;
 }
 
 void Time::set(unsigned long steps){
-	current.tv_sec = 0;
-	current.tv_usec = 0;
-
-	/* must move in steps so the jump does not overflow */
-	while ( steps --> 0 ){
-		move(delta);
-	}
+	current = steps * delta;
 }
 
 void Time::reset(){
 	set(0);
 }
 
-const struct timeval& Time::timeval() const {
+long Time::utime() const {
 	return current;
 }
 
@@ -110,23 +104,5 @@ bool Time::sync_to_music(const Music * m) {
 
 void Time::move(long int usec){
 	prev = (float)usec / USDIVIDER;
-	if ( usec > 0 ){ /* forward */
-		current.tv_usec += usec;
-		while ( current.tv_usec > USDIVIDER ){
-			current.tv_usec -= USDIVIDER;
-			current.tv_sec++;
-		}
-	} else { /* backward */
-		usec = abs(usec);
-
-		while ( usec > current.tv_usec && current.tv_sec > 0 ){
-			current.tv_usec += USDIVIDER;
-			current.tv_sec--;
-		}
-		if ( usec > current.tv_usec ){
-			current.tv_usec = 0;
-			set_paused(true);
-		}
-		current.tv_usec -= usec;
-	}
+	current += usec;
 }
