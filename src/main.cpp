@@ -222,7 +222,7 @@ static void init(bool fullscreen, bool vsync, double seek){
 		SDL_ShowCursor(SDL_DISABLE);
 	}
 
-	int ret;
+	GLenum ret;
 	if ( (ret=glewInit()) != GLEW_OK ){
 		fprintf(stderr, "Failed to initialize GLEW: %s\n", glewGetErrorString(ret));
 		exit(1);
