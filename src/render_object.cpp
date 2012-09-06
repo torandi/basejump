@@ -52,7 +52,7 @@ RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int
 		);
 
 	if ( !scene ) {
-		printf("Failed to load model %s\n", real_path.c_str());
+		printf("Failed to load model `%s': %s\n", real_path.c_str(), aiGetErrorString());
 		return;
 	}
 
