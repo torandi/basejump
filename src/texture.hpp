@@ -66,7 +66,7 @@ public:
 
 	virtual ~Texture3D();
 
-	static Texture3D * from_filename(const char* filename, ...) __attribute__((sentinel));
+	static Texture3D * __SENTINEL__ from_filename(const char* filename, ...);
 	static Texture3D * from_filename(const std::vector<std::string>& paths, bool mipmap = false);
 
 	const GLint gl_texture() const;
@@ -114,7 +114,7 @@ class TextureArray: public TextureBase {
 public:
 	virtual ~TextureArray();
 
-	static TextureArray* from_filename(const char* filename, ...) __attribute__((sentinel));
+	static TextureArray* __SENTINEL__ from_filename(const char* filename, ...);
 	static TextureArray* from_filename(const std::vector<std::string>& paths, bool mipmap = true);
 
 	size_t num_textures() const;

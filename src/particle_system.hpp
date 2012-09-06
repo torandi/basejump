@@ -17,7 +17,7 @@ class ParticleSystem : public MovableObject {
 		void update_config();
 
 		//Change values in this struct and call update_config() to update
-		struct {
+		struct __ALIGNED__(16) {
 
 			glm::vec4 birth_color;
 
@@ -59,17 +59,17 @@ class ParticleSystem : public MovableObject {
 			int num_textures;
 			int max_num_particles;
 
-		} config __attribute__ ((aligned (16)));
+		} config;
 
 		float avg_spawn_rate; //Number of particles to spawn per second
 		float spawn_rate_var;
 
-		struct vertex_t {
+		struct __ALIGNED__(16) vertex_t {
 			glm::vec4 position;
 			glm::vec4 color;
 			float scale;
 			int texture_index;
-		} __attribute__ ((aligned (16)));
+		};
 
 		virtual void callback_position(const glm::vec3 &position);
 
@@ -88,7 +88,7 @@ class ParticleSystem : public MovableObject {
 		cl::Program program_;
 		cl::Kernel run_kernel_, spawn_kernel_;
 
-		struct particle_t {
+		struct __ALIGNED__(16) particle_t {
 			glm::vec4 direction;
 
 			float ttl;
@@ -100,7 +100,7 @@ class ParticleSystem : public MovableObject {
 			float final_scale;
 			float org_ttl;
 			int dead;
-		} __attribute__ ((aligned (16))) ;
+		};
 
 		TextureArray* texture_;
 };

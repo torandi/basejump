@@ -134,7 +134,7 @@ public:
 
 	struct material_t {
 		float shininess;
-		glm::vec4 diffuse __attribute__ ((aligned (16)));
+		glm::vec4 __ALIGNED__(16) diffuse;
 		glm::vec4 specular;
 		glm::vec4 ambient;
 		glm::vec4 emission;

@@ -16,7 +16,7 @@ struct Light {
 	float quadratic_attenuation;
 	light_type_t type;
 	glm::vec3 intensity;
-	glm::vec3 position __attribute__ ((aligned (16)));
+	glm::vec3 __ALIGNED__(16) position;
 };
 
 #endif
