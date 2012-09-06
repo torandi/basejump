@@ -22,7 +22,6 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <getopt.h>
 #include <map>
 
 #ifdef HAVE_UNISTD_H
