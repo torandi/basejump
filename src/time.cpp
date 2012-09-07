@@ -10,7 +10,7 @@
 
 Time::Time(int delta)
 	: current(0)
-	, prev(0.0f)
+	, last_dt(0.0f)
 	, delta(delta)
 	, scale(0)
 	, steps(0)
@@ -91,7 +91,7 @@ long Time::utime() const {
 }
 
 float Time::dt() const {
-	return prev;
+	return last_dt;
 }
 
 bool Time::sync_to_music(const Sound* m) {
@@ -107,6 +107,6 @@ bool Time::sync_to_music(const Sound* m) {
 }
 
 void Time::move(long int usec){
-	prev = (float)usec / USDIVIDER;
+	last_dt = (float)usec / USDIVIDER;
 	current += usec;
 }

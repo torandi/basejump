@@ -68,7 +68,7 @@ public:
 	long utime() const;
 
 	/**
-	 * Get the previous (scaled) delta.
+	 * Get the previous (scaled) delta in seconds.
 	 */
 	float dt() const;
 
@@ -87,7 +87,7 @@ private:
 	long update_delta();
 
 	long current;
-	float prev;
+	float last_dt;
 	int delta;
 	int scale;
 	int steps;
