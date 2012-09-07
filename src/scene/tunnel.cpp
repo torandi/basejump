@@ -40,7 +40,7 @@ static float arc[][3] = {
 	{0.000000,  1.586274, 0.95f},
 	{0.000000,  3.966543, 1.00f},
 };
-static constexpr size_t per_segment = sizeof(arc) / (3*sizeof(float));
+static const size_t per_segment = sizeof(arc) / (3*sizeof(float));
 
 static float noise_x(float s, unsigned int i){
 	return sin(s * 28.0 + i % (per_segment-1)) * 0.2f + sin(s * 943.0f) * 0.7f;
