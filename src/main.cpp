@@ -379,7 +379,7 @@ static struct option options[] = {
 	{"resolution",   required_argument, 0, 'r'},
 	{"fullscreen",   no_argument,       &fullscreen, 1},
 	{"windowed",     no_argument,       &fullscreen, 0},
-	{"seek" ,				 required_argument, 0, 's'},
+	{"seek",         required_argument, 0, 's'},
 	{"no-vsync",     no_argument,       &vsync, 0},
 	{"verbose",      no_argument,       &verbose_flag, 1},
 	{"quiet",        no_argument,       &verbose_flag, 0},
