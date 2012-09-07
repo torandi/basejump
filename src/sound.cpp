@@ -24,7 +24,7 @@ void Sound::initialize_fmod() {
 
 void Sound::errcheck(const char * contex) {
 	if(result_ != FMOD_OK) {
-		printf("[Sound] FMOD error in %s %s(%d))\n", contex, FMOD_ErrorString(result_), result_);
+		fprintf(stderr, "[Sound] FMOD error in %s %s(%d))\n", contex, FMOD_ErrorString(result_), result_);
 		abort();
 	}
 }
@@ -41,7 +41,7 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 	const std::string real_path = PATH_BASE "music/" + std::string(file);
 	source = Data::open(real_path);
 	if(source == NULL) {
-		printf("[Sound] Couldn't open file %s\n", real_path.c_str());
+		fprintf(stderr, "[Sound] Couldn't open file %s\n", real_path.c_str());
 		abort();
 	}
 
@@ -57,7 +57,7 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 	errcheck("set loops");
 	if(mute_sound) {
 		channel_->setMute(true);
-		printf("WARNING! Sound is MUTED!\n");
+		fprintf(stderr, "WARNING! Sound is MUTED!\n");
 	}
 
 	sound_usage_count_ = new int;
