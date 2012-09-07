@@ -2,12 +2,14 @@
 #error This header should only be included when compiling under MSVC.
 #endif
 
+/* missing definition of ssize_t (signed version of size_t) */
 #ifdef  _WIN64
 typedef unsigned __int64 ssize_t;
 #elif defined(_WIN32)
 typedef signed int ssize_t;
 #endif
 
+/* missing definitions of M_PI and friends */
 #define M_E 2.71828182845904523536
 #define M_LOG2E 1.44269504088896340736
 #define M_LOG10E 0.434294481903251827651
@@ -22,3 +24,20 @@ typedef signed int ssize_t;
 #define M_2_SQRTPI 1.12837916709551257390
 #define M_SQRT2 1.41421356237309504880
 #define M_SQRT_2 0.707106781186547524401
+
+/* Windows.h must be included early since it defines crap which must be undefined */
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#define NOCOMM
+#define NOSOUND
+#include <Windows.h>
+
+/* Fuck you microsoft, sincerly - me */
+#undef near
+#undef far
+
+/* missing functions */
+static inline int isblank(char c) { return (c == ' ' || c == '\t'); };
+static inline double round(double x){ return x >= 0.0  ? floor(x + 0.5)   : ceil(x - 0.5);   }
+static inline float  roundf(float x){ return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f); }
