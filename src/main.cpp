@@ -22,11 +22,14 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <getopt.h>
 #include <map>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
 #endif
 
 #include "light.hpp"
@@ -364,6 +367,19 @@ static void magic_stuff(){
 	}
 }
 
+static void __UNUSED__  set_resolution(const char* str){
+	glm::ivec2 tmp;
+	int n = sscanf(str, "%dx%d", &tmp.x, &tmp.y);
+	if ( n != 2 || tmp.x <= 0 || tmp.y <= 0 ){
+		fprintf(stderr, "%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, optarg);
+		return;
+	}
+
+	resolution = tmp;
+	resolution_given = true;
+}
+
+#ifdef HAVE_GETOPT_H
 void show_usage(){
 	printf(NAME " (" PACKAGE_NAME "-" VERSION ")\n"
 	       "usage: %s [OPTIONS]\n"
@@ -394,18 +410,6 @@ static struct option longopts[] = {
 	{"help",         no_argument,       0, 'h'},
 	{0,0,0,0} /* sentinel */
 };
-
-static void set_resolution(const char* str){
-	glm::ivec2 tmp;
-	int n = sscanf(str, "%dx%d", &tmp.x, &tmp.y);
-	if ( n != 2 || tmp.x <= 0 || tmp.y <= 0 ){
-		fprintf(stderr, "%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, optarg);
-		return;
-	}
-
-	resolution = tmp;
-	resolution_given = true;
-}
 
 static void parse_argv(int argc, char* argv[]){
 	int op, option_index;
@@ -456,6 +460,14 @@ static void parse_argv(int argc, char* argv[]){
 		}
 	};
 }
+
+#else /* HAVE_GETOPT_H */
+static void parse_argv(int argc, char* argv[]){
+	if ( argc > 1 ){
+		fprintf(stderr, "%s: warning: argument parsing has been disabled at compile-time.\n", program_name);
+	}
+}
+#endif
 
 int main(int argc, char* argv[]){
 	/* extract program name from path. e.g. /path/to/MArCd -> MArCd */
