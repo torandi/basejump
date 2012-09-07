@@ -29,7 +29,7 @@
 #endif
 
 #include "light.hpp"
-#include "music.hpp"
+#include "sound.hpp"
 
 static RenderTarget* composition = nullptr;
 static RenderTarget* blend = nullptr;
@@ -38,7 +38,7 @@ static Texture2D* text[NUM_TEXT_TEXTURES];
 static Quad* textarea = nullptr;
 static std::map<std::string, Scene*> scene;
 
-static Music * music;
+static Sound* sound;
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
@@ -73,18 +73,18 @@ namespace Engine {
 
 		load_timetable(PATH_BASE "/src/nox2.txt");
 
-		music = new Music("jumping.ogg");
+		sound = new Sound("jumping.ogg");
 	}
 
 	void start(double seek) {
-		music->play();
-		if(global_time.sync_to_music(music)) {
+		sound->play();
+		if(global_time.sync_to_music(sound)) {
 			fprintf(verbose, "Syncinc to music!\n");
 		} else {
 			printf("Warning! Syncing disabled!\n");
 		}
 		if(seek > 0.1) {
-			music->seek(seek);
+			sound->seek(seek);
 		}
 	}
 
@@ -92,7 +92,7 @@ namespace Engine {
 		for ( std::pair<std::string,Scene*> p : scene ){
 			delete p.second;
 		}
-		delete music;
+		delete sound;
 
 		Shader::usage_report(stderr);
 		Shader::cleanup();

@@ -3,7 +3,7 @@
 #endif
 
 #include "time.hpp"
-#include "music.hpp"
+#include "sound.hpp"
 #include <cstdlib>
 
 #define USDIVIDER 1000000
@@ -15,7 +15,7 @@ Time::Time(int delta)
 	, scale(0)
 	, steps(0)
 	, paused(true)
-	, music(nullptr) {
+	, sound(nullptr) {
 
 }
 
@@ -28,15 +28,15 @@ void Time::update(){
 		return;
 	}
 
-	if(music == nullptr) {
+	if ( sound == nullptr ) {
 		/* normal flow */
 		const float k = (float)scale / 100.0f;
 		const long int usec = delta * k;
 		move(usec);
 	} else {
-		double cur_time = music->time();
-		const long int usec = USDIVIDER * (cur_time - music_last_time);
-		music_last_time = cur_time;
+		double cur_time = sound->time();
+		const long int usec = USDIVIDER * (cur_time - sound_last_time);
+		sound_last_time = cur_time;
 		move(usec);
 	}
 }
@@ -90,13 +90,13 @@ float Time::dt() const {
 	return prev;
 }
 
-bool Time::sync_to_music(const Music * m) {
-	music_last_time = m->time();
-	if(music_last_time < 0) {
+bool Time::sync_to_music(const Sound* m) {
+	sound_last_time = m->time();
+	if(sound_last_time < 0) {
 		//Syncing is not available
 		return false;
 	} else {
-		music = m;
+		sound = m;
 		reset();
 		return true;
 	}

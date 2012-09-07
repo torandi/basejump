@@ -76,7 +76,7 @@ public:
 	 * Sync time to music.
 	 * Returns true if it was possible, false if it failed (eg can't get time data from sound device)
 	 */
-	bool sync_to_music(const Music * music);
+	bool sync_to_music(const Sound* music);
 
 private:
 	void move(long int usec);
@@ -87,8 +87,8 @@ private:
 	int scale;
 	int steps;
 	bool paused;
-	double music_last_time;
-	const Music * music;
+	double sound_last_time;
+	const Sound* sound;
 };
 
 #endif /* TIME_HPP */
