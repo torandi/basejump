@@ -362,8 +362,8 @@ void show_usage(){
 	       "                          current resolution in fullscreen.)\n"
 	       "  -f, --fullscreen        Enable fullscreen mode (default: %s)\n"
 	       "  -w, --windowed          Inverse of --fullscreen.\n"
-				 "  -s, --seek=time         Seek to the given time\n"
-				 "  -n, --no-vsync          Disable vsync\n"
+	       "  -s, --seek=TIME         Seek to the given time in seconds.\n"
+	       "  -n, --no-vsync          Disable vsync.\n"
 	       "  -v, --verbose           Enable verbose output to stdout (redirected to " LOGFILE " otherwise)\n"
 	       "  -q, --quiet             Inverse of --verbose.\n"
 				 "  -l, --no-loading        Don't show loading scene (faster load).\n"
@@ -371,20 +371,16 @@ void show_usage(){
 	       program_name, FULLSCREEN ? "true" : "false");
 }
 
-static int fullscreen = FULLSCREEN;
-static int vsync = 1;
-static int verbose_flag = 0;
-
-static const char* shortopts = "r:fws:nvqlh";
+static const char* shortopts = "r:s:fwnvqlh";
 static struct option longopts[] = {
 	{"resolution",   required_argument, 0, 'r'},
-	{"fullscreen",   no_argument,       &fullscreen, 1},
-	{"windowed",     no_argument,       &fullscreen, 0},
 	{"seek",         required_argument, 0, 's'},
-	{"no-vsync",     no_argument,       &vsync, 0},
-	{"verbose",      no_argument,       &verbose_flag, 1},
-	{"quiet",        no_argument,       &verbose_flag, 0},
-	{"no-loading",   no_argument,       &skip_load_scene, 1},
+	{"fullscreen",   no_argument,       0, 'f'},
+	{"windowed",     no_argument,       0, 'w'},
+	{"no-vsync",     no_argument,       0, 'n'},
+	{"verbose",      no_argument,       0, 'v'},
+	{"quiet",        no_argument,       0, 'q'},
+	{"no-loading",   no_argument,       0, 'l'},
 	{"help",         no_argument,       0, 'h'},
 	{0,0,0,0} /* sentinel */
 };
@@ -398,7 +394,11 @@ int main(int argc, char* argv[]){
 		program_name = argv[0];
 	}
 
-	double seek=0.0;
+	/* configuration */
+	double seek = 0.0;
+	bool fullscreen = FULLSCREEN;
+	bool vsync = true;
+	int verbose_flag = 0;
 
 	/* parse arguments */
 	int op, option_index;
