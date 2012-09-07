@@ -8,21 +8,25 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <ctime>
 
 #include "cl.hpp"
 #include "globals.hpp"
 #include "utils.hpp"
 
-ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* texture)
+ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* texture, bool oneshot)
 	:
 		avg_spawn_rate(max_num_particles/10.f)
 	, spawn_rate_var(avg_spawn_rate/100.f)
 	,	max_num_particles_(max_num_particles)
+	, spawn_(!oneshot)
 	,	texture_(texture) {
 
 	program_ = opencl->create_program("particles.cl");
 	run_kernel_  = opencl->load_kernel(program_, "run_particles");
-	spawn_kernel_  = opencl->load_kernel(program_, "spawn_particles");
+	if(spawn_) spawn_kernel_  = opencl->load_kernel(program_, "spawn_particles");
+
+	printf("Created particle system with %d particles\n", max_num_particles);
 
 	//Empty vec4s:
 	vertex_t * empty = new vertex_t[max_num_particles];
@@ -48,18 +52,17 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 
 	particle_t * initial_particles = new particle_t[max_num_particles];
 	for(int i=0; i<max_num_particles; ++i) {
-		initial_particles[i].dead = 1; //mark as dead
+		initial_particles[i].dead = oneshot? 2 : 1; //mark as dead or respawn
 	}
 
 	//Create cl buffers:
-	cl_gl_buffers_.push_back(opencl->create_gl_buffer(CL_MEM_READ_WRITE, gl_buffer_));
+	cl_gl_buffers_.push_back(opencl->create_gl_buffer(CL_MEM_READ_WRITE , gl_buffer_));
 
 	particles_ = opencl->create_buffer(CL_MEM_READ_WRITE, sizeof(particle_t)*max_num_particles);
 	config_ = opencl->create_buffer(CL_MEM_READ_ONLY, sizeof(config));
-	spawn_rate_  = opencl->create_buffer(CL_MEM_READ_WRITE, sizeof(cl_int));
+	if(spawn_) spawn_rate_  = opencl->create_buffer(CL_MEM_READ_WRITE, sizeof(cl_int));
 
 	random_ = opencl->create_buffer(CL_MEM_READ_ONLY, sizeof(float)*max_num_particles);
-	srand(time(0));
 
 	float * rnd = new float[max_num_particles];
 
@@ -87,16 +90,18 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	err = run_kernel_.setArg(3, random_);
 	CL::check_error(err, "[ParticleSystem] run: Set arg 3");
 
-	err = spawn_kernel_.setArg(0, cl_gl_buffers_[0]);
-	CL::check_error(err, "[ParticleSystem] spawn: Set arg 0");
-	err = spawn_kernel_.setArg(1, particles_);
-	CL::check_error(err, "[ParticleSystem] spawn: Set arg 1");
-	err = spawn_kernel_.setArg(2, config_);
-	CL::check_error(err, "[ParticleSystem] spawn: Set arg 2");
-	err = spawn_kernel_.setArg(3, random_);
-	CL::check_error(err, "[ParticleSystem] spawn: Set arg 3");
-	err = spawn_kernel_.setArg(4, spawn_rate_);
-	CL::check_error(err, "[ParticleSystem] spawn: Set arg 4");
+	if(spawn_) {
+		err = spawn_kernel_.setArg(0, cl_gl_buffers_[0]);
+		CL::check_error(err, "[ParticleSystem] spawn: Set arg 0");
+		err = spawn_kernel_.setArg(1, particles_);
+		CL::check_error(err, "[ParticleSystem] spawn: Set arg 1");
+		err = spawn_kernel_.setArg(2, config_);
+		CL::check_error(err, "[ParticleSystem] spawn: Set arg 2");
+		err = spawn_kernel_.setArg(3, random_);
+		CL::check_error(err, "[ParticleSystem] spawn: Set arg 3");
+		err = spawn_kernel_.setArg(4, spawn_rate_);
+		CL::check_error(err, "[ParticleSystem] spawn: Set arg 4");
+	}
 
 	//Set default values in config:
 
@@ -158,15 +163,18 @@ void ParticleSystem::update(float dt) {
 	cl_int err;
 
 	//Make sure opengl is done with our vbos
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glFinish();
 
 	cl::Event lock_e, e, e2, e3;
 
-	//Write number of particles to spawn this round:
-	cl_int current_spawn_rate = (cl_int) round((avg_spawn_rate + 2.f*frand()*spawn_rate_var - spawn_rate_var)*dt);
-	err = opencl->queue().enqueueWriteBuffer(spawn_rate_, CL_TRUE, 0, sizeof(cl_int), &current_spawn_rate, NULL, NULL);
+	if(spawn_) {
+		//Write number of particles to spawn this round:
+		cl_int current_spawn_rate = (cl_int) round((avg_spawn_rate + 2.f*frand()*spawn_rate_var - spawn_rate_var)*dt);
+		err = opencl->queue().enqueueWriteBuffer(spawn_rate_, CL_TRUE, 0, sizeof(cl_int), &current_spawn_rate, NULL, NULL);
+	}
 
-	err = opencl->queue().enqueueAcquireGLObjects(&cl_gl_buffers_, NULL, &lock_e);
+	err = opencl->queue().enqueueAcquireGLObjects((std::vector<cl::Memory>*) &cl_gl_buffers_, NULL, &lock_e);
 	CL::check_error(err, "[ParticleSystem] acquire gl objects");
 
 
@@ -175,27 +183,50 @@ void ParticleSystem::update(float dt) {
 	err = run_kernel_.setArg(5, (int)(time(0)%UINT_MAX));
 	CL::check_error(err, "[ParticleSystem] run: set time");
 
-	err = spawn_kernel_.setArg(5, (int)(time(0)%UINT_MAX));
-	CL::check_error(err, "[ParticleSystem] spawn: set time");
+	if(spawn_) {
+		err = spawn_kernel_.setArg(5, (int)(time(0)%UINT_MAX));
+		CL::check_error(err, "[ParticleSystem] spawn: set time");
+	}
 
 	opencl->queue().flush();
 
 	lock_e.wait();
 
 	std::vector<cl::Event> queue;
-	queue.push_back(cl::Event());
 
-	err = opencl->queue().enqueueNDRangeKernel(spawn_kernel_, cl::NullRange, cl::NDRange(max_num_particles_), cl::NullRange, NULL, &queue[0]);
-	CL::check_error(err, "[ParticleSystem] Execute spawn_kernel");
+	if(spawn_) {
+		queue.push_back(cl::Event());
+		err = opencl->queue().enqueueNDRangeKernel(spawn_kernel_, cl::NullRange, cl::NDRange(max_num_particles_), cl::NullRange, NULL, &queue[0]);
+		CL::check_error(err, "[ParticleSystem] Execute spawn_kernel");
 
-	opencl->queue().flush();
+		opencl->queue().flush();
+	}
 
 	err = opencl->queue().enqueueNDRangeKernel(run_kernel_, cl::NullRange, cl::NDRange(max_num_particles_), cl::NullRange, &queue, &e);
 	CL::check_error(err, "[ParticleSystem] Execute run_kernel");
 
 	//render_blocking_events_.push_back(e2);
+/*
+	vertex_t * vertices = (vertex_t* ) opencl->queue().enqueueMapBuffer(cl_gl_buffers_[0], CL_TRUE, CL_MAP_READ, 0, sizeof(particle_t)*max_num_particles_, NULL, NULL, &err);
 
-	err = opencl->queue().enqueueReleaseGLObjects(&cl_gl_buffers_, NULL, &e2);
+	opencl->queue().finish();
+	for(int i=0; i < max_num_particles_; ++i ) {
+		printf("Dir: (%f, %f, %f), ttl: (%f/%f) speed: (%f) scale(%f->%f) rotation speed: %f\n", particles[i].direction.x, particles[i].direction.y,particles[i].direction.z, particles[i].ttl, particles[i].org_ttl, particles[i].speed, particles[i].initial_scale, particles[i].final_scale, particles[i].rotation_speed);
+	}
+
+	*/
+
+	/*
+	vertex_t * vertices = (vertex_t*) opencl->queue().enqueueMapBuffer(cl_gl_buffers_[0], CL_TRUE, CL_MAP_READ, 0, sizeof(particle_t)*max_num_particles_, NULL, NULL, &err);
+
+	opencl->queue().finish();
+	printf("---\n");
+	for(int i=0;i<max_num_particles_; ++i) {
+		printf("Vertex: pos:(%f, %f, %f, %f), color:(%f, %f, %f, %f) scale: %f, texture_index: %i\n", vertices[i].position.x, vertices[i].position.y, vertices[i].position.z, vertices[i].position.w, vertices[i].color.r, vertices[i].color.g, vertices[i].color.b, vertices[i].color.a, vertices[i].scale, vertices[i].texture_index);
+	}
+	opencl->queue().enqueueUnmapMemObject(cl_gl_buffers_[0], vertices, NULL, NULL); */
+
+	err = opencl->queue().enqueueReleaseGLObjects((std::vector<cl::Memory>*)&cl_gl_buffers_, NULL, &e2);
 	CL::check_error(err, "[ParticleSystem] Release GL objects");
 
 	opencl->queue().flush();
@@ -203,11 +234,14 @@ void ParticleSystem::update(float dt) {
 	e.wait();
 	e2.wait();
 
+
+
 	//render_blocking_events_.push_back(e3);
 
 
 	//BEGIN DEBUG
-	/*
+
+/*
 	particle_t * particles = (particle_t*) opencl->queue().enqueueMapBuffer(particles_, CL_TRUE, CL_MAP_READ, 0, sizeof(particle_t)*max_num_particles_, NULL, NULL, &err);
 
 	opencl->queue().finish();
@@ -229,20 +263,27 @@ void ParticleSystem::update(float dt) {
 	opencl->queue().finish();*/
 
 	//END DEBUG
+
+	opencl->queue().finish();
+
+
 }
 
-void ParticleSystem::render() {
-	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_CULL_FACE);
-	glDepthMask(GL_FALSE);
+void ParticleSystem::render(const glm::mat4& m) {
 
-	Shader::upload_model_matrix(matrix());
+	Shader::push_vertex_attribs();
+
+	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
+
+	glDepthMask(GL_FALSE);
+	glDisable(GL_CULL_FACE);
+
+	Shader::upload_model_matrix(m * matrix());
 
 	glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_);
 
-/*
 	//DEBUG
-
+/*
 	vertex_t * vertices = (vertex_t* )glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
 
 	printf("---\n");
@@ -252,9 +293,19 @@ void ParticleSystem::render() {
 
 	printf("Sizeof(vertex_t): %d\n", sizeof(vertex_t));
 
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	if(!glUnmapBuffer(GL_ARRAY_BUFFER)) {
+		printf("glUnmapBuffer returned False\n");
+		abort();
+	}
+	*/
+
+
 	//END DEBUG
-*/
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (GLvoid*) sizeof(glm::vec4));
@@ -265,5 +316,9 @@ void ParticleSystem::render() {
 	glDrawArrays(GL_POINTS, 0, max_num_particles_);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	glPopAttrib();
+
+	Shader::pop_vertex_attribs();
+
 }

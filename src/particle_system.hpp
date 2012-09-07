@@ -8,11 +8,11 @@
 class ParticleSystem : public MovableObject {
 	public:
 
-		ParticleSystem(const int max_num_particles, TextureArray* texture);
+		ParticleSystem(const int max_num_particles, TextureArray* texture, bool oneshot=false);
 		~ParticleSystem();
 
 		void update(float dt);
-		void render();
+		void render(const glm::mat4& m = glm::mat4());
 
 		void update_config();
 
@@ -77,12 +77,14 @@ class ParticleSystem : public MovableObject {
 
 		const int max_num_particles_;
 
+		bool spawn_; //set to false to stop spawning, must not be changed to true from false (but other way is ok)
+
 		//Texture * texture_;
 
 		// Buffer 0: position buffer 1: color.
 		// Both are set in the opencl-kernel
 		GLuint gl_buffer_;
-		std::vector<cl::Memory> cl_gl_buffers_;
+		std::vector<cl::BufferGL> cl_gl_buffers_;
 		cl::Buffer particles_, config_, random_, spawn_rate_;
 
 		cl::Program program_;
