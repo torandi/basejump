@@ -38,17 +38,12 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 	if(system_usage_ == 0) initialize_fmod();
 	++system_usage_;
 
-	char* real_path = (char*) malloc(sizeof(PATH_BASE) + sizeof(file) + 32);
-	if ( sprintf(real_path, "%s%s", PATH_BASE "music/", file) == -1 ){
-		abort();
-	}
+	const std::string real_path = PATH_BASE "music/" + std::string(file);
 	source = Data::open(real_path);
 	if(source == NULL) {
-		printf("[Sound] Couldn't open file %s\n", real_path);
+		printf("[Sound] Couldn't open file %s\n", real_path.c_str());
 		abort();
 	}
-
-	free(real_path);
 
 	FMOD_CREATESOUNDEXINFO info = {0, };
 	info.cbsize = sizeof(info);
