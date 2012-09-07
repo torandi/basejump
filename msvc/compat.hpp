@@ -38,6 +38,7 @@ typedef signed int ssize_t;
 #undef far
 
 /* missing functions */
+#include <cmath>
 static inline int isblank(char c) { return (c == ' ' || c == '\t'); };
 static inline double round(double x){ return x >= 0.0  ? floor(x + 0.5)   : ceil(x - 0.5);   }
 static inline float  roundf(float x){ return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f); }
