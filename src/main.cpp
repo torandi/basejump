@@ -181,7 +181,7 @@ static void free_loading() {
 	}
 }
 
-static void init(){
+static void init_window(){
 	if ( SDL_Init(SDL_INIT_VIDEO) != 0 ){
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
 		exit(1);
@@ -220,14 +220,30 @@ static void init(){
 		fprintf(stderr, "Failed to initialize GLEW: %s\n", glewGetErrorString(ret));
 		exit(1);
 	}
-	fprintf(verbose,"OpenGL Device: %s - %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
 
-	Engine::setup_opengl();
-	Shader::initialize();
-
+	/* setup window projection matrix */
 	screen_ortho = glm::ortho(0.0f, (float)resolution.x, 0.0f, (float)resolution.y, -1.0f, 1.0f);
 	screen_ortho = glm::scale(screen_ortho, glm::vec3(1.0f, -1.0f, 1.0f));
 	screen_ortho = glm::translate(screen_ortho, glm::vec3(0.0f, -(float)resolution.y, 0.0f));
+
+	/* show OpenGL info */
+	GLint max_texture_units;
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_texture_units);
+	fprintf(verbose, "OpenGL Device: %s - %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
+	fprintf(verbose, "  - Supports %d texture units\n", max_texture_units);
+}
+
+static void preload_resources(){
+	fprintf(verbose, "Preloading textures\n");
+	Texture2D::preload("default.jpg");
+	Texture2D::preload("default_normalmap.jpg");
+	Texture2D::preload("white.jpg");
+}
+
+static void init(){
+	init_window();
+	Engine::setup_opengl();
+	Shader::initialize();
 
 	//Start loading screen:
 	prepare_loading_scene();
@@ -235,19 +251,9 @@ static void init(){
 
 	Engine::autoload_scenes();
 	Engine::load_shaders();
-
-	GLint max_texture_units;
-	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_texture_units);
-	fprintf(verbose, "Supports %d texture units\n", max_texture_units);
-
 	opencl = new CL();
 
-	/* Preload common textures */
-	fprintf(verbose, "Preloading textures\n");
-	Texture2D::preload("default.jpg");
-	Texture2D::preload("default_normalmap.jpg");
-	Texture2D::preload("white.jpg");
-
+	preload_resources();
 	Engine::init();
 
 	//Stop loading scene
