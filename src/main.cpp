@@ -385,6 +385,18 @@ static struct option longopts[] = {
 	{0,0,0,0} /* sentinel */
 };
 
+static void set_resolution(const char* str){
+	glm::ivec2 tmp;
+	int n = sscanf(str, "%dx%d", &tmp.x, &tmp.y);
+	if ( n != 2 || tmp.x <= 0 || tmp.y <= 0 ){
+		fprintf(stderr, "%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, optarg);
+		return;
+	}
+
+	resolution = tmp;
+	resolution_given = true;
+}
+
 int main(int argc, char* argv[]){
 	/* extract program name from path. e.g. /path/to/MArCd -> MArCd */
 	const char* separator = strrchr(argv[0], '/');
@@ -409,18 +421,7 @@ int main(int argc, char* argv[]){
 			break;
 
 		case 'r': /* --resolution */
-		{
-			int w,h;
-			int n = sscanf(optarg, "%dx%d", &w, &h);
-			if ( n != 2 || w <= 0 || h <= 0 ){
-				fprintf(stderr, "%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, optarg);
-			} else {
-				resolution.x = w;
-				resolution.y = h;
-				resolution_given = true;
-			}
-		}
-		break;
+			set_resolution(optarg);
 
 		case 'f': /* --fullscreen */
 			fullscreen = 1;
@@ -436,7 +437,6 @@ int main(int argc, char* argv[]){
 
 		case 's': /* --seek */
 			seek = atof(optarg);
-			printf("Seek to %lf\n", seek);
 			break;
 
 		case 'n': /* --no-vsync */
