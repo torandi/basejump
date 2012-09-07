@@ -47,11 +47,17 @@ CL::CL() {
 		0
 	};
 #elif defined WIN32
-	cl_context_properties properties[] =
-	{
-		CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),
-		CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),
-		CL_CONTEXT_PLATFORM, (cl_context_properties)(platform_)(),
+	HGLRC current_context = wglGetCurrentContext();
+	HDC current_dc = wglGetCurrentDC();
+	if(current_dc == NULL || current_context == NULL) {
+		fprintf(stderr,"[OpenCL] No OpenGL context active\n");
+		abort();
+	}
+
+	cl_context_properties properties[] = {
+		CL_CONTEXT_PLATFORM, (cl_context_properties)platform_(),
+		CL_WGL_HDC_KHR, (intptr_t) current_dc,
+		CL_GL_CONTEXT_KHR, (intptr_t) current_context,
 		0
 	};
 #else
