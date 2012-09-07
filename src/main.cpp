@@ -256,6 +256,7 @@ static void init(){
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), loading_progress);
 	Engine::autoload_scenes();
 	opencl = new CL();
+	srand((unsigned int)time(0));
 
 	Engine::init();
 
