@@ -32,13 +32,13 @@ libfrob_a_SOURCES = \
 	src/meta.cpp src/meta.hpp \
 	src/movable_light.cpp src/movable_light.hpp \
 	src/movable_object.cpp src/movable_object.hpp \
-	src/music.cpp src/music.hpp \
 	src/particle_system.cpp src/particle_system.hpp \
 	src/rendertarget.cpp src/rendertarget.hpp \
 	src/render_object.cpp src/render_object.hpp \
 	src/scene.cpp src/scenefactory.cpp src/scene.hpp \
 	src/shader.cpp src/shader.hpp \
 	src/skybox.cpp src/skybox.hpp \
+	src/sound.cpp src/sound.hpp \
 	src/terrain.cpp src/terrain.hpp \
 	src/texture.cpp src/texture.hpp \
 	src/time.cpp src/time.hpp \

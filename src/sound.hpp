@@ -1,21 +1,29 @@
-#ifndef MUSIC_HPP
-#define MUSIC_HPP
+#ifndef SOUND_HPP
+#define SOUND_HPP
+
+#include "data.hpp"
 
 #include <fmodex/fmod.hpp>
 
 /**
  * A music player
  */
-class Music {
+class Sound {
 	public:
 		/*
 		 * Create a music player for the selected file.
-		 * Optional: Specify buffer size in bytes
 		 */
-		Music(const char * file);
-		~Music();
+		Sound(const char * file, int loops=0);
+		Sound(const Sound &sound, int loops=0);
+		~Sound();
+
+		void set_delay(float t);
+
+		void update(float t);
 
 		bool is_playing() const;
+
+		bool is_done() const;
 		/**
 		 * Start playing the file.
 		 */
@@ -34,6 +42,7 @@ class Music {
 		 */
 		void seek(double t);
 
+		static void update_system();
 	private:
 		static FMOD::System * system_;
 		static unsigned int system_usage_; //usage count
@@ -43,10 +52,13 @@ class Music {
 
 		static void errcheck(const char * contex);
 
+		float delay;
+
 		static FMOD_RESULT result_;
 
 		Data * source;
 		FMOD::Sound * sound_;
+		int * sound_usage_count_;
 		FMOD::Channel * channel_;
 
 		double start_time;

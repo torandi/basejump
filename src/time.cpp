@@ -3,44 +3,48 @@
 #endif
 
 #include "time.hpp"
-#include "music.hpp"
+#include "sound.hpp"
 #include <cstdlib>
 
 #define USDIVIDER 1000000
 
 Time::Time(int delta)
 	: current(0)
-	, prev(0.0f)
+	, last_dt(0.0f)
 	, delta(delta)
 	, scale(0)
 	, steps(0)
 	, paused(true)
-	, music(nullptr) {
+	, sound_last_time(0.0)
+	, sound(nullptr) {
 
 }
 
 void Time::update(){
+	const long usec = update_delta();
+	move(usec);
+}
+
+long Time::update_delta(){
 	/* single-stepping */
 	if ( steps != 0 ){
 		const long int usec = steps * delta;
 		steps = 0;
-		move(usec);
-		return;
+		return usec;
 	}
 
-	if(music == nullptr) {
-		/* normal flow */
-		const float k = (float)scale / 100.0f;
-		const long int usec = delta * k;
-		move(usec);
-	} else {
-		double cur_time = music->time();
-		const long int usec = USDIVIDER * (cur_time - music_last_time);
-		music_last_time = cur_time;
-		move(usec);
+	/* syncing against music */
+	if ( sound ){
+		const double cur_time = sound->time();
+		const long int usec = USDIVIDER * (cur_time - sound_last_time);
+		sound_last_time = cur_time;
+		return usec;
 	}
+
+	/* scaled time */
+	const float k = (float)scale / 100.0f;
+	return delta * k;
 }
-
 
 void Time::step(int amount){
 	paused = true;
@@ -87,22 +91,22 @@ long Time::utime() const {
 }
 
 float Time::dt() const {
-	return prev;
+	return last_dt;
 }
 
-bool Time::sync_to_music(const Music * m) {
-	music_last_time = m->time();
-	if(music_last_time < 0) {
+bool Time::sync_to_music(const Sound* m) {
+	sound_last_time = m->time();
+	if(sound_last_time < 0) {
 		//Syncing is not available
 		return false;
-	} else {
-		music = m;
-		reset();
-		return true;
 	}
+
+	sound = m;
+	reset();
+	return true;
 }
 
 void Time::move(long int usec){
-	prev = (float)usec / USDIVIDER;
+	last_dt = (float)usec / USDIVIDER;
 	current += usec;
 }

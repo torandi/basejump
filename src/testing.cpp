@@ -28,7 +28,7 @@
 #endif
 
 #include "light.hpp"
-#include "music.hpp"
+#include "sound.hpp"
 
 static RenderTarget* composition;
 static RenderTarget* downsample[3];
@@ -37,7 +37,7 @@ static RenderTarget* downsample[3];
 //static XYLerpTable* test_pos = nullptr;
 static std::map<std::string, Scene*> scene;
 
-static Music * music;
+static Sound* sound = nullptr;
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
@@ -78,21 +78,21 @@ namespace Engine {
 		downsample[1] = new RenderTarget(glm::ivec2(100, 100), GL_RGB8, 0, GL_LINEAR);
 		downsample[2] = new RenderTarget(glm::ivec2( 50, 50),  GL_RGB8, 0, GL_LINEAR);
 
-		music = new Music("jumping.ogg");
+		sound = new Sound("jumping.ogg");
 	}
 
 	void start(double seek) {
 		if(seek > 0.1) {
-			music->seek(seek);
+			sound->seek(seek);
 		}
-		music->play();
+		sound->play();
 	}
 
 	void cleanup(){
 		for ( std::pair<std::string,Scene*> p : scene ){
 			delete p.second;
 		}
-		delete music;
+		delete sound;
 		Shader::cleanup();
 	}
 
@@ -152,6 +152,6 @@ namespace Engine {
 		for ( std::pair<std::string,Scene*> p: scene ){
 			p.second->update_scene(t, dt);
 		}
-		printf("TIME: %lf\n", music->time());
+		printf("TIME: %lf\n", sound->time());
 	}
 }
