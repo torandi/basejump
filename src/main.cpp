@@ -375,7 +375,8 @@ static int fullscreen = FULLSCREEN;
 static int vsync = 1;
 static int verbose_flag = 0;
 
-static struct option options[] = {
+static const char* shortopts = "r:fws:nvqlh";
+static struct option longopts[] = {
 	{"resolution",   required_argument, 0, 'r'},
 	{"fullscreen",   no_argument,       &fullscreen, 1},
 	{"windowed",     no_argument,       &fullscreen, 0},
@@ -401,7 +402,7 @@ int main(int argc, char* argv[]){
 
 	/* parse arguments */
 	int op, option_index;
-	while ( (op = getopt_long(argc, argv, "r:fws:nvqlh", options, &option_index)) != -1 ){
+	while ( (op = getopt_long(argc, argv, shortopts, longopts, &option_index)) != -1 ){
 		switch ( op ){
 		case 0:   /* long opt*/
 		case '?': /* invalid */
