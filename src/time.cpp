@@ -99,11 +99,11 @@ bool Time::sync_to_music(const Sound* m) {
 	if(sound_last_time < 0) {
 		//Syncing is not available
 		return false;
-	} else {
-		sound = m;
-		reset();
-		return true;
 	}
+
+	sound = m;
+	reset();
+	return true;
 }
 
 void Time::move(long int usec){
