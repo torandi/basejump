@@ -469,6 +469,20 @@ static void parse_argv(int argc, char* argv[]){
 }
 #endif
 
+static void setup_fps_timer(){
+#ifdef HAVE_SETITIMER
+	struct itimerval difftime;
+	difftime.it_interval.tv_sec = 1;
+	difftime.it_interval.tv_usec = 0;
+	difftime.it_value.tv_sec = 1;
+	difftime.it_value.tv_usec = 0;
+	signal(SIGALRM, show_fps);
+	setitimer(ITIMER_REAL, &difftime, NULL);
+#else
+	fprintf(stderr, "%s: warning: no framerate timer available on this platform. FPS report will be diabled.\n");
+#endif
+}
+
 int main(int argc, char* argv[]){
 	/* extract program name from path. e.g. /path/to/MArCd -> MArCd */
 	const char* separator = strrchr(argv[0], '/');
@@ -481,16 +495,7 @@ int main(int argc, char* argv[]){
 	parse_argv(argc, argv);
 
 	verbose = fopen(verbose_flag ? "/dev/stderr" : LOGFILE, "w");
-	if(verbose_flag) {
-		/* setup FPS alarm handler */
-		struct itimerval difftime;
-		difftime.it_interval.tv_sec = 1;
-		difftime.it_interval.tv_usec = 0;
-		difftime.it_value.tv_sec = 1;
-		difftime.it_value.tv_usec = 0;
-		signal(SIGALRM, show_fps);
-		setitimer(ITIMER_REAL, &difftime, NULL);
-	}
+	if(verbose_flag) setup_fps_timer();
 
 	/* proper termination */
 	signal(SIGINT, handle_sigint);

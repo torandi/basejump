@@ -33,7 +33,7 @@ AS_IF([test "x$no_cl" == "xyes"], [AC_MSG_ERROR([OpenCL libraries required])])
 AC_CHECK_HEADERS([sys/time.h])
 AC_CHECK_HEADERS([GL/glx.h])
 AC_CHECK_HEADERS([getopt.h])
-AC_CHECK_FUNCS([access gettimeofday usleep])
+AC_CHECK_FUNCS([access gettimeofday usleep setitimer])
 
 AC_ARG_ENABLE([input], [AS_HELP_STRING([--enable-input], [Enable mouse- and keyboard debugging/development. @<:@default=disabled@:>@])])
 AS_IF([test "x$enable_input" = "xyes"],
