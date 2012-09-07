@@ -299,26 +299,6 @@ cl::BufferGL CL::create_gl_buffer(cl_mem_flags flags, GLuint gl_buffer) const {
 	return buffer;
 }
 
-cl::Image2DGL CL::create_from_gl_2d_image(cl_mem_flags flags, Texture2D * texture, GLenum texture_target, GLint miplevel) {
-	cl_int err;
-	cl::Image2DGL image(context_, flags, texture_target, miplevel, texture->gl_texture(), &err);
-	if(err != CL_SUCCESS) {
-		fprintf(stderr,"[OpenCL] Failed to create 2D image from opengl texture: %s\n", errorString(err));
-		abort();
-	}
-	return image;
-}
-
-cl::Image3DGL CL::create_from_gl_3d_image(cl_mem_flags flags, Texture3D * texture, GLint miplevel){
-	cl_int err;
-	cl::Image3DGL image(context_, flags, GL_TEXTURE_3D, miplevel, texture->gl_texture(), &err);
-	if(err != CL_SUCCESS) {
-		fprintf(stderr,"[OpenCL] Failed to create 3D image from opengl texture: %s\n", errorString(err));
-		abort();
-	}
-	return image;
-}
-
 cl::CommandQueue &CL::queue() { return queue_; }
 cl::Context &CL::context() { return context_; }
 
