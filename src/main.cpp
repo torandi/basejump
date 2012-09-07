@@ -24,7 +24,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <getopt.h>
 #include <map>
-#include <pthread.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
