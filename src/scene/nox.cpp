@@ -60,18 +60,18 @@ public:
 		lights.ambient_intensity() = glm::vec3(0.01f);
 		lights.num_lights() = 2;
 
-		lights.lights[0].set_position(glm::vec3(-5.5f, 0.4f, 0.0f));
-		lights.lights[0].intensity = glm::vec3(0.0f, 0.6f, 0.4f);
-		lights.lights[0].type = Light::POINT_LIGHT;
-		lights.lights[0].constant_attenuation = 0.0f;
-		lights.lights[0].linear_attenuation = 0.1f;
-		lights.lights[0].quadratic_attenuation = 0.4f;
+		lights.lights[0]->set_position(glm::vec3(-5.5f, 0.4f, 0.0f));
+		lights.lights[0]->intensity = glm::vec3(0.0f, 0.6f, 0.4f);
+		lights.lights[0]->type = Light::POINT_LIGHT;
+		lights.lights[0]->constant_attenuation = 0.0f;
+		lights.lights[0]->linear_attenuation = 0.1f;
+		lights.lights[0]->quadratic_attenuation = 0.4f;
 
-		lights.lights[1].set_position(glm::vec3(-2.0f, 1.0f, 0.0f));
-		lights.lights[1].intensity = glm::vec3(0.3f, 0.6f, 0.8f);
-		lights.lights[1].type = Light::POINT_LIGHT;
+		lights.lights[1]->set_position(glm::vec3(-2.0f, 1.0f, 0.0f));
+		lights.lights[1]->intensity = glm::vec3(0.3f, 0.6f, 0.8f);
+		lights.lights[1]->type = Light::POINT_LIGHT;
 
-		lights.lights[2].type = Light::POINT_LIGHT;
+		lights.lights[2]->type = Light::POINT_LIGHT;
 
 
 		fog.avg_spawn_rate = 50000.f;
@@ -179,15 +179,15 @@ public:
 		//Extra light
 		if(t > 30 && t < 40) {
 			float s = (t-30.f)/10.f;
-			lights.lights[2].intensity = glm::vec3(0.1f, 0.3f, 0.2f)*s;
+			lights.lights[2]->intensity = glm::vec3(0.1f, 0.3f, 0.2f)*s;
 		} else if( t > 50 && t < 60) {
 			float s = (1.f-(t-50.f)/10.f);
-			lights.lights[2].intensity = glm::vec3(0.1f, 0.3f, 0.2f)*s;
+			lights.lights[2]->intensity = glm::vec3(0.1f, 0.3f, 0.2f)*s;
 		}
 
 		if(t > 30 && t < 60) {
 			lights.num_lights() = 3;
-			lights.lights[2].set_position(light_pos.at(t));
+			lights.lights[2]->set_position(light_pos.at(t));
 		} else if( t > 60) {
 			lights.num_lights() = 2;
 		}

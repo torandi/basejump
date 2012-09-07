@@ -37,10 +37,10 @@ public:
 
 			lights.ambient_intensity() = glm::vec3(0.0f);
 			lights.num_lights() = 1;
-			lights.lights[0].set_position(glm::vec3(10, 50.f, 10.f));
-			lights.lights[0].intensity = glm::vec3(0.8f);
-			lights.lights[0].type = Light::POINT_LIGHT;
-			lights.lights[0].quadratic_attenuation = 0.00002f;
+			lights.lights[0]->set_position(glm::vec3(10, 50.f, 10.f));
+			lights.lights[0]->intensity = glm::vec3(0.8f);
+			lights.lights[0]->type = Light::POINT_LIGHT;
+			lights.lights[0]->quadratic_attenuation = 0.00002f;
 
 			snow.avg_spawn_rate = 500000.f;
 			snow.spawn_rate_var = 100000.f;

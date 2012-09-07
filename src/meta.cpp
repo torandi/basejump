@@ -8,36 +8,36 @@
 #include <cstring>
 
 std::string MetaLightBase::get_string(Scene* instance, unsigned int offset) const {
-	MovableLight light = get(instance);
+	MovableLight * light = get(instance);
 
 	std::stringstream str;
 	switch (offset){
-	case 1: str << light.type; break;
-	case 2: str << light.constant_attenuation; break;
-	case 3: str << light.intensity.r; break;
-	case 4: str << light.intensity.g; break;
-	case 5: str << light.intensity.b; break;
-	case 6: str << light.position().x; break;
-	case 7: str << light.position().y; break;
-	case 8: str << light.position().z; break;
+	case 1: str << light->type; break;
+	case 2: str << light->constant_attenuation; break;
+	case 3: str << light->intensity.r; break;
+	case 4: str << light->intensity.g; break;
+	case 5: str << light->intensity.b; break;
+	case 6: str << light->position().x; break;
+	case 7: str << light->position().y; break;
+	case 8: str << light->position().z; break;
 	}
 
 	return str.str();
 }
 
 std::string MetaLightBase::set_string(Scene* instance, const std::string& str, unsigned int offset){
-	MovableLight& light = get(instance);
+	MovableLight * light = get(instance);
 
 	switch (offset){
 	case 0: break;
-	case 1: light.type = (Light::light_type_t)atoi(str.c_str()); break;
-	case 2: light.constant_attenuation = atof(str.c_str()); break;
-	case 3: light.intensity.r = atof(str.c_str()); break;
-	case 4: light.intensity.g = atof(str.c_str()); break;
-	case 5: light.intensity.b = atof(str.c_str()); break;
-	case 6: light.set_position(glm::vec3(atof(str.c_str()), light.position().y, light.position().z)); break;
-	case 7: light.set_position(glm::vec3(light.position().x, atof(str.c_str()), light.position().z)); break;
-	case 8: light.set_position(glm::vec3(light.position().x, light.position().y, atof(str.c_str()))); break;
+	case 1: light->type = (Light::light_type_t)atoi(str.c_str()); break;
+	case 2: light->constant_attenuation = atof(str.c_str()); break;
+	case 3: light->intensity.r = atof(str.c_str()); break;
+	case 4: light->intensity.g = atof(str.c_str()); break;
+	case 5: light->intensity.b = atof(str.c_str()); break;
+	case 6: light->set_position(glm::vec3(atof(str.c_str()), light->position().y, light->position().z)); break;
+	case 7: light->set_position(glm::vec3(light->position().x, atof(str.c_str()), light->position().z)); break;
+	case 8: light->set_position(glm::vec3(light->position().x, light->position().y, atof(str.c_str()))); break;
 	}
 
 	return get_string(instance, offset);

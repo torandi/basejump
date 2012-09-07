@@ -52,7 +52,7 @@ public:
 		: MetaFile(filename, TYPE_LIGHT){
 	}
 
-	virtual MovableLight& get(Scene* instance) const = 0;
+	virtual MovableLight* get(Scene* instance) const = 0;
 	virtual std::string set_string(Scene* instance, const std::string& str, unsigned int offset);
 	virtual std::string get_string(Scene* instance, unsigned int offset) const;
 };
@@ -66,7 +66,7 @@ public:
 		, index(index) {
 	}
 
-	virtual MovableLight& get(Scene* instance) const { return (dynamic_cast<cls*>(instance)->*light).lights[index]; }
+	virtual MovableLight* get(Scene* instance) const { return (dynamic_cast<cls*>(instance)->*light).lights[index]; }
 
 private:
 	LightsData cls::*light;
