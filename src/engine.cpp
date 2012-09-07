@@ -68,4 +68,26 @@ namespace Engine {
 		}
 	}
 
+	void preload(const std::vector<std::string>& names, std::function<void(const std::string&, int, int)> progress){
+		int index = 1;
+
+		for ( auto resource : names ){
+			const size_t delimiter = resource.find(':');
+			if ( delimiter == std::string::npos ){
+				fprintf(stderr, "Resource `%s' does not contain prefix, preloading ignored.\n", resource.c_str());
+				continue;
+			}
+
+			const std::string prefix = resource.substr(0, delimiter);
+			const std::string filename = resource.substr(delimiter+1);
+
+			progress(filename, index++, names.size());
+
+			if ( prefix == "texture" ){
+				Texture2D::preload(filename);
+			} else {
+				fprintf(stderr, "Resource `%s' has an unknown prefix, preloading ignored.\n", resource.c_str());
+			}
+		}
+	}
 }

@@ -233,11 +233,8 @@ static void init_window(){
 	fprintf(verbose, "  - Supports %d texture units\n", max_texture_units);
 }
 
-static void preload_resources(){
-	fprintf(verbose, "Preloading textures\n");
-	Texture2D::preload("default.jpg");
-	Texture2D::preload("default_normalmap.jpg");
-	Texture2D::preload("white.jpg");
+static void loading_progress(const std::string& name, int index, int total){
+	/* called by Engine::preload */
 }
 
 static void init(){
@@ -249,11 +246,15 @@ static void init(){
 	prepare_loading_scene();
 	do_loading_scene();
 
+	std::vector<std::string> resources = {
+		"texture:default.jpg",
+		"texture:default_normalmap.jpg",
+		"texture:white.jpg"};
+	Engine::preload(resources, loading_progress);
 	Engine::autoload_scenes();
 	Engine::load_shaders();
 	opencl = new CL();
 
-	preload_resources();
 	Engine::init();
 
 	//Stop loading scene

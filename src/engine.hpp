@@ -2,6 +2,8 @@
 #define ENGINE_H
 
 #include <string>
+#include <vector>
+#include <functional>
 
 namespace Engine {
 
@@ -32,6 +34,14 @@ namespace Engine {
 	 * Register all scene types.
 	 */
 	void autoload_scenes();
+
+	/**
+	 * Preload resources.
+	 *
+	 * @param names List of resources with "type:" prefix, e.g. "texture:foo.jpg".
+	 * @param progress Optional callback run before loading a resource.
+	 */
+	void preload(const std::vector<std::string>& names, std::function<void(const std::string&, int, int)> progress = nullptr);
 
 	/**
 	 * Get a rendertarget by name.
