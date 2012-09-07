@@ -104,7 +104,7 @@ CL::CL() {
 
 	fprintf(verbose, "[OpenCL] Available devices: \n");
 
-	for(int i=0; i< (deviceSize / sizeof(cl_device_id)); ++i) {
+	for(unsigned int i=0; i< (deviceSize / sizeof(cl_device_id)); ++i) {
 		cl::Device device(devices[i]);
 		device.getInfo(CL_DEVICE_VENDOR, &name);
 		device.getInfo(CL_DEVICE_VERSION, &version);

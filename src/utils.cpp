@@ -136,7 +136,7 @@ int timetable_parse(const std::string& filename, std::function<void(const std::s
 			free(tmp);
 			continue;
 		}
-		func(std::string(name), atof(begin), atof(end));
+		func(std::string(name), static_cast<float>(atof(begin)), static_cast<float>(atof(end)));
 		free(tmp);
 	}
 	delete timetable;

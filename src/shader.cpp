@@ -178,7 +178,7 @@ std::string Shader::parse_shader(
 
 			//Include the file:
 			char loc[256];
-			sprintf(loc, "%s:%d", filename.c_str(), linenr);
+			snprintf(loc, sizeof(loc), "%s:%d", filename.c_str(), linenr);
 			parsed_content << parse_shader("/shaders/" + line, included_files, std::string(loc));
 		} else {
 			parsed_content << line << std::endl;
