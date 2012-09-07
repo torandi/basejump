@@ -249,11 +249,11 @@ static void init(){
 	prepare_loading_scene();
 	do_loading_scene();
 
-	std::vector<std::string> resources = {
+	static const char* resources[] = {
 		"texture:default.jpg",
 		"texture:default_normalmap.jpg",
 		"texture:white.jpg"};
-	Engine::preload(resources, loading_progress);
+	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), loading_progress);
 	Engine::autoload_scenes();
 	Engine::load_shaders();
 	opencl = new CL();
