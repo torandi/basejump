@@ -69,11 +69,12 @@ public:
 	}
 
 	const char* to_hex() const {
-		static char buffer[8]; /* #RRGGBB */
-		sprintf(buffer, "#%02x%02x%02x",
-		        static_cast<unsigned int>(r / 1.0f * 0xFF),
-		        static_cast<unsigned int>(g / 1.0f * 0xFF),
-		        static_cast<unsigned int>(b / 1.0f * 0xFF));
+		static char buffer[9]; /* #RRGGBBAA + null-terminator */
+		snprintf(buffer, sizeof(buffer), "#%02x%02x%02x%02x",
+		         static_cast<unsigned int>(r / 1.0f * 0xFF) & 0xFF,
+		         static_cast<unsigned int>(g / 1.0f * 0xFF) & 0xFF,
+		         static_cast<unsigned int>(b / 1.0f * 0xFF) & 0xFF,
+		         static_cast<unsigned int>(a / 1.0f * 0xFF) & 0xFF);
 		return buffer;
 	}
 
