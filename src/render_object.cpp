@@ -306,9 +306,9 @@ void RenderObject::recursive_render(const aiNode* node,
 
 }
 
-void RenderObject::render() {
+void RenderObject::render(const glm::mat4& m) {
 	if ( !scene ) return;
-	recursive_render(scene->mRootNode, matrix());
+	recursive_render(scene->mRootNode, m * matrix());
 }
 
 const glm::mat4 RenderObject::matrix() const {
