@@ -68,6 +68,7 @@
     <ClInclude Include="..\src\utils.hpp" />
     <ClInclude Include="compat.hpp" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="crt.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\utils.cpp" />

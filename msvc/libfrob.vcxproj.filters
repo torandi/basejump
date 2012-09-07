@@ -30,6 +30,9 @@
     <ClInclude Include="compat.hpp">
       <Filter>Environment</Filter>
     </ClInclude>
+    <ClInclude Include="crt.hpp">
+      <Filter>Environment</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\utils.cpp">

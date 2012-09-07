@@ -13,6 +13,7 @@
 #define PATH_BASE "./"
 #define NOLOAD 1
 
+#include "crt.hpp"
 #include "forward.hpp"
 #include "platform.hpp"
 #include "compat.hpp"
