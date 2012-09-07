@@ -66,6 +66,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\platform.hpp" />
     <ClInclude Include="..\src\utils.hpp" />
+    <ClInclude Include="compat.hpp" />
     <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>

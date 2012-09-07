@@ -27,6 +27,9 @@
     <ClInclude Include="..\src\utils.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="compat.hpp">
+      <Filter>Environment</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\utils.cpp">

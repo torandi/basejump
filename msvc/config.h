@@ -10,10 +10,8 @@
 
 /* frob-specific settings */
 #define FULLSCREEN 0
-#define PATH_BASE "../"
+#define PATH_BASE "./"
 #define NOLOAD 1
-#define NAME "derp"
-#define TITLE "derp"
 
 #include "forward.hpp"
 #include "platform.hpp"
