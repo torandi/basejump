@@ -15,32 +15,36 @@ Time::Time(int delta)
 	, scale(0)
 	, steps(0)
 	, paused(true)
+	, sound_last_time(0.0)
 	, sound(nullptr) {
 
 }
 
 void Time::update(){
+	const long usec = update_delta();
+	move(usec);
+}
+
+long Time::update_delta(){
 	/* single-stepping */
 	if ( steps != 0 ){
 		const long int usec = steps * delta;
 		steps = 0;
-		move(usec);
-		return;
+		return usec;
 	}
 
-	if ( sound == nullptr ) {
-		/* normal flow */
-		const float k = (float)scale / 100.0f;
-		const long int usec = delta * k;
-		move(usec);
-	} else {
-		double cur_time = sound->time();
+	/* syncing against music */
+	if ( sound ){
+		const double cur_time = sound->time();
 		const long int usec = USDIVIDER * (cur_time - sound_last_time);
 		sound_last_time = cur_time;
-		move(usec);
+		return usec;
 	}
-}
 
+	/* scaled time */
+	const float k = (float)scale / 100.0f;
+	return delta * k;
+}
 
 void Time::step(int amount){
 	paused = true;

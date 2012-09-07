@@ -81,6 +81,11 @@ public:
 private:
 	void move(long int usec);
 
+	/**
+	 * Calculates how many µs has passed since last update.
+	 */
+	long update_delta();
+
 	long current;
 	float prev;
 	int delta;
