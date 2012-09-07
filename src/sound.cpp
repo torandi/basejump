@@ -9,6 +9,8 @@
 
 #define MAX_CHANNELS 100
 
+static const bool mute_sound = false;
+
 FMOD::System * Sound::system_ = nullptr;
 unsigned int Sound::system_usage_ = 0;
 FMOD_RESULT Sound::result_;
@@ -58,6 +60,10 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 	errcheck("start sound (paused)");
 	result_ = channel_->setLoopCount(loops);
 	errcheck("set loops");
+	if(mute_sound) {
+		channel_->setMute(true);
+		printf("WARNING! Sound is MUTED!\n");
+	}
 
 	sound_usage_count_ = new int;
 	++(*sound_usage_count_);
