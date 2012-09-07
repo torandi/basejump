@@ -371,7 +371,7 @@ static void __UNUSED__  set_resolution(const char* str){
 	glm::ivec2 tmp;
 	int n = sscanf(str, "%dx%d", &tmp.x, &tmp.y);
 	if ( n != 2 || tmp.x <= 0 || tmp.y <= 0 ){
-		fprintf(stderr, "%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, optarg);
+		fprintf(stderr, "%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, str);
 		return;
 	}
 
