@@ -38,12 +38,15 @@ static const uint64_t per_frame = 1000000 / framerate;
 Time global_time(per_frame);
 glm::mat4 screen_ortho;
 
-static int skip_load_scene = 0;
-
 static volatile bool running = true;
 static const char* program_name;
 static bool resolution_given = false;
 static int frames = 0;
+static double seek = 0.0;
+static bool fullscreen = FULLSCREEN;
+static bool vsync = true;
+static bool verbose_flag = false;
+static bool skip_load_scene = false;
 
 static void poll();
 
@@ -178,7 +181,7 @@ static void free_loading() {
 	}
 }
 
-static void init(bool fullscreen, bool vsync, double seek){
+static void init(){
 	if ( SDL_Init(SDL_INIT_VIDEO) != 0 ){
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
 		exit(1);
@@ -397,22 +400,7 @@ static void set_resolution(const char* str){
 	resolution_given = true;
 }
 
-int main(int argc, char* argv[]){
-	/* extract program name from path. e.g. /path/to/MArCd -> MArCd */
-	const char* separator = strrchr(argv[0], '/');
-	if ( separator ){
-		program_name = separator + 1;
-	} else {
-		program_name = argv[0];
-	}
-
-	/* configuration */
-	double seek = 0.0;
-	bool fullscreen = FULLSCREEN;
-	bool vsync = true;
-	int verbose_flag = 0;
-
-	/* parse arguments */
+static void parse_argv(int argc, char* argv[]){
 	int op, option_index;
 	while ( (op = getopt_long(argc, argv, shortopts, longopts, &option_index)) != -1 ){
 		switch ( op ){
@@ -424,15 +412,15 @@ int main(int argc, char* argv[]){
 			set_resolution(optarg);
 
 		case 'f': /* --fullscreen */
-			fullscreen = 1;
+			fullscreen = false;
 			break;
 
 		case 'l':
-			skip_load_scene = 1;
+			skip_load_scene = true;
 			break;
 
 		case 'w': /* --windowed */
-			fullscreen = 0;
+			fullscreen = false;
 			break;
 
 		case 's': /* --seek */
@@ -440,15 +428,15 @@ int main(int argc, char* argv[]){
 			break;
 
 		case 'n': /* --no-vsync */
-			vsync = 0;
+			vsync = false;
 			break;
 
 		case 'v': /* --verbose */
-			verbose_flag = 1;
+			verbose_flag = true;
 			break;
 
 		case 'q': /* --quiet */
-			verbose_flag = 0;
+			verbose_flag = false;
 			break;
 
 		case 'h': /* --help */
@@ -460,12 +448,20 @@ int main(int argc, char* argv[]){
 			abort();
 		}
 	};
+}
+
+int main(int argc, char* argv[]){
+	/* extract program name from path. e.g. /path/to/MArCd -> MArCd */
+	const char* separator = strrchr(argv[0], '/');
+	if ( separator ){
+		program_name = separator + 1;
+	} else {
+		program_name = argv[0];
+	}
+
+	parse_argv(argc, argv);
 
 	verbose = fopen(verbose_flag ? "/dev/stderr" : LOGFILE, "w");
-
-	/* proper termination */
-	signal(SIGINT, handle_sigint);
-
 	if(verbose_flag) {
 		/* setup FPS alarm handler */
 		struct itimerval difftime;
@@ -477,8 +473,11 @@ int main(int argc, char* argv[]){
 		setitimer(ITIMER_REAL, &difftime, NULL);
 	}
 
+	/* proper termination */
+	signal(SIGINT, handle_sigint);
+
 	/* let the magic begin */
-	init(fullscreen, vsync, seek);
+	init();
 	magic_stuff();
 	cleanup();
 
