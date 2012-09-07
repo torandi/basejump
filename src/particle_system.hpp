@@ -35,29 +35,29 @@ class ParticleSystem : public MovableObject {
 			glm::vec4 directional_speed_var;
 
 			//Time to live
-			float avg_ttl;
-			float ttl_var;
+			cl_float avg_ttl;
+			cl_float ttl_var;
 			//Spawn speed
-			float avg_spawn_speed;
-			float spawn_speed_var;
+			cl_float avg_spawn_speed;
+			cl_float spawn_speed_var;
 
 			//Acceleration
-			float avg_acc;
-			float acc_var;
+			cl_float avg_acc;
+			cl_float acc_var;
 			//Scale
-			float avg_scale;
-			float scale_var;
+			cl_float avg_scale;
+			cl_float scale_var;
 
-			float avg_scale_change;
-			float scale_change_var;
+			cl_float avg_scale_change;
+			cl_float scale_change_var;
 
 			//Rotation
-			float avg_rotation_speed;
-			float rotation_speed_var;
+			cl_float avg_rotation_speed;
+			cl_float rotation_speed_var;
 
 			//These two should not be manually changed!
-			int num_textures;
-			int max_num_particles;
+			cl_int num_textures;
+			cl_int max_num_particles;
 
 		} config;
 
@@ -67,8 +67,8 @@ class ParticleSystem : public MovableObject {
 		struct __ALIGNED__(16) vertex_t {
 			glm::vec4 position;
 			glm::vec4 color;
-			float scale;
-			int texture_index;
+			cl_float scale;
+			cl_int texture_index;
 		};
 
 		virtual void callback_position(const glm::vec3 &position);
@@ -91,15 +91,15 @@ class ParticleSystem : public MovableObject {
 		struct __ALIGNED__(16) particle_t {
 			glm::vec4 direction;
 
-			float ttl;
-			float speed;
-			float acc;
-			float rotation_speed;
+			cl_float ttl;
+			cl_float speed;
+			cl_float acc;
+			cl_float rotation_speed;
 
-			float initial_scale;
-			float final_scale;
-			float org_ttl;
-			int dead;
+			cl_float initial_scale;
+			cl_float final_scale;
+			cl_float org_ttl;
+			cl_int dead;
 		};
 
 		TextureArray* texture_;
