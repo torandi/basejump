@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfrob", "libfrob.vcxproj", "{AF96A19C-362B-4F98-9560-1B793095B79E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nox2", "nox2\nox2.vcxproj", "{6C36B3D9-C67D-41E8-B496-0BF537A4E849}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AF96A19C-362B-4F98-9560-1B793095B79E} = {AF96A19C-362B-4F98-9560-1B793095B79E}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +18,10 @@ Global
 		{AF96A19C-362B-4F98-9560-1B793095B79E}.Debug|Win32.Build.0 = Debug|Win32
 		{AF96A19C-362B-4F98-9560-1B793095B79E}.Release|Win32.ActiveCfg = Release|Win32
 		{AF96A19C-362B-4F98-9560-1B793095B79E}.Release|Win32.Build.0 = Release|Win32
+		{6C36B3D9-C67D-41E8-B496-0BF537A4E849}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6C36B3D9-C67D-41E8-B496-0BF537A4E849}.Debug|Win32.Build.0 = Debug|Win32
+		{6C36B3D9-C67D-41E8-B496-0BF537A4E849}.Release|Win32.ActiveCfg = Release|Win32
+		{6C36B3D9-C67D-41E8-B496-0BF537A4E849}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

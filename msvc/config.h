@@ -17,3 +17,4 @@
 
 #include "forward.hpp"
 #include "platform.hpp"
+#include "compat.hpp"

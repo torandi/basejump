@@ -64,11 +64,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
+    <ClInclude Include="..\src\platform.hpp" />
+    <ClInclude Include="..\src\utils.hpp" />
+    <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\platform.hpp" />
-    <ClInclude Include="config.h" />
+    <ClCompile Include="..\src\utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
