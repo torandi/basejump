@@ -30,6 +30,7 @@ public:
 		, cam_pos2("/src/scene/nox_cam2.txt")
 		, light_pos("/src/scene/nox_extra_light.txt")
 		, skybox("/textures/skydark")
+		, water_shader(nullptr)
 		, water_quad(glm::vec2(10.f, 10.0f), true, true)
 		, water_texture(Texture2D::from_filename("/textures/water.png"))
 		, fog(10000, TextureArray::from_filename("/textures/fog.png", nullptr))
@@ -40,6 +41,7 @@ public:
 		logo.set_rotation(glm::vec3(0,1,0), 90.0f);
 		logo.set_position(glm::vec3(-30,0.3,0));
 
+		water_shader = Shader::create_shader("/shaders/water");
 		water_quad.set_position(glm::vec3(-100.f, -0.6f, -50.f));
 		water_quad.set_rotation(glm::vec3(1.f, 0, 0), 90.f);
 		water_quad.set_scale(100.f);
@@ -50,9 +52,8 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
 		water_texture->texture_unbind();
 
-		u_wave1 = shaders[SHADER_WATER]->uniform_location("wave1");
-		u_wave2 = shaders[SHADER_WATER]->uniform_location("wave2");
-
+		u_wave1 = water_shader->uniform_location("wave1");
+		u_wave2 = water_shader->uniform_location("wave2");
 
 		wave1 = glm::vec2(0.01, 0);
 		wave2 = glm::vec2(0.005, 0.03);
@@ -134,7 +135,7 @@ public:
 		glActiveTexture(Shader::TEXTURE_2D_2);
 		glBindTexture(GL_TEXTURE_2D, geometry.depthbuffer());
 
-		shaders[SHADER_WATER]->bind();
+		water_shader->bind();
 		{
 			glUniform2fv(u_wave1, 1, glm::value_ptr(wave1));
 			glUniform2fv(u_wave2, 1, glm::value_ptr(wave2));
@@ -249,6 +250,7 @@ public:
 	PointTable light_pos;
 	Skybox skybox;
 
+	Shader* water_shader;
 	Quad water_quad;
 	Texture2D* water_texture;
 	glm::vec2 wave1, wave2;

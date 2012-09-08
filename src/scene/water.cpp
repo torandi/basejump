@@ -20,6 +20,7 @@ public:
 	WaterScene(const glm::ivec2& size)
 		: Scene(size)
 		, quad(glm::vec2(5.f, 5.f), true, true)
+		, water_shader(nullptr)
 		, water(Texture2D::from_filename("water.png"))
 		, skybox("skydark")
 		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
@@ -39,13 +40,14 @@ public:
 		lights.lights[0]->intensity = glm::vec3(0.8f);
 		lights.lights[0]->type = Light::POINT_LIGHT;
 
+		water_shader = Shader::create_shader("/shaders/water");
 		water->texture_bind(Shader::TEXTURE_2D_0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
 
-		u_wave1 = shaders[SHADER_WATER]->uniform_location("wave1");
-		u_wave2 = shaders[SHADER_WATER]->uniform_location("wave2");
+		u_wave1 = water_shader->uniform_location("wave1");
+		u_wave2 = water_shader->uniform_location("wave2");
 
 		wave1 = glm::vec2(0.01, 0);
 		wave2 = glm::vec2(0.005, 0.03);
@@ -75,7 +77,7 @@ public:
 		water->texture_bind(Shader::TEXTURE_NORMALMAP);
 		skybox.texture->texture_bind(Shader::TEXTURE_CUBEMAP_0);
 
-		shaders[SHADER_WATER]->bind();
+		water_shader->bind();
 		{
 			glUniform2fv(u_wave1, 1, glm::value_ptr(wave1));
 			glUniform2fv(u_wave2, 1, glm::value_ptr(wave2));
@@ -107,6 +109,7 @@ public:
 
 private:
 	Quad quad;
+	Shader* water_shader;
 	Texture2D* water;
 	Skybox skybox;
 	Camera camera;

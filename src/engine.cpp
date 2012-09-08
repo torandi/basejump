@@ -11,7 +11,6 @@
 static const char* shader_programs[NUM_SHADERS] = {
 	"/shaders/normal",
 	"/shaders/particles",
-	"/shaders/water",
 	"/shaders/passthru",
 	"/shaders/blur",
 	"/shaders/blend",
