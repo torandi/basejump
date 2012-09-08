@@ -36,14 +36,14 @@ long Time::update_delta(){
 	/* syncing against music */
 	if ( sound ){
 		const double cur_time = sound->time();
-		const long int usec = USDIVIDER * (cur_time - sound_last_time);
+		const long int usec = static_cast<long>(USDIVIDER * (cur_time - sound_last_time));
 		sound_last_time = cur_time;
 		return usec;
 	}
 
 	/* scaled time */
 	const float k = (float)scale / 100.0f;
-	return delta * k;
+	return static_cast<long>(delta * k);
 }
 
 void Time::step(int amount){

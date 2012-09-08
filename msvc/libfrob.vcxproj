@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AF96A19C-362B-4F98-9560-1B793095B79E}</ProjectGuid>
+    <RootNamespace>libfrob</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\libfrob\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)\libfrob\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/../vendor/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\bindable.hpp" />
+    <ClInclude Include="..\src\camera.hpp" />
+    <ClInclude Include="..\src\cl.hpp" />
+    <ClInclude Include="..\src\color.hpp" />
+    <ClInclude Include="..\src\data.hpp" />
+    <ClInclude Include="..\src\engine.hpp" />
+    <ClInclude Include="..\src\forward.hpp" />
+    <ClInclude Include="..\src\globals.hpp" />
+    <ClInclude Include="..\src\input.hpp" />
+    <ClInclude Include="..\src\light.hpp" />
+    <ClInclude Include="..\src\lights_data.hpp" />
+    <ClInclude Include="..\src\material.hpp" />
+    <ClInclude Include="..\src\mesh.hpp" />
+    <ClInclude Include="..\src\meta.hpp" />
+    <ClInclude Include="..\src\movable_light.hpp" />
+    <ClInclude Include="..\src\movable_object.hpp" />
+    <ClInclude Include="..\src\particle_system.hpp" />
+    <ClInclude Include="..\src\platform.hpp" />
+    <ClInclude Include="..\src\quad.hpp" />
+    <ClInclude Include="..\src\rendertarget.hpp" />
+    <ClInclude Include="..\src\render_object.hpp" />
+    <ClInclude Include="..\src\scene.hpp" />
+    <ClInclude Include="..\src\shader.hpp" />
+    <ClInclude Include="..\src\skybox.hpp" />
+    <ClInclude Include="..\src\sound.hpp" />
+    <ClInclude Include="..\src\terrain.hpp" />
+    <ClInclude Include="..\src\texture.hpp" />
+    <ClInclude Include="..\src\time.hpp" />
+    <ClInclude Include="..\src\timetable.hpp" />
+    <ClInclude Include="..\src\utils.hpp" />
+    <ClInclude Include="compat.hpp" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="crt.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\camera.cpp" />
+    <ClCompile Include="..\src\cl.cpp" />
+    <ClCompile Include="..\src\color.cpp" />
+    <ClCompile Include="..\src\data.cpp" />
+    <ClCompile Include="..\src\engine.cpp" />
+    <ClCompile Include="..\src\globals.cpp" />
+    <ClCompile Include="..\src\input.cpp" />
+    <ClCompile Include="..\src\light.cpp" />
+    <ClCompile Include="..\src\lights_data.cpp" />
+    <ClCompile Include="..\src\material.cpp" />
+    <ClCompile Include="..\src\mesh.cpp" />
+    <ClCompile Include="..\src\meta.cpp" />
+    <ClCompile Include="..\src\movable_light.cpp" />
+    <ClCompile Include="..\src\movable_object.cpp" />
+    <ClCompile Include="..\src\particle_system.cpp" />
+    <ClCompile Include="..\src\quad.cpp" />
+    <ClCompile Include="..\src\rendertarget.cpp" />
+    <ClCompile Include="..\src\render_object.cpp" />
+    <ClCompile Include="..\src\scene.cpp" />
+    <ClCompile Include="..\src\scenefactory.cpp" />
+    <ClCompile Include="..\src\shader.cpp" />
+    <ClCompile Include="..\src\skybox.cpp" />
+    <ClCompile Include="..\src\sound.cpp" />
+    <ClCompile Include="..\src\terrain.cpp" />
+    <ClCompile Include="..\src\testing.cpp" />
+    <ClCompile Include="..\src\texture.cpp" />
+    <ClCompile Include="..\src\time.cpp" />
+    <ClCompile Include="..\src\timetable.cpp" />
+    <ClCompile Include="..\src\utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\src\nox2.txt" />
+    <Text Include="..\src\timetable.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

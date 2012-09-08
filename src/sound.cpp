@@ -159,6 +159,6 @@ double Sound::time() const {
 
 void Sound::seek(double t) {
 	if(channel_ == nullptr) return;
-		result_ = channel_->setPosition(t*1000.0, FMOD_TIMEUNIT_MS);
+		result_ = channel_->setPosition(static_cast<unsigned int>(t*1000.0), FMOD_TIMEUNIT_MS);
 		errcheck("Sound::seek()");
 }

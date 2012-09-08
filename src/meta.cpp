@@ -4,6 +4,7 @@
 
 #include "meta.hpp"
 #include "color.hpp"
+#include "utils.hpp"
 #include <sstream>
 #include <cstring>
 
@@ -31,10 +32,10 @@ std::string MetaLightBase::set_string(Scene* instance, const std::string& str, u
 	switch (offset){
 	case 0: break;
 	case 1: light->type = (Light::light_type_t)atoi(str.c_str()); break;
-	case 2: light->constant_attenuation = atof(str.c_str()); break;
-	case 3: light->intensity.r = atof(str.c_str()); break;
-	case 4: light->intensity.g = atof(str.c_str()); break;
-	case 5: light->intensity.b = atof(str.c_str()); break;
+	case 2: light->constant_attenuation = atoff(str.c_str()); break;
+	case 3: light->intensity.r = atoff(str.c_str()); break;
+	case 4: light->intensity.g = atoff(str.c_str()); break;
+	case 5: light->intensity.b = atoff(str.c_str()); break;
 	case 6: light->set_position(glm::vec3(atof(str.c_str()), light->position().y, light->position().z)); break;
 	case 7: light->set_position(glm::vec3(light->position().x, atof(str.c_str()), light->position().z)); break;
 	case 8: light->set_position(glm::vec3(light->position().x, light->position().y, atof(str.c_str()))); break;
@@ -57,7 +58,8 @@ std::string MetaVariableBase<float>::get_string(Scene* instance, unsigned int of
 
 template <>
 std::string MetaVariableBase<float>::set_string(Scene* instance, const std::string& str, unsigned int offset){
-	set(instance, atof(str.c_str()));
+	const float tmp = static_cast<float>(atof(str.c_str()));
+	set(instance, tmp);
 	return get_string(instance, 0);
 }
 
@@ -113,12 +115,12 @@ std::string MetaVariableBase<glm::vec3>::set_string(Scene* instance, const std::
 
 	if ( offset == 0 ){
 		char* tmp = strdup(str.c_str());
-		v.x = atof(strtok(tmp,   ","));
-		v.y = atof(strtok(NULL,  ","));
-		v.z = atof(strtok(NULL,  ","));
+		v.x = atoff(strtok(tmp,   ","));
+		v.y = atoff(strtok(NULL,  ","));
+		v.z = atoff(strtok(NULL,  ","));
 		free(tmp);
 	} else {
-		float w = atof(str.c_str());
+		float w = atoff(str.c_str());
 		v = get(instance);
 		switch (offset) {
 		case 1: v.x = w; break;
@@ -168,13 +170,13 @@ std::string MetaVariableBase<Color>::set_string(Scene* instance, const std::stri
 
 	if ( offset == 0 ){
 		char* tmp = strdup(str.c_str());
-		c.r = atof(strtok(tmp,   ","));
-		c.g = atof(strtok(NULL,  ","));
-		c.b = atof(strtok(NULL,  ","));
-		c.a = atof(strtok(NULL,  ","));
+		c.r = atoff(strtok(tmp,   ","));
+		c.g = atoff(strtok(NULL,  ","));
+		c.b = atoff(strtok(NULL,  ","));
+		c.a = atoff(strtok(NULL,  ","));
 		free(tmp);
 	} else {
-		float v = atof(str.c_str());
+		float v = atoff(str.c_str());
 		c = get(instance);
 		switch (offset) {
 		case 1: c.r = v; break;

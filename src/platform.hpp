@@ -25,7 +25,7 @@
 #       define __UNUSED__ __attribute__ ((unused))
 #       define __WARN_UNUSED__ __attribute__((warn_unused_result))
 #       define __ALIGNED__(size) __attribute__((aligned(size)))
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #       define __PURE__
 #       define __CONST__
 #       define __DEPRECATED__ __declspec(deprecated)
