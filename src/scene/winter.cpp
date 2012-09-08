@@ -17,6 +17,7 @@ public:
 	WinterScene (const glm::ivec2 &size)
 		: Scene(size)
 		, camera(75.f, size.x/(float)size.y, 0.1f, 100.f)
+		, particle_shader(nullptr)
 		, snow(500000, TextureArray::from_filename("snow1.png", nullptr))
 	 {
 			camera.set_position(glm::vec3(35.750710, 17.926385, 6.305542));
@@ -42,6 +43,7 @@ public:
 			lights.lights[0]->type = Light::POINT_LIGHT;
 			lights.lights[0]->quadratic_attenuation = 0.00002f;
 
+			particle_shader = Shader::create_shader("/shaders/particles");
 			snow.avg_spawn_rate = 500000.f;
 			snow.spawn_rate_var = 100000.f;
 
@@ -89,7 +91,7 @@ public:
 		clear(skycolor);
 		glDisable(GL_CULL_FACE);
 		render_geometry(camera);
-		shaders[SHADER_PARTICLES]->bind();
+		particle_shader->bind();
 		snow.render();
 		Shader::unbind();
 	}
@@ -113,6 +115,7 @@ private:
 	Camera camera;
 	Shader * terrain_shader;
 	Terrain * terrain;
+	Shader* particle_shader;
 	ParticleSystem snow;
 };
 

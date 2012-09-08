@@ -28,6 +28,7 @@ Skybox::Skybox(std::string skybox_path) {
 	//Generate skybox buffers:
 	static bool initialized = false;
 	if ( !initialized ){
+		shader = Shader::create_shader("/shaders/skybox");
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -41,6 +42,8 @@ Skybox::~Skybox() {
 }
 
 void Skybox::render(const Camera &camera) const{
+	shader->bind();
+
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -68,6 +71,7 @@ void Skybox::render(const Camera &camera) const{
 	checkForGLErrors("Skybox::render(): post");
 }
 
+Shader* Skybox::shader = nullptr;
 GLuint Skybox::vbo = 0;
 
 //Data:

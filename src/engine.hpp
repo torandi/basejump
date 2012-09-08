@@ -26,11 +26,6 @@ namespace Engine {
 	void setup_opengl();
 
 	/**
-	 * Load all shaders.
-	 */
-	void load_shaders();
-
-	/**
 	 * Register all scene types.
 	 */
 	void autoload_scenes();

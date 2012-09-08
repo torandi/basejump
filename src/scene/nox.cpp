@@ -30,8 +30,11 @@ public:
 		, cam_pos2("/src/scene/nox_cam2.txt")
 		, light_pos("/src/scene/nox_extra_light.txt")
 		, skybox("/textures/skydark")
+		, normal_shader(nullptr)
+		, water_shader(nullptr)
 		, water_quad(glm::vec2(10.f, 10.0f), true, true)
 		, water_texture(Texture2D::from_filename("/textures/water.png"))
+		, particle_shader(nullptr)
 		, fog(10000, TextureArray::from_filename("/textures/fog.png", nullptr))
 		, video(glm::vec2(1.f), true, true)
 	{
@@ -40,6 +43,9 @@ public:
 		logo.set_rotation(glm::vec3(0,1,0), 90.0f);
 		logo.set_position(glm::vec3(-30,0.3,0));
 
+		normal_shader = Shader::create_shader("/shaders/normal");
+
+		water_shader = Shader::create_shader("/shaders/water");
 		water_quad.set_position(glm::vec3(-100.f, -0.6f, -50.f));
 		water_quad.set_rotation(glm::vec3(1.f, 0, 0), 90.f);
 		water_quad.set_scale(100.f);
@@ -50,12 +56,13 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
 		water_texture->texture_unbind();
 
-		u_wave1 = shaders[SHADER_WATER]->uniform_location("wave1");
-		u_wave2 = shaders[SHADER_WATER]->uniform_location("wave2");
-
+		u_wave1 = water_shader->uniform_location("wave1");
+		u_wave2 = water_shader->uniform_location("wave2");
 
 		wave1 = glm::vec2(0.01, 0);
 		wave2 = glm::vec2(0.005, 0.03);
+
+		particle_shader = Shader::create_shader("/shaders/particles");
 
 		lights.ambient_intensity() = glm::vec3(0.01f);
 		lights.num_lights() = 2;
@@ -118,11 +125,10 @@ public:
 		clear(Color::black);
 		Shader::upload_lights(lights);
 
-		/*shaders[SHADER_SKYBOX]->bind();
-		skybox.render(cam);*/
+		/* skybox.render(cam); */
 
 		Shader::upload_camera(cam);
-		shaders[SHADER_NORMAL]->bind();
+		normal_shader->bind();
 
 		tunnel.render();
 		logo.render();
@@ -135,14 +141,14 @@ public:
 		glActiveTexture(Shader::TEXTURE_2D_2);
 		glBindTexture(GL_TEXTURE_2D, geometry.depthbuffer());
 
-		shaders[SHADER_WATER]->bind();
+		water_shader->bind();
 		{
 			glUniform2fv(u_wave1, 1, glm::value_ptr(wave1));
 			glUniform2fv(u_wave2, 1, glm::value_ptr(wave2));
 			water_quad.render();
 		}
 
-		shaders[SHADER_PARTICLES]->bind();
+		particle_shader->bind();
 		fog.render();
 
 
@@ -231,7 +237,7 @@ public:
 
 		geometry.bind();
 		geometry.clear(Color::black);
-		shaders[SHADER_NORMAL]->bind();
+		normal_shader->bind();
 		Shader::upload_camera(get_current_camera());
 		tunnel.render();
 		logo.render();
@@ -250,11 +256,14 @@ public:
 	PointTable light_pos;
 	Skybox skybox;
 
+	Shader* normal_shader;
+	Shader* water_shader;
 	Quad water_quad;
 	Texture2D* water_texture;
 	glm::vec2 wave1, wave2;
 	int video_index;
 	GLint u_wave1, u_wave2, u_video_index;
+	Shader* particle_shader;
 	ParticleSystem fog;
 	TextureArray * hologram;
 	Quad video;

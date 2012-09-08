@@ -59,13 +59,16 @@ public:
 	TunnelScene(const glm::ivec2& size)
 		: Scene(size)
 		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
-		, position("scene/tunnel.txt") {
+		, position("scene/tunnel.txt")
+		, shader(nullptr) {
 
 		lights.ambient_intensity() = glm::vec3(1.0f);
 		lights.num_lights() = 0;
 
 		camera.set_position(glm::vec3(-25,3,-25));
 		camera.look_at(glm::vec3(0,0,0));
+
+		shader = Shader::create_shader("/shaders/normal");
 
 		const size_t num_segment = 8;
 		const size_t num_vertices = num_segment * per_segment;
@@ -117,7 +120,7 @@ public:
 
 		Shader::upload_lights(lights);
 		Shader::upload_camera(cam);
-		shaders[SHADER_NORMAL]->bind();
+		shader->bind();
 
 		glm::mat4 model(1.f);
 		Shader::upload_model_matrix(model);
@@ -148,6 +151,7 @@ public:
 	Camera camera;
 	PointTable position;
 	Material material;
+	Shader* shader;
 
 	GLuint vbo[2];
 	size_t num_indices;
