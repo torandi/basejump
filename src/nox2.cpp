@@ -65,15 +65,15 @@ namespace Engine {
 		blend = new RenderTarget(glm::ivec2(1,1), GL_RGBA8);
 		char filename[64];
 		for(int i=0; i < NUM_TEXT_TEXTURES; ++i) {
-			sprintf(filename, "nox2/text%d.png", i);
+			sprintf(filename, "/textures/nox2/text%d.png", i);
 			text[i] = Texture2D::from_filename(filename);
 		}
 		textarea = new Quad(glm::vec2(1.0f, -1.0f), false);
 		textarea->set_scale(glm::vec3(512, 256, 1));
 
-		load_timetable(PATH_BASE "/src/nox2.txt");
+		load_timetable("/src/nox2.txt");
 
-		sound = new Sound("jumping.ogg");
+		sound = new Sound("/music/jumping.ogg");
 	}
 
 	void start(double seek) {

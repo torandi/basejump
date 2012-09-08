@@ -29,12 +29,31 @@ Data * Data::open(const std::string &filename) {
 }
 
 Data * Data::open(const char * filename) {
+	const std::string real_path = expand_path(filename);
+
 	size_t size;
-	void * data = load_file(filename, size);
+	void * data = load_file(real_path.c_str(), size);
 	if(data == nullptr)
 		return nullptr;
 
 	return new Data(data, size);
+}
+
+std::string Data::expand_path(const std::string& path){
+	return std::string(PATH_BASE) + path;
+}
+
+bool Data::file_exists(const std::string& filename){
+	const std::string real_path = expand_path(filename);
+#ifdef HAVE_ACCESS
+	return access(real_path.c_str(), R_OK) == 0;
+#elif defined(WIN32)
+	const DWORD dwAttrib = GetFileAttributes(real_path.c_str());
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+	        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else
+#error file_exists is not defined for this platform.
+#endif
 }
 
 void * Data::load_from_file(const char * filename, size_t &size) {

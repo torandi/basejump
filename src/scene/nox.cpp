@@ -22,17 +22,17 @@ class NOX: public Scene {
 public:
 	NOX(const glm::ivec2& size)
 		: Scene(size)
-		, tunnel("nox2/tunnel.obj", false)
-		, logo("nox.obj", false)
+		, tunnel("/models/nox2/tunnel.obj", false)
+		, logo("/models/nox.obj", false)
 		, geometry(size, GL_RGB8, RenderTarget::DEPTH_BUFFER)
 		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
-		, cam_pos1("scene/nox_cam1.txt")
-		, cam_pos2("scene/nox_cam2.txt")
-		, light_pos("scene/nox_extra_light.txt")
-		, skybox("skydark")
+		, cam_pos1("/src/scene/nox_cam1.txt")
+		, cam_pos2("/src/scene/nox_cam2.txt")
+		, light_pos("/src/scene/nox_extra_light.txt")
+		, skybox("/textures/skydark")
 		, water_quad(glm::vec2(10.f, 10.0f), true, true)
-		, water_texture(Texture2D::from_filename("water.png"))
-		, fog(10000, TextureArray::from_filename("fog.png", nullptr))
+		, water_texture(Texture2D::from_filename("/textures/water.png"))
+		, fog(10000, TextureArray::from_filename("/textures/fog.png", nullptr))
 		, video(glm::vec2(1.f), true, true)
 	{
 
@@ -102,9 +102,9 @@ public:
 		video_index = 0;
 
 		std::vector<std::string> frames;
-		char buffer[64];
+		char buffer[128];
 		for(int i=1;i<=HOLOGRAM_FRAMES; ++i) {
-			sprintf(buffer, "nox2/videos/entries%d.png", i);
+			snprintf(buffer, 128, "/textures/nox2/videos/entries%d.png", i);
 			frames.push_back(std::string(buffer));
 		}
 
@@ -275,4 +275,4 @@ SceneFactory::Metadata* SceneTraits<NOX>::metadata(){
 	return _;
 }
 
-REGISTER_SCENE_TYPE(NOX, "NördtroXy II", "nox.meta");
+REGISTER_SCENE_TYPE(NOX, "NördtroXy II", "/src/scene/nox.meta");

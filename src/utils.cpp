@@ -98,18 +98,6 @@ void print_mat4(const glm::mat4 &m) {
          m[3][0], m[3][1], m[3][2], m[3][3]);
 }
 
-bool file_exists(const std::string& filename){
-#ifdef HAVE_ACCESS
-	return access(filename.c_str(), R_OK) == 0;
-#elif defined(WIN32)
-	const DWORD dwAttrib = GetFileAttributes(filename.c_str());
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-	        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-#error file_exists is not defined for this platform.
-#endif
-}
-
 int timetable_parse(const std::string& filename, std::function<void(const std::string&, float, float)> func){
 	const char* tablename = filename.c_str();
 	Data * timetable = Data::open(tablename);

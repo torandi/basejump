@@ -22,7 +22,7 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	, spawn_(!oneshot)
 	,	texture_(texture) {
 
-	program_ = opencl->create_program("particles.cl");
+	program_ = opencl->create_program("/cl_programs/particles.cl");
 	run_kernel_  = opencl->load_kernel(program_, "run_particles");
 	if(spawn_) spawn_kernel_  = opencl->load_kernel(program_, "spawn_particles");
 

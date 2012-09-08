@@ -38,10 +38,9 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 	if(system_usage_ == 0) initialize_fmod();
 	++system_usage_;
 
-	const std::string real_path = PATH_BASE "music/" + std::string(file);
-	source = Data::open(real_path);
+	source = Data::open(file);
 	if(source == NULL) {
-		fprintf(stderr, "[Sound] Couldn't open file %s\n", real_path.c_str());
+		fprintf(stderr, "[Sound] Couldn't open file %s\n", file);
 		abort();
 	}
 
