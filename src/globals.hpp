@@ -15,11 +15,6 @@ extern Time global_time;                 /* current time */
 extern glm::ivec2 resolution;            /* current resolution */
 extern glm::mat4 screen_ortho;           /* orthographic projection for window */
 
-enum shader_t {
-	NUM_SHADERS = 0,
-};
-
-extern Shader* shaders[];                /* all shader programs */
 extern CL * opencl;
 
 #endif /* GLOBALS_H */

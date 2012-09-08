@@ -255,7 +255,6 @@ static void init(){
 		"texture:/textures/white.jpg"};
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), loading_progress);
 	Engine::autoload_scenes();
-	Engine::load_shaders();
 	opencl = new CL();
 
 	Engine::init();

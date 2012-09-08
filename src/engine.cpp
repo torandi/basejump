@@ -8,10 +8,6 @@
 #include "shader.hpp"
 #include "utils.hpp"
 
-static const char* shader_programs[NUM_SHADERS] = {
-
-};
-
 namespace Engine {
 
 	void setup_opengl(){
@@ -23,12 +19,6 @@ namespace Engine {
 		glCullFace(GL_BACK);
 		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-	void load_shaders() {
-		for(int i=0; i < NUM_SHADERS; ++i) {
-			shaders[i] = Shader::create_shader(shader_programs[i]);
-		}
 	}
 
 	void load_timetable(const std::string& filename){
