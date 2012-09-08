@@ -37,6 +37,18 @@ Data * Data::open(const char * filename) {
 	return new Data(data, size);
 }
 
+bool Data::file_exists(const std::string& filename){
+#ifdef HAVE_ACCESS
+	return access(filename.c_str(), R_OK) == 0;
+#elif defined(WIN32)
+	const DWORD dwAttrib = GetFileAttributes(filename.c_str());
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+	        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else
+#error file_exists is not defined for this platform.
+#endif
+}
+
 void * Data::load_from_file(const char * filename, size_t &size) {
 	FILE * file = fopen(filename, "rb");
 	if(file == nullptr) {

@@ -38,11 +38,6 @@ inline float frand() {
 glm::vec2 screen_pos(const glm::vec2& v, const glm::vec2& size);
 
 /**
- * Test if a filename exists.
- */
-bool file_exists(const std::string& filename);
-
-/**
  * Parse timetable.
  * Calls func for each valid line.
  * @return 0 if successful and errno on errors.

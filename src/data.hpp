@@ -12,6 +12,11 @@ class Data {
 		static Data * open(const char * filename);
 		static Data * open(const std::string &filename);
 
+		/**
+		 * Test if a filename exists.
+		 */
+		static bool file_exists(const std::string& filename);
+
 		/*
 		 * Returns a pointer to the data
 		 */

@@ -281,9 +281,9 @@ Shader* Shader::create_shader(const std::string& base_name, bool cache) {
 	std::vector<GLuint> shader_list;
 
 	//Load shaders:
-	shader_list.push_back(load_shader(GL_VERTEX_SHADER,   file_exists(vs) ? vs : PATH_BASE"/shaders/default.vert"));
-	shader_list.push_back(load_shader(GL_FRAGMENT_SHADER, file_exists(fs) ? fs : PATH_BASE"/shaders/default.frag"));
-	if ( file_exists(gs) ){
+	shader_list.push_back(load_shader(GL_VERTEX_SHADER,   Data::file_exists(vs) ? vs : PATH_BASE"/shaders/default.vert"));
+	shader_list.push_back(load_shader(GL_FRAGMENT_SHADER, Data::file_exists(fs) ? fs : PATH_BASE"/shaders/default.frag"));
+	if ( Data::file_exists(gs) ){
 		shader_list.push_back(load_shader(GL_GEOMETRY_SHADER, gs));
 	}
 
@@ -323,7 +323,7 @@ void Shader::usage_report(FILE* dst){
 			}
 
 			std::string filename = PATH_BASE"/shaders/"+p.first+extlut[extension];
-			if ( !file_exists(filename) ) filename = PATH_BASE"/shaders/default"+extlut[extension];
+			if ( !Data::file_exists(filename) ) filename = PATH_BASE"/shaders/default"+extlut[extension];
 
 			fprintf(dst, "%s:%s\n", p.first.c_str(), filename.c_str());
 		}
