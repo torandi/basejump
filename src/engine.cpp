@@ -9,18 +9,13 @@
 #include "utils.hpp"
 
 static const char* shader_programs[NUM_SHADERS] = {
-	"/shaders/simple",
 	"/shaders/normal",
-	"/shaders/modelviewer",
 	"/shaders/particles",
-	"/shaders/particles_light",
 	"/shaders/debug",
 	"/shaders/skybox",
 	"/shaders/water",
 	"/shaders/passthru",
-	"/shaders/distort",
 	"/shaders/blur",
-	"/shaders/filmgrain",
 	"/shaders/blend",
 };
 
