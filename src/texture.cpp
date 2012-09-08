@@ -27,16 +27,14 @@ static GLuint cube_map_index[6] = {
 };
 
 SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) {
-	const std::string real_path = std::string(PATH_BASE "textures/") + path;
-
 	/* Load image using SDL Image */
-	fprintf(verbose, "Loading image `%s'\n", real_path.c_str());
-	Data * file = Data::open(real_path);
+	fprintf(verbose, "Loading image `%s'\n", path.c_str());
+	Data * file = Data::open(path);
 
 	if ( !file ){
-		fprintf(stderr, "Failed to load texture at %s\n", real_path.c_str());
-		if ( path != "default.jpg" ){
-			return load_image("default.jpg", size);
+		fprintf(stderr, "Failed to load texture at %s\n", path.c_str());
+		if ( path != "/textures/default.jpg" ){
+			return load_image("textures/default.jpg", size);
 		}
 		abort();
 	}
@@ -46,7 +44,7 @@ SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) 
 	delete file;
 
 	if ( !surface ){
-		fprintf(stderr, "Failed to load surface from `%s'\n", real_path.c_str());
+		fprintf(stderr, "Failed to load surface from `%s'\n", path.c_str());
 		abort();
 	}
 
@@ -152,19 +150,19 @@ Texture2D* Texture2D::from_filename(const std::string &path, bool mipmap) {
 }
 
 Texture2D* Texture2D::default_colormap(){
-	return from_filename("default.jpg");
+	return from_filename("/textures/default.jpg");
 }
 
 Texture2D* Texture2D::default_normalmap(){
-	return from_filename("default_normalmap.jpg");
+	return from_filename("/textures/default_normalmap.jpg");
 }
 
 Texture2D* Texture2D::default_specularmap(){
-	return from_filename("white.jpg");
+	return from_filename("/textures/white.jpg");
 }
 
 Texture2D* Texture2D::default_alphamap(){
-	return from_filename("white.jpg");
+	return from_filename("/textures/white.jpg");
 }
 
 Texture2D::Texture2D(const std::string& filename, bool mipmap)

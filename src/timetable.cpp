@@ -13,8 +13,7 @@ TimeTable::TimeTable(){
 }
 
 int TimeTable::read_file(const std::string& filename){
-	const std::string expanded = PATH_BASE"/src/" + filename;
-	Data * file = Data::open(expanded);
+	Data * file = Data::open(filename);
 	if ( !file ){
 		fprintf(stderr, "Failed to open `%s': %s\n", filename.c_str(), strerror(errno));
 		return errno;
@@ -43,7 +42,7 @@ int TimeTable::read_file(const std::string& filename){
 
 		/* parse line */
 		if ( parse(entry) != 0 ){
-			fprintf(stderr, "%s:%d: malformed entry: \"%.*s\"\n", expanded.c_str(), linenum, (int)(len-1), line);
+			fprintf(stderr, "%s:%d: malformed entry: \"%.*s\"\n", filename.c_str(), linenum, (int)(len-1), line);
 		}
 
 		free(tmp);

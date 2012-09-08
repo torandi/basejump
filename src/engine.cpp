@@ -9,19 +9,19 @@
 #include "utils.hpp"
 
 static const char* shader_programs[NUM_SHADERS] = {
-	"simple",
-	"normal",
-	"modelviewer",
-	"particles",
-	"particles_light",
-	"debug",
-	"skybox",
-	"water",
-	"passthru",
-	"distort",
-	"blur",
-	"filmgrain",
-	"blend",
+	"/shaders/simple",
+	"/shaders/normal",
+	"/shaders/modelviewer",
+	"/shaders/particles",
+	"/shaders/particles_light",
+	"/shaders/debug",
+	"/shaders/skybox",
+	"/shaders/water",
+	"/shaders/passthru",
+	"/shaders/distort",
+	"/shaders/blur",
+	"/shaders/filmgrain",
+	"/shaders/blend",
 };
 
 namespace Engine {

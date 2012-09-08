@@ -82,10 +82,9 @@ bool Scene::is_active() const {
 }
 
 void Scene::meta_load(struct SceneInfo* info){
-	const std::string filename = PATH_BASE "/src/scene/" + info->filename;
-	Data * file = Data::open(filename);
+	Data * file = Data::open(info->filename);
 	if ( !file ){
-		fprintf(stderr, "Failed to read metadata for scene `%s' from `%s': %s\n", info->name.c_str(), filename.c_str(), strerror(errno));
+		fprintf(stderr, "Failed to read metadata for scene `%s' from `%s': %s\n", info->name.c_str(), info->filename.c_str(), strerror(errno));
 		return;
 	}
 
@@ -108,7 +107,7 @@ void Scene::meta_load(struct SceneInfo* info){
 		if ( it != info->meta->end() ){
 			it->second->set_string(this, value, 0);
 		} else {
-			fprintf(stderr, "%s: unknown key `%s' ignored.\n", filename.c_str(), key);
+			fprintf(stderr, "%s: unknown key `%s' ignored.\n", info->filename.c_str(), key);
 		}
 	}
 	free(buffer);

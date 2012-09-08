@@ -62,7 +62,7 @@ namespace Engine {
 		downsample[0] = new RenderTarget(resolution/2, GL_RGB8, false);
 		downsample[1] = new RenderTarget(resolution/4, GL_RGB8, false);
 
-		load_timetable(PATH_SRC "edison.txt");
+		load_timetable("/src/edison.txt");
 	}
 
 	void start(double seek) {

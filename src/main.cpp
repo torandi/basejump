@@ -34,7 +34,7 @@
 
 #include "light.hpp"
 
-#define LOGFILE PATH_BASE "frob.log"
+#define LOGFILE "frob.log"
 
 static const unsigned int framerate = 60;
 static const uint64_t per_frame = 1000000 / framerate;
@@ -121,9 +121,9 @@ static void render_loading_scene() {
 static void prepare_loading_scene() {
 	fprintf(verbose, "Preparing loading scene\n");
 
-	loading_textures[0] = Texture2D::from_filename("frob_nocolor.png");
-	loading_textures[1] = Texture2D::from_filename("frob_color.png");
-	loading_textures[2] = Texture2D::from_filename("loading.png");
+	loading_textures[0] = Texture2D::from_filename("/textures/frob_nocolor.png");
+	loading_textures[1] = Texture2D::from_filename("/textures/frob_color.png");
+	loading_textures[2] = Texture2D::from_filename("/textures/loading.png");
 
 	loading_quad[0] = new Quad(glm::vec2(1.f, -1.f), false);
 	loading_quad[1] = new Quad(glm::vec2(1.f, -1.f), false);
@@ -250,9 +250,9 @@ static void init(){
 	do_loading_scene();
 
 	static const char* resources[] = {
-		"texture:default.jpg",
-		"texture:default_normalmap.jpg",
-		"texture:white.jpg"};
+		"texture:/textures/default.jpg",
+		"texture:/textures/default_normalmap.jpg",
+		"texture:/textures/white.jpg"};
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), loading_progress);
 	Engine::autoload_scenes();
 	Engine::load_shaders();

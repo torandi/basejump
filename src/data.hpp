@@ -28,7 +28,6 @@ class Data {
 		const size_t &size() const;
 
 		ssize_t getline(char **lineptr, size_t *n) const;
-		
 
 		/*
 		 * Non-static access functions:
@@ -43,6 +42,12 @@ class Data {
 		~Data();
 	private:
 		Data(void * data, const size_t &size);
+
+		/**
+		 * Expand a local path to a real path.
+		 * E.g. /textures/foo.png -> ../textures/foo.png
+		 */
+		static std::string expand_path(const std::string& path);
 
 		void * _data;
 		const size_t _size;

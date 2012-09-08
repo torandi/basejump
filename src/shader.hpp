@@ -35,7 +35,7 @@ public:
 	 * Create a new shader, or if the shader is already loaded the same instance
 	 * is retrieved.
 	 *
-	 * @param base_name is used to build the filename: PATH_BASE + "/shaders/" + base_name + EXTENSION.
+	 * @param base_name is used to build the filename: base_name + EXTENSION.
 	 * @param cache If true it uses caching. Uncached shaders should be removed
 	 *              with Shader::release(). Normally you do _not_ want to use
 	 *              uncached shaders.
