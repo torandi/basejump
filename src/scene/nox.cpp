@@ -33,6 +33,7 @@ public:
 		, water_shader(nullptr)
 		, water_quad(glm::vec2(10.f, 10.0f), true, true)
 		, water_texture(Texture2D::from_filename("/textures/water.png"))
+		, particle_shader(nullptr)
 		, fog(10000, TextureArray::from_filename("/textures/fog.png", nullptr))
 		, video(glm::vec2(1.f), true, true)
 	{
@@ -57,6 +58,8 @@ public:
 
 		wave1 = glm::vec2(0.01, 0);
 		wave2 = glm::vec2(0.005, 0.03);
+
+		particle_shader = Shader::create_shader("/shaders/particles");
 
 		lights.ambient_intensity() = glm::vec3(0.01f);
 		lights.num_lights() = 2;
@@ -142,7 +145,7 @@ public:
 			water_quad.render();
 		}
 
-		shaders[SHADER_PARTICLES]->bind();
+		particle_shader->bind();
 		fog.render();
 
 
@@ -256,6 +259,7 @@ public:
 	glm::vec2 wave1, wave2;
 	int video_index;
 	GLint u_wave1, u_wave2, u_video_index;
+	Shader* particle_shader;
 	ParticleSystem fog;
 	TextureArray * hologram;
 	Quad video;

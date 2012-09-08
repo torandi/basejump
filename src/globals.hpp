@@ -17,7 +17,6 @@ extern glm::mat4 screen_ortho;           /* orthographic projection for window *
 
 enum shader_t {
 	SHADER_NORMAL = 0,
-	SHADER_PARTICLES,
 
 	/* for rendering targets */
 	SHADER_PASSTHRU,                       /* multiplies vertices with MVP and textures using unit 1 */

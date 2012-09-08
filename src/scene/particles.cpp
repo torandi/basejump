@@ -11,6 +11,7 @@ class ParticlesScene: public Scene {
 public:
 	ParticlesScene(const glm::ivec2 &size)
 		: Scene(size)
+		, shader(nullptr)
 		, expl(500000, TextureArray::from_filename("particle.png", nullptr))
 		, camera(75.f, size.x/(float)size.y, 0.1f, 100.f) {
 			camera.set_position(glm::vec3(0.f, 0.f, -1));
@@ -55,6 +56,8 @@ public:
 			smoke.config.motion_rand = glm::vec4(0.001f, 0.f, 0.001f, 0);
 			smoke.update_config();*/
 
+			shader = Shader::create_shader("/shaders/particles");
+
 			expl.avg_spawn_rate = 1000000.f;
 			expl.spawn_rate_var = 0.f;
 			expl.config.spawn_position = glm::vec4(0.f, 0.f, 2.f, 1.f);
@@ -79,7 +82,7 @@ public:
 
 	virtual void render_geometry(const Camera& cam){
 		Shader::upload_camera(camera);
-		shaders[SHADER_PARTICLES]->bind();
+		shader->bind();
 		//smoke.render();
 		expl.render();
 	}
@@ -108,6 +111,7 @@ public:
 	}
 
 private:
+	Shader* shader;
 	ParticleSystem expl;
 	Camera camera;
 };
