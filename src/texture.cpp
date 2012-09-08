@@ -34,7 +34,7 @@ SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) 
 	if ( !file ){
 		fprintf(stderr, "Failed to load texture at %s\n", path.c_str());
 		if ( path != "/textures/default.jpg" ){
-			return load_image("textures/default.jpg", size);
+			return load_image("/textures/default.jpg", size);
 		}
 		abort();
 	}
