@@ -38,7 +38,7 @@ public:
 		lights.num_lights() = 1;
 		lights.lights[0]->set_position(glm::vec3(5, 0.8f, 6.f));
 		lights.lights[0]->intensity = glm::vec3(0.8f);
-		lights.lights[0]->type = Light::POINT_LIGHT;
+		lights.lights[0]->type = MovableLight::POINT_LIGHT;
 
 		water_shader = Shader::create_shader("/shaders/water");
 		water->texture_bind(Shader::TEXTURE_2D_0);

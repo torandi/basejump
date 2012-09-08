@@ -8,6 +8,6 @@ Light::Light() :
 		constant_attenuation(1.0f),
 		linear_attenuation(0.01f),
 		quadratic_attenuation(0.002f),
-		type(DIRECTIONAL_LIGHT) {
+		is_directional(1) {
 
 }

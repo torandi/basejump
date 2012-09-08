@@ -10,18 +10,18 @@ MovableLight::MovableLight(Light * light)
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
-	, type(data->type)
 	, intensity(data->intensity)
-{}
+	, type(MovableLight::DIRECTIONAL_LIGHT)
+	{ 
+		update();
+	}
 
-MovableLight::MovableLight()
-	: data(new Light())
+MovableLight::MovableLight() :
+	  data(new Light())
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
-	, type(data->type)
-	, intensity(data->intensity)
-{}
+	, intensity(data->intensity) {}
 
 MovableLight::MovableLight(const MovableLight &ml)
 	: MovableObject(ml.position())
@@ -29,10 +29,10 @@ MovableLight::MovableLight(const MovableLight &ml)
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
-	, type(data->type)
-	, intensity(data->intensity)
-{}
+	, intensity(data->intensity) {}
 
 void MovableLight::update() {
 	data->position = position_;
-}
+	data->is_directional = (type == DIRECTIONAL_LIGHT);
+}	
+

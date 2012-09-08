@@ -39,7 +39,7 @@ public:
 			lights.num_lights() = 1;
 			lights.lights[0]->set_position(glm::vec3(10, 50.f, 10.f));
 			lights.lights[0]->intensity = glm::vec3(0.8f);
-			lights.lights[0]->type = Light::POINT_LIGHT;
+			lights.lights[0]->type = MovableLight::POINT_LIGHT;
 			lights.lights[0]->quadratic_attenuation = 0.00002f;
 
 			particle_shader = Shader::create_shader("/shaders/particles");

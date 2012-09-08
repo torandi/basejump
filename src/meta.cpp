@@ -31,7 +31,7 @@ std::string MetaLightBase::set_string(Scene* instance, const std::string& str, u
 
 	switch (offset){
 	case 0: break;
-	case 1: light->type = (Light::light_type_t)atoi(str.c_str()); break;
+	case 1: light->type = (MovableLight::light_type_t)atoi(str.c_str()); break;
 	case 2: light->constant_attenuation = atoff(str.c_str()); break;
 	case 3: light->intensity.r = atoff(str.c_str()); break;
 	case 4: light->intensity.g = atoff(str.c_str()); break;
