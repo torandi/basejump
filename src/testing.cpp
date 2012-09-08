@@ -32,6 +32,7 @@
 
 static RenderTarget* composition;
 static RenderTarget* downsample[3];
+static Shader* passthru = nullptr;
 //static XYLerpTable* particle_pos = nullptr;
 //static XYLerpTable* tv_pos = nullptr;
 //static XYLerpTable* test_pos = nullptr;
@@ -77,6 +78,7 @@ namespace Engine {
 		downsample[0] = new RenderTarget(glm::ivec2(200, 200), GL_RGB8, 0, GL_LINEAR);
 		downsample[1] = new RenderTarget(glm::ivec2(100, 100), GL_RGB8, 0, GL_LINEAR);
 		downsample[2] = new RenderTarget(glm::ivec2( 50, 50),  GL_RGB8, 0, GL_LINEAR);
+		passthru = Shader::create_shader("/shaders/passthru");
 
 		sound = new Sound("jumping.ogg");
 	}
@@ -128,17 +130,17 @@ namespace Engine {
 
 		scene["TV"]->draw(shaders[SHADER_DISTORT], glm::ivec2(400,0));*/
 
-		//scene["Test" ]->draw(shaders[SHADER_PASSTHRU], screen_pos(test_pos->at(t), glm::vec2(scene["Test"]->texture_size())));
-		//scene["Water" ]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["Water"]->texture_size())));
-		//scene["TV" ]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["TV"]->texture_size())));
-		//scene["TV" ]->draw(shaders[SHADER_PASSTHRU], screen_pos(tv_pos->at(t), glm::vec2(scene["TV"]->texture_size())));
-		scene["particle"]->draw(shaders[SHADER_PASSTHRU], screen_pos(glm::vec2(0,0), glm::vec2(scene["particle"]->texture_size())));
+		//scene["Test" ]->draw(passthru, screen_pos(test_pos->at(t), glm::vec2(scene["Test"]->texture_size())));
+		//scene["Water" ]->draw(passthru, screen_pos(glm::vec2(0,0), glm::vec2(scene["Water"]->texture_size())));
+		//scene["TV" ]->draw(passthru, screen_pos(glm::vec2(0,0), glm::vec2(scene["TV"]->texture_size())));
+		//scene["TV" ]->draw(passthru, screen_pos(tv_pos->at(t), glm::vec2(scene["TV"]->texture_size())));
+		scene["particle"]->draw(passthru, screen_pos(glm::vec2(0,0), glm::vec2(scene["particle"]->texture_size())));
 	}
 
 	static void render_display(){
 		RenderTarget::clear(Color::magenta);
 		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
-		composition->draw(shaders[SHADER_PASSTHRU]);
+		composition->draw(passthru);
 	}
 
 	void render(){

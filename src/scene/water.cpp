@@ -68,11 +68,6 @@ public:
 
 		Shader::upload_camera(cam);
 
-		shaders[SHADER_PASSTHRU]->bind();
-		{
-			cube.render();
-		}
-
 		Shader::upload_blank_material();
 		water->texture_bind(Shader::TEXTURE_NORMALMAP);
 		skybox.texture->texture_bind(Shader::TEXTURE_CUBEMAP_0);

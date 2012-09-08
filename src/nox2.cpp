@@ -33,6 +33,7 @@
 
 static RenderTarget* composition = nullptr;
 static RenderTarget* blend = nullptr;
+static Shader* passthru = nullptr;
 static Shader* blend_shader = nullptr;
 #define NUM_TEXT_TEXTURES 11
 static Texture2D* text[NUM_TEXT_TEXTURES];
@@ -65,6 +66,7 @@ namespace Engine {
 		composition = new RenderTarget(resolution, GL_RGB8);
 		blend = new RenderTarget(glm::ivec2(1,1), GL_RGBA8);
 		blend_shader = Shader::create_shader("/shaders/blend");
+		passthru = Shader::create_shader("/shaders/passthru");
 		char filename[64];
 		for(int i=0; i < NUM_TEXT_TEXTURES; ++i) {
 			sprintf(filename, "/textures/nox2/text%d.png", i);
@@ -139,70 +141,70 @@ namespace Engine {
 		if ( t > 23.1f && t < 35.f ){
 			//Tyngelvi
 			textarea->set_position(glm::vec3( scale_text_position( (t - 23.1f), 7.f, 24) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[1]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 30.5f && t < 40.f) {
 			//Primary compo
 			textarea->set_position(glm::vec3( scale_text_position( (t - 30.5f), 9.5f, 128) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[2]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 40.0f && t < 50.f) {
 			//Barbeque
 			textarea->set_position(glm::vec3( scale_text_position( (t - 40.f), 10.f, 72) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[3]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 50.0f && t < 60.f) {
 			//tickets at
 			textarea->set_position(glm::vec3( scale_text_position( (t - 50.f), 10.f, 60) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[4]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 60.0f && t < 66.f) {
 			//last years entries
 			textarea->set_position(glm::vec3( scale_text_position( (t - 60.f), 6.f, 60) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[5]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 66.0f && t < 75.f) {
 			//spacehorse
 			textarea->set_position(glm::vec3( scale_text_position( (t - 66.f), 9.f, 60) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[6]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 75.0f && t < 85.f) {
 			//omgspace
 			textarea->set_position(glm::vec3( scale_text_position( (t - 75.f), 10.f, 0) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[7]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 85.0f && t < 95.f) {
 			//trollgame
 			textarea->set_position(glm::vec3( scale_text_position( (t - 85.f), 10.f, 60) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[8]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 95.0f && t < 102.f) {
 			//code by
 			textarea->set_position(glm::vec3( scale_text_position( (t - 95.f), 7.f, 60) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[9]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
 		if( t > 102.0f && t < 109.f) {
 			//music by
 			textarea->set_position(glm::vec3( scale_text_position( (t - 102.f), 7.f, 60) , resolution.y - 250, 0));
-			shaders[SHADER_PASSTHRU]->bind();
+			passthru->bind();
 			text[10]->texture_bind(Shader::TEXTURE_2D_0);
 			textarea->render();
 		}
@@ -211,7 +213,7 @@ namespace Engine {
 	static void render_display(){
 		RenderTarget::clear(Color::magenta);
 		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
-		composition->draw(shaders[SHADER_PASSTHRU]);
+		composition->draw(passthru);
 	}
 
 	void render(){
