@@ -30,6 +30,7 @@ public:
 		, cam_pos2("/src/scene/nox_cam2.txt")
 		, light_pos("/src/scene/nox_extra_light.txt")
 		, skybox("/textures/skydark")
+		, normal_shader(nullptr)
 		, water_shader(nullptr)
 		, water_quad(glm::vec2(10.f, 10.0f), true, true)
 		, water_texture(Texture2D::from_filename("/textures/water.png"))
@@ -41,6 +42,8 @@ public:
 		logo.set_scale(0.1f);
 		logo.set_rotation(glm::vec3(0,1,0), 90.0f);
 		logo.set_position(glm::vec3(-30,0.3,0));
+
+		normal_shader = Shader::create_shader("/shaders/normal");
 
 		water_shader = Shader::create_shader("/shaders/water");
 		water_quad.set_position(glm::vec3(-100.f, -0.6f, -50.f));
@@ -125,7 +128,7 @@ public:
 		/* skybox.render(cam); */
 
 		Shader::upload_camera(cam);
-		shaders[SHADER_NORMAL]->bind();
+		normal_shader->bind();
 
 		tunnel.render();
 		logo.render();
@@ -234,7 +237,7 @@ public:
 
 		geometry.bind();
 		geometry.clear(Color::black);
-		shaders[SHADER_NORMAL]->bind();
+		normal_shader->bind();
 		Shader::upload_camera(get_current_camera());
 		tunnel.render();
 		logo.render();
@@ -253,6 +256,7 @@ public:
 	PointTable light_pos;
 	Skybox skybox;
 
+	Shader* normal_shader;
 	Shader* water_shader;
 	Quad water_quad;
 	Texture2D* water_texture;

@@ -9,7 +9,7 @@
 #include "utils.hpp"
 
 static const char* shader_programs[NUM_SHADERS] = {
-	"/shaders/normal",
+
 };
 
 namespace Engine {

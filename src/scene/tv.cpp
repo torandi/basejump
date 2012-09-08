@@ -15,6 +15,7 @@ class TVScene: public Scene {
 public:
 	TVScene(const glm::ivec2& size)
 		: Scene(size)
+		, shader(nullptr)
 		, tv_test("tv.obj", false)
 		, tv_room("tv_room.obj", false)
 		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
@@ -25,6 +26,8 @@ public:
 		, int_test(42)
 		, vec3_test(1.0f, 2,3)
 		, clear_color(Color::green) {
+
+		shader = Shader::create_shader("/shaders/normal");
 
 		camera.set_position(glm::vec3(-5.f, 0.f, 10.f));
 		camera.look_at(glm::vec3(0.f, 0.f, 0.f));
@@ -99,7 +102,7 @@ public:
 		skybox.render(camera);
 
 		Shader::upload_camera(cam);
-		shaders[SHADER_NORMAL]->bind();
+		shader->bind();
 
 		tv_test.render();
 		tv_room.render();
@@ -115,6 +118,7 @@ public:
 		//smoke.update(dt);
 	}
 
+	Shader* shader;
 	RenderObject tv_test;
 	RenderObject tv_room;
 	Camera camera;
