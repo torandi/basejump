@@ -19,7 +19,6 @@ enum shader_t {
 	SHADER_NORMAL = 0,
 	SHADER_PARTICLES,
 	SHADER_DEBUG,
-	SHADER_SKYBOX,
 	SHADER_WATER,
 
 	/* for rendering targets */

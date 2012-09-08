@@ -96,10 +96,7 @@ public:
 
 	virtual void render_geometry(const Camera& cam){
 		Shader::upload_lights(lights);
-		shaders[SHADER_SKYBOX]->bind();
-		{
-			skybox.render(camera);
-		}
+		skybox.render(camera);
 
 		Shader::upload_camera(cam);
 		shaders[SHADER_NORMAL]->bind();

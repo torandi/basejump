@@ -118,8 +118,7 @@ public:
 		clear(Color::black);
 		Shader::upload_lights(lights);
 
-		/*shaders[SHADER_SKYBOX]->bind();
-		skybox.render(cam);*/
+		/* skybox.render(cam); */
 
 		Shader::upload_camera(cam);
 		shaders[SHADER_NORMAL]->bind();
