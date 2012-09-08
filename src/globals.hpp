@@ -21,7 +21,6 @@ enum shader_t {
 	/* for rendering targets */
 	SHADER_PASSTHRU,                       /* multiplies vertices with MVP and textures using unit 1 */
 	SHADER_BLUR,                           /* gaussian blur */
-	SHADER_BLEND,                          /* mixes texture unit 1-4 using unit 5 */
 
 	NUM_SHADERS
 };

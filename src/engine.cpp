@@ -12,7 +12,6 @@ static const char* shader_programs[NUM_SHADERS] = {
 	"/shaders/normal",
 	"/shaders/passthru",
 	"/shaders/blur",
-	"/shaders/blend",
 };
 
 namespace Engine {

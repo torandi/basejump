@@ -33,6 +33,7 @@
 
 static RenderTarget* composition = nullptr;
 static RenderTarget* blend = nullptr;
+static Shader* blend_shader = nullptr;
 #define NUM_TEXT_TEXTURES 11
 static Texture2D* text[NUM_TEXT_TEXTURES];
 static Quad* textarea = nullptr;
@@ -63,6 +64,7 @@ namespace Engine {
 		scene["NOX"] = SceneFactory::create("NördtroXy II", glm::ivec2(resolution.x, resolution.y));
 		composition = new RenderTarget(resolution, GL_RGB8);
 		blend = new RenderTarget(glm::ivec2(1,1), GL_RGBA8);
+		blend_shader = Shader::create_shader("/shaders/blend");
 		char filename[64];
 		for(int i=0; i < NUM_TEXT_TEXTURES; ++i) {
 			sprintf(filename, "/textures/nox2/text%d.png", i);
@@ -120,7 +122,7 @@ namespace Engine {
 		glViewport(0, 0, resolution.x, resolution.y);
 
 		blend->texture_bind(Shader::TEXTURE_BLEND_S);
-		scene["NOX"]->draw(shaders[SHADER_BLEND]);
+		scene["NOX"]->draw(blend_shader);
 
 		const float t = global_time.get();
 		/*
