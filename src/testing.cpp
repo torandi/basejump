@@ -19,8 +19,8 @@ namespace Engine {
 	void init(){
 		mrt = (new RenderTarget(resolution, GL_RGB8, RenderTarget::MULTIPLE_RENDER_TARGETS))->MRT(2);
 		fs  = (new RenderTarget(resolution, GL_RGB8));
-		shader1 = Shader::create_shader("mrt_test1");
-		shader2 = Shader::create_shader("mrt_test2");
+		shader1 = Shader::create_shader("shaders/mrt_test1");
+		shader2 = Shader::create_shader("shaders/mrt_test2");
 	}
 
 	void start(double seek) {
