@@ -13,8 +13,9 @@ public:
 	static RenderTarget* stack;
 
 	enum Flags: int {
-		DEPTH_BUFFER  = (1<<0),       /** Enable depth buffer/write. */
-		DOUBLE_BUFFER = (1<<1),       /** Use doublebuffering so you can render the previous frame in the current frame. */
+		DEPTH_BUFFER  = (1<<0),           /** Enable depth buffer/write. */
+		DOUBLE_BUFFER = (1<<1),           /** Use doublebuffering so you can render the previous frame in the current frame. */
+		MULTIPLE_RENDER_TARGETS = (1<<2), /** Enable usage of multiple rendertargets, remember to call MRT(N) */
 	};
 
 	/**
@@ -41,6 +42,14 @@ public:
 	explicit RenderTarget(const glm::ivec2& size, GLenum format, int flags = 0, GLenum filter = GL_NEAREST) throw();
 	~RenderTarget();
 
+	/**
+	 * Enable MRT support for this rendertarget.
+	 * Doublebuffering cannot be enabled when using MRT. (because I'm lazy)
+	 *
+	 * @param target Number of color targets.
+	 */
+	RenderTarget* MRT(unsigned int targets);
+
 	void bind();
 	void unbind();
 
@@ -57,9 +66,19 @@ public:
 
 	/**
 	 * Get texture id of current frontbuffer.
+	 * @param target Use 0 for normal targets or index when using MRT.
 	 */
-	GLuint texture() const;
+	GLuint texture(unsigned int target = 0) const;
 
+	/**
+	 * Bind texture from color buffer target.
+	 * @param target Use 0 for normal targets or index when using MRT.
+	 */
+	virtual void texture_bind(Shader::TextureUnit unit, unsigned int target) const;
+
+	/**
+	 * Calls texture_bind(unit, 0)
+	 */
 	virtual void texture_bind(Shader::TextureUnit unit) const;
 	virtual void texture_unbind() const;
 
@@ -80,7 +99,8 @@ public:
 	 * Render the RenderTarget on current framebuffer. Caller should ensure an
 	 * orthographic projection is bound before calling draw.
 	 *
-	 * Always passes colormap as texture unit 0.
+	 * Color-buffers is passed as texture unit 0..N and if depth is enabled it is
+	 * passed in unit 7.
 	 */
 	void draw(Shader* shader);
 	void draw(Shader* shader, const glm::vec2& pos);
@@ -93,6 +113,13 @@ private:
 	static void init_vbo();
 
 	glm::mat4 projection;
+
+	/* parameters */
+	int flags;
+	GLenum format;
+	GLenum filter;
+
+	GLuint color_buffers;
 	GLuint id;
 	GLuint front;
 	GLuint back;
