@@ -75,7 +75,7 @@ static void show_fps(int signum){
 	frames = 0;
 }
 
-static bool loading = true;
+static bool is_loading = true;
 static double loading_time = 0.f;
 static Texture2D* loading_textures[3];
 static Shader * loading_shader;
@@ -98,7 +98,7 @@ static void render_loading_scene() {
 
 	float fade;
 
-	if(loading) {
+	if(is_loading) {
 		fade = (float)std::min((float)loading_time,1.f);
 	} else {
 		fade = (float)std::max(2.f - (float)loading_time,0.f);
@@ -155,7 +155,7 @@ static void do_loading_scene() {
 	/* for calculating dt */
 	long t = util_utime();
 
-	while(running && ( ( loading && loading_time < 1.f) || (!loading && loading_time < 2.0f))) {
+	while(running && ( ( is_loading && loading_time < 1.f) || (!is_loading && loading_time < 2.0f))) {
 		/* calculate dt */
 		const long cur = util_utime();
 		const long delta = cur - t;
@@ -263,7 +263,7 @@ static void init(){
 	Engine::init();
 
 	//Stop loading scene
-	loading = false;
+	is_loading = false;
 	do_loading_scene();
 
 	//Wait
