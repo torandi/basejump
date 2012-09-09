@@ -5,6 +5,7 @@
 #include "data.hpp"
 #include "engine.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 #include "render_object.hpp"
 #include "rendertarget.hpp"
 #include "utils.hpp"
@@ -34,8 +35,6 @@
 #endif
 
 #include "light.hpp"
-
-#define LOGFILE "frob.log"
 
 static const unsigned int framerate = 60;
 static const uint64_t per_frame = 1000000 / framerate;
@@ -239,6 +238,10 @@ static void loading_progress(const std::string& name, int index, int total){
 }
 
 static void init(){
+	Logging::init();
+	Logging::add_destination(Logging::VERBOSE, stderr);
+	Logging::add_destination(Logging::VERBOSE, "frob.log");
+	Logging::info("FFS: Frobnicator Fubar System - Engine starting\n");
 	init_window();
 	Data::add_search_path(PATH_BASE);
 	Engine::setup_opengl();
@@ -395,7 +398,7 @@ void show_usage(){
 	       "  -w, --windowed          Inverse of --fullscreen.\n"
 	       "  -s, --seek=TIME         Seek to the given time in seconds.\n"
 	       "  -n, --no-vsync          Disable vsync.\n"
-	       "  -v, --verbose           Enable verbose output to stdout (redirected to " LOGFILE " otherwise)\n"
+	       "  -v, --verbose           Enable verbose output to stdout (redirected to logfile otherwise)\n"
 	       "  -q, --quiet             Inverse of --verbose.\n"
 				 "  -l, --no-loading        Don't show loading scene (faster load).\n"
 	       "  -h, --help              This text\n",
@@ -499,7 +502,7 @@ int main(int argc, char* argv[]){
 
 	parse_argv(argc, argv);
 
-	verbose = fopen(verbose_flag ? "/dev/stderr" : LOGFILE, "w");
+	verbose = fopen(verbose_flag ? "/dev/stderr" : "frob_old.log", "w");
 	if(verbose_flag) setup_fps_timer();
 
 	if(!verbose) {
