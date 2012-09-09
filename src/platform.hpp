@@ -13,7 +13,7 @@
 #       define __UNUSED__
 #       define __WARN_UNUSED__
 #       define __ALIGNED__(size) __attribute__((aligned(size)))
-
+#       define __FORMAT__(type, index, first)
 #       define __PATH_SEPARATOR_ '/'
 #elif defined(__GNUC__)
 #       define __PURE__ __attribute__((pure))
@@ -27,6 +27,7 @@
 #       define __UNUSED__ __attribute__ ((unused))
 #       define __WARN_UNUSED__ __attribute__((warn_unused_result))
 #       define __ALIGNED__(size) __attribute__((aligned(size)))
+#       define __FORMAT__(type, index, first) __attribute__((format(type, index, first)))
 #       define __PATH_SEPARATOR_ '/'
 #elif defined(_WIN32)
 #       define __PURE__
@@ -40,6 +41,7 @@
 #       define __UNUSED__
 #       define __WARN_UNUSED__
 #       define __ALIGNED__(size) __declspec(align(size))
+#       define __FORMAT__(type, index, first)
 #       define __PATH_SEPARATOR_ '\\'
 #else
 #       error Unknown compiler/platform
