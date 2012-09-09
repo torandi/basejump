@@ -2,6 +2,7 @@
 	#include "config.h"
 #endif
 
+#include "data.hpp"
 #include "engine.hpp"
 #include "globals.hpp"
 #include "render_object.hpp"
@@ -242,6 +243,7 @@ static void loading_progress(const std::string& name, int index, int total){
 
 static void init(){
 	init_window();
+	Data::add_search_path(PATH_BASE);
 	Engine::setup_opengl();
 	Shader::initialize();
 

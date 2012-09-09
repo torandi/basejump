@@ -8,9 +8,14 @@
  * change data reading method (ex to a in-exec type)
  */
 class Data {
-	public:
-		static Data * open(const char * filename);
-		static Data * open(const std::string &filename);
+public:
+	static Data * open(const char * filename);
+	static Data * open(const std::string &filename);
+
+	/**
+	 * Add a path which will be searched while resolving files path.
+	 */
+	static void add_search_path(std::string path);
 
 		/**
 		 * Test if a filename exists.

@@ -7,6 +7,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
+
+static std::vector<std::string> search_path;
 
 static long file_size(FILE* fp){
 	const long cur = ftell(fp);
@@ -22,6 +25,18 @@ static long file_size(FILE* fp){
 	return bytes;
 }
 
+static bool real_file_exists(const std::string& fullpath){
+#ifdef HAVE_ACCESS
+	return access(fullpath.c_str(), R_OK) == 0;
+#elif defined(WIN32)
+	const DWORD dwAttrib = GetFileAttributes(fullpath.c_str());
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+	        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else
+#error file_exists is not defined for this platform.
+#endif
+}
+
 Data::file_load_func * Data::load_file = &Data::load_from_file;
 
 Data * Data::open(const std::string &filename) {
@@ -30,30 +45,40 @@ Data * Data::open(const std::string &filename) {
 
 Data * Data::open(const char * filename) {
 	const std::string real_path = expand_path(filename);
+	if ( real_path == "" ){
+		return nullptr;
+	}
 
 	size_t size;
 	void * data = load_file(real_path.c_str(), size);
-	if(data == nullptr)
+	if(data == nullptr){
 		return nullptr;
+	}
 
 	return new Data(data, size);
 }
 
-std::string Data::expand_path(const std::string& path){
-	return std::string(PATH_BASE) + path;
+void Data::add_search_path(std::string path){
+	/* make sure path has trailing slash */
+	const char last = path[path.length()-1];
+	if ( last != '/' ){
+		path += '/';
+	}
+	search_path.push_back(path);
+}
+
+std::string Data::expand_path(const std::string& filename){
+	for ( auto path : search_path ){
+		const std::string fullpath = path + filename;
+		if ( real_file_exists(fullpath) ){
+			return fullpath;
+		}
+	}
+	return "";
 }
 
 bool Data::file_exists(const std::string& filename){
-	const std::string real_path = expand_path(filename);
-#ifdef HAVE_ACCESS
-	return access(real_path.c_str(), R_OK) == 0;
-#elif defined(WIN32)
-	const DWORD dwAttrib = GetFileAttributes(real_path.c_str());
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-	        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-#error file_exists is not defined for this platform.
-#endif
+	return expand_path(filename) != "";
 }
 
 void * Data::load_from_file(const char * filename, size_t &size) {
