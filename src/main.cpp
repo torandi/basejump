@@ -147,7 +147,7 @@ static void do_loading_scene() {
 	if(skip_load_scene)
 		return;
 
-	loading_shader = Shader::create_shader("loading");
+	loading_shader = Shader::create_shader("/shaders/loading");
 	u_fade = loading_shader->uniform_location("fade");
 
 	loading_shader->bind();
