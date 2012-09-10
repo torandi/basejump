@@ -5,7 +5,7 @@
 #       define __PURE__
 #       define __CONST__
 #       define __DEPRECATED__(msg) __attribute__ ((deprecated(msg)))
-#       define __SENTINEL__
+#       define __SENTINEL__ __attribute__ ((sentinel))
 #       define __HOT__
 #       define __COLD__
 #       define __NONNULL__(...) __attribute__((nonnull (__VA_ARGS__)))
