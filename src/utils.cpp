@@ -3,8 +3,9 @@
 #endif
 
 #include "utils.hpp"
-#include "globals.hpp"
 #include "data.hpp"
+#include "globals.hpp"
+#include "logging.hpp"
 #include <GL/glew.h>
 #include <cstdio>
 #include <cstdlib>
@@ -39,7 +40,7 @@ unsigned long util_utime(){
 	if ( !initialized ){
 		QueryPerformanceFrequency(&qpc_freq);
 		if ( qpc_freq.QuadPart < 1000000 ){
-			fprintf(stderr, "warning: gettimeofday() requires µs precision but is not available (have %lld ticks per second).\n", qpc_freq.QuadPart);
+			Logging::error("warning: gettimeofday() requires µs precision but is not available (have %lld ticks per second).\n", qpc_freq.QuadPart);
 		}
 
 		/* set divider to calculate µs */
@@ -66,19 +67,18 @@ void util_usleep(unsigned long wait){
 #endif
 }
 
-int checkForGLErrors( const char *s ) {
+int checkForGLErrors(const char *s) {
 	int errors = 0 ;
 
 	while ( true ) {
 		GLenum x = glGetError() ;
 
 		if ( x == GL_NO_ERROR )
-			return errors ;
+			return errors;
 
-		fprintf( stderr, "%s: OpenGL error: %s\n", s, gluErrorString ( x )) ;
-		errors++ ;
+		Logging::error("%s: OpenGL error: %s\n", s, gluErrorString(x));
+		errors++;
 	}
-	return errors;
 }
 
 float radians_to_degrees(double rad) {
@@ -132,7 +132,7 @@ int timetable_parse(const std::string& filename, std::function<void(const std::s
 		char* begin = strtok(NULL, ":");
 		char* end = strtok(NULL, ":");
 		if ( !(name && begin && end) ){
-			fprintf(stderr, "%s:%d: malformed entry: \"%.*s\"\n", tablename, linenum, (int)(len-1), line);
+			Logging::error("%s:%d: malformed entry: \"%.*s\"\n", tablename, linenum, (int)(len-1), line);
 			free(tmp);
 			continue;
 		}
