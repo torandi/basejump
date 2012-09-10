@@ -8,7 +8,7 @@
 #       define __SENTINEL__
 #       define __HOT__
 #       define __COLD__
-#       define __NONNULL__(...)
+#       define __NONNULL__(...) __attribute__((nonnull (__VA_ARGS__)))
 #       define __NORETURN__
 #       define __UNUSED__
 #       define __WARN_UNUSED__
