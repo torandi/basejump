@@ -5,6 +5,7 @@
 #include "shader.hpp"
 #include "globals.hpp"
 #include "light.hpp"
+#include "logging.hpp"
 #include "utils.hpp"
 #include "lights_data.hpp"
 #include "data.hpp"
@@ -112,10 +113,10 @@ Shader::Shader(const std::string &name_, GLuint program) :
 	program_(program)
 	,	name(name_) {
 	glGetProgramiv(program_, GL_ACTIVE_ATTRIBUTES, &num_attributes_);
-	fprintf(verbose, "Created shader %s\n"
-	        "  ID %d\n"
-	        "  Active attrib: %d\n",
-	        name_.c_str(), program, num_attributes_);
+	Logging::verbose("Created shader %s\n"
+	                 "  - ID %d\n"
+	                 "  - Active attrib: %d\n",
+	                 name_.c_str(), program, num_attributes_);
 
 	bind();
 	init_uniforms();
@@ -132,15 +133,15 @@ void Shader::release(){
 void Shader::load_file(const std::string &filename, std::stringstream &shaderData, std::string included_from) {
 	Data * file = Data::open(filename);
 	if(file == nullptr) {
-		if(included_from.empty())
-			fprintf(stderr, "Shader preprocessor error: File %s not found\n", filename.c_str());
-		else
-			fprintf(stderr, "Shader preprocessor error: File %s not found (included from %s)\n", filename.c_str(), included_from.c_str());
-		abort();
+		if(included_from.empty()) {
+			Logging::fatal("Shader preprocessor error: File %s not found\n", filename.c_str());
+		} else {
+			Logging::fatal("Shader preprocessor error: File %s not found (included from %s)\n", filename.c_str(), included_from.c_str());
+		}
 	}
 	shaderData << file;
 	delete file;
-	fprintf(verbose, "Loaded %s\n", filename.c_str());
+	Logging::verbose("Loaded %s\n", filename.c_str());
 }
 
 std::string Shader::parse_shader(
@@ -152,8 +153,7 @@ std::string Shader::parse_shader(
 
 	std::pair<std::set<std::string>::iterator, bool> ret = included_files.insert(filename);
 	if(ret.second == false) {
-		fprintf(stderr, "Shader preprocessor error: Found include loop when including %s from %s\n", filename.c_str(), included_from.c_str());
-		abort();
+		Logging::fatal("Shader preprocessor error: Found include loop when including %s from %s\n", filename.c_str(), included_from.c_str());
 	}
 
 	std::stringstream raw_content;
@@ -172,8 +172,7 @@ std::string Shader::parse_shader(
 			if(first_quote != std::string::npos) {
 				size_t end_quote = line.find_last_of('"');
 				if(end_quote == std::string::npos || end_quote == first_quote) {
-					fprintf(stderr, "%s\nShader preprocessor error in %s:%d: Missing closing quote for #include command\n", buffer, filename.c_str(),  linenr);
-					abort();
+					Logging::fatal("%s\nShader preprocessor error in %s:%d: Missing closing quote for #include command\n", buffer, filename.c_str(),  linenr);
 				}
 				//Trim quotes
 				line = line.substr(first_quote+1, (end_quote - first_quote)-1);
@@ -204,15 +203,15 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 	if ( compile_status == GL_FALSE ) {
 		char buffer[2048];
 
-		fprintf(stderr, "Shader compile error (%s). Preproccessed source: \n", strFilename.c_str());
+		Logging::error("Shader compile error (%s). Preproccessed source: \n", strFilename.c_str());
 		std::stringstream code(source);
 		int linenr=0;
 		while(!code.eof()) {
 			code.getline(buffer, 2048);
-			fprintf(stderr, "%d %s\n", ++linenr, buffer);
+			Logging::error("%d %s\n", ++linenr, buffer);
 		}
 		glGetShaderInfoLog(shader, 2048, NULL, buffer);
-		fprintf(stderr, "Error in shader %s: %s\n",strFilename.c_str(),  buffer);
+		Logging::error("Error in shader %s: %s\n", strFilename.c_str(),  buffer);
 		checkForGLErrors("shader");
 		abort();
 	}
@@ -240,8 +239,7 @@ GLuint Shader::create_program(const std::string &shader_name, const std::vector<
 	if(!gl_tmp) {
 		char buffer[2048];
 		glGetProgramInfoLog(program, 2048, NULL, buffer);
-		fprintf(stderr, "Link error in shader %s: %s\n", shader_name.c_str(), buffer);
-		abort();
+		Logging::fatal("Link error in shader %s: %s\n", shader_name.c_str(), buffer);
 	}
 
 #ifdef VALIDATE_SHADERS
@@ -252,8 +250,7 @@ GLuint Shader::create_program(const std::string &shader_name, const std::vector<
 	if(!gl_tmp) {
 		char buffer[2048];
 		glGetProgramInfoLog(program, 2048, NULL, buffer);
-		fprintf(stderr, "Validate error in shader %s: %s\n", shader_name.c_str(), buffer);
-		abort();
+		Logging::fatal("Validate error in shader %s: %s\n", shader_name.c_str(), buffer);
 	}
 
 #endif
@@ -264,8 +261,7 @@ GLuint Shader::create_program(const std::string &shader_name, const std::vector<
 Shader* Shader::create_shader(const std::string& base_name, bool cache) {
 	/* sanity check */
 	if ( !initialized ){
-		fprintf(stderr, "Shader::create_shader(..) called before Shader::initialize()\n");
-		abort();
+		Logging::fatal("Shader::create_shader(..) called before Shader::initialize()\n");
 	}
 
 	const auto it = shadercache.find(base_name);
@@ -273,7 +269,7 @@ Shader* Shader::create_shader(const std::string& base_name, bool cache) {
 		return it->second;
 	}
 
-	fprintf(verbose, "Compiling shader %s\n", base_name.c_str());
+	Logging::verbose("Compiling shader %s\n", base_name.c_str());
 
 	const std::string vs = base_name+VERT_SHADER_EXTENTION;
 	const std::string gs = base_name+GEOM_SHADER_EXTENTION;
@@ -338,7 +334,7 @@ void Shader::init_uniforms() {
 		if(global_uniform_block_index_[i] != -1) {
 			glUniformBlockBinding(program_, global_uniform_block_index_[i], i);
 		} else {
-			fprintf(verbose, "Not binding global uniform %s, probably not used\n", global_uniform_names_[i]);
+			Logging::debug("Not binding global uniform %s, probably not used\n", global_uniform_names_[i]);
 		}
 	}
 
@@ -359,8 +355,7 @@ void Shader::bind() {
 
 void Shader::unbind() {
 	if ( !current ){
-		fprintf(stderr, "Shader nesting problem, no shader is bound.\n");
-		abort();
+		Logging::fatal("Shader nesting problem, no shader is bound.\n");
 	}
 
 	glUseProgram(0);
