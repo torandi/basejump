@@ -9,6 +9,10 @@
 #include <cstring>
 #include <vector>
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 static std::vector<std::string> search_path;
 
 static long file_size(FILE* fp){
