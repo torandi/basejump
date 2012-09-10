@@ -141,7 +141,7 @@ void Shader::load_file(const std::string &filename, std::stringstream &shaderDat
 	}
 	shaderData << file;
 	delete file;
-	Logging::verbose("Loaded %s\n", filename.c_str());
+	Logging::verbose("    - Source: \"%s\"\n", filename.c_str());
 }
 
 std::string Shader::parse_shader(
@@ -189,11 +189,23 @@ std::string Shader::parse_shader(
 	return parsed_content.str();
 }
 
-GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
-	const std::string source = parse_shader(strFilename);
-	const GLuint shader = glCreateShader(eShaderType);
+static const char* str_shader_type(GLenum type){
+	switch ( type ){
+	case GL_VERTEX_SHADER: return "vertex";
+	case GL_FRAGMENT_SHADER: return "vertex";
+	case GL_GEOMETRY_SHADER: return "vertex";
+	case GL_TESS_EVALUATION_SHADER: return "tesselation evaluation";
+	case GL_TESS_CONTROL_SHADER: return "tesselation control";
+	default: return "unknown";
+	}
+}
 
-	const char * source_ptr = source.c_str();
+GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
+	const GLuint shader = glCreateShader(eShaderType);
+	Logging::verbose("  - Compiling %s shader (shader_%d)\n", str_shader_type(eShaderType), shader);
+
+	const std::string source = parse_shader(strFilename);
+	const char* source_ptr = source.c_str();
 	glShaderSource(shader, 1,&source_ptr , NULL);
 	glCompileShader(shader);
 
@@ -222,6 +234,8 @@ GLuint Shader::load_shader(GLenum eShaderType, const std::string &strFilename) {
 GLuint Shader::create_program(const std::string &shader_name, const std::vector<GLuint> &shaderList) {
 	GLint gl_tmp;
 	GLuint program = glCreateProgram();
+	Logging::verbose("  - Linking program (program_%d)\n", program);
+
 	checkForGLErrors("glCreateProgram");
 
 	for(GLuint shader : shaderList) {
@@ -259,6 +273,8 @@ GLuint Shader::create_program(const std::string &shader_name, const std::vector<
 }
 
 Shader* Shader::create_shader(const std::string& base_name, bool cache) {
+	Logging::verbose("Loading shader \"%s\"\n", base_name.c_str());
+
 	/* sanity check */
 	if ( !initialized ){
 		Logging::fatal("Shader::create_shader(..) called before Shader::initialize()\n");
@@ -266,10 +282,12 @@ Shader* Shader::create_shader(const std::string& base_name, bool cache) {
 
 	const auto it = shadercache.find(base_name);
 	if ( cache && it != shadercache.end() ){
+		Logging::verbose("  - Cache hit.\n");
 		return it->second;
 	}
 
-	Logging::verbose("Compiling shader %s\n", base_name.c_str());
+	Logging::verbose("  - Cache miss.\n");
+	Logging::verbose("Compiling shader \"%s\"\n", base_name.c_str());
 
 	const std::string vs = base_name+VERT_SHADER_EXTENTION;
 	const std::string gs = base_name+GEOM_SHADER_EXTENTION;
