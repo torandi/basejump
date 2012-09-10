@@ -9,7 +9,7 @@
 #       define __HOT__
 #       define __COLD__
 #       define __NONNULL__(...) __attribute__((nonnull (__VA_ARGS__)))
-#       define __NORETURN__
+#       define __NORETURN__ __attribute__((noreturn))
 #       define __UNUSED__
 #       define __WARN_UNUSED__
 #       define __ALIGNED__(size)
