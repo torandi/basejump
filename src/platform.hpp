@@ -4,7 +4,7 @@
 #ifdef __clang__
 #       define __PURE__
 #       define __CONST__
-#       define __DEPRECATED__ __attribute__ ((deprecated))
+#       define __DEPRECATED__(msg) __attribute__ ((deprecated(msg)))
 #       define __SENTINEL__
 #       define __HOT__
 #       define __COLD__
@@ -12,11 +12,11 @@
 #       define __NORETURN__
 #       define __UNUSED__
 #       define __WARN_UNUSED__
-#       define __ALIGNED__(size) decl
+#       define __ALIGNED__(size)
 #elif defined(__GNUC__)
 #       define __PURE__ __attribute__((pure))
 #       define __CONST__ __attribute__((const))
-#       define __DEPRECATED__ __attribute__ ((deprecated))
+#       define __DEPRECATED__(msg) __attribute__ ((deprecated(msg)))
 #       define __SENTINEL__ __attribute__ ((sentinel))
 #       define __HOT__ __attribute__ ((hot))
 #       define __COLD__ __attribute__ ((cold))
@@ -28,7 +28,7 @@
 #elif defined(_WIN32)
 #       define __PURE__
 #       define __CONST__
-#       define __DEPRECATED__ __declspec(deprecated)
+#       define __DEPRECATED__(msg) __declspec(deprecated(msg))
 #       define __SENTINEL__
 #       define __HOT__
 #       define __COLD__
