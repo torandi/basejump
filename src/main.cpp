@@ -184,13 +184,11 @@ static void free_loading() {
 static void init_window(){
 	if ( SDL_Init(SDL_INIT_VIDEO) != 0 ){
 		Logging::fatal("SDL_Init failed: %s\n", SDL_GetError());
-		abort();
 	}
 
 	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 	if ( !vi ){
 		Logging::fatal("SDL_GetVideoInfo() failed\n");
-		abort();
 	}
 
 	if ( fullscreen && !resolution_given ){
@@ -221,7 +219,6 @@ static void init_window(){
 	GLenum ret;
 	if ( (ret=glewInit()) != GLEW_OK ){
 		Logging::fatal("Failed to initialize GLEW: %s\n", glewGetErrorString(ret));
-		abort();
 	}
 
 	/* setup window projection matrix */

@@ -4,6 +4,7 @@
 
 #include "logging.hpp"
 #include <vector>
+#include <cstdlib>
 #include <ctime>
 
 #ifndef SYS_TIME_H
@@ -93,6 +94,7 @@ namespace Logging {
 		va_start(ap, fmt);
 		vmessage(FATAL, fmt, ap);
 		va_end(ap);
+		abort();
 	}
 
 	void error(const char* fmt, ...){
