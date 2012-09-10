@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <csignal>
 
 #ifndef SYS_TIME_H
 #include <sys/time.h>
@@ -94,7 +95,12 @@ namespace Logging {
 		va_start(ap, fmt);
 		vmessage(FATAL, fmt, ap);
 		va_end(ap);
-		abort();
+
+#ifdef _MSC_VER
+		__debugbreak();
+#else
+		raise(SIGTRAP);
+#endif
 	}
 
 	void error(const char* fmt, ...){
