@@ -12,7 +12,7 @@
 #       define __NORETURN__ __attribute__((noreturn))
 #       define __UNUSED__
 #       define __WARN_UNUSED__
-#       define __ALIGNED__(size)
+#       define __ALIGNED__(size) __attribute__((aligned(size)))
 #elif defined(__GNUC__)
 #       define __PURE__ __attribute__((pure))
 #       define __CONST__ __attribute__((const))
