@@ -12,6 +12,11 @@ float Input::rotation_speed = 1.f;
 Input::Input(){
 	SDL_JoystickEventState(SDL_TRUE);
 	SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+	for(int i=0; i<NUM_ACTIONS; ++i) {
+		sustained_values[i] = 0.0;
+		temporary_values[i] = 0.0;
+		previous_value[i] = -2.0;
+	}
 	if(SDL_NumJoysticks()>0){
 		joy=SDL_JoystickOpen(0);
 		moved_triggers = new bool[SDL_JoystickNumAxes(joy)];
@@ -91,6 +96,12 @@ void Input::parse_event(const SDL_Event &event) {
 				case 1:
 					sustained_values[ACTION_1] = 1.f;
 					break;
+				case 2:
+					sustained_values[ACTION_2] = 1.f;
+					break;
+				case 3:
+					sustained_values[ACTION_3] = 1.f;
+					break;
 			}
 			break;
 		case SDL_JOYBUTTONUP:
@@ -100,6 +111,12 @@ void Input::parse_event(const SDL_Event &event) {
 					break;
 				case 1:
 					sustained_values[ACTION_1] = 0.f;
+					break;
+				case 2:
+					sustained_values[ACTION_2] = 0.f;
+					break;
+				case 3:
+					sustained_values[ACTION_3] = 0.f;
 					break;
 			}
 			break;
@@ -177,4 +194,13 @@ float Input::get_hat_right_left(int hat) {
 		return -1.f;
 	else
 		return 0.f;
+}
+
+bool Input::has_changed(Input::input_action_t action, float epsilon) const {
+	float cur = current_value(action);
+	bool changed = false;
+	if(cur < (previous_value[action] - epsilon) || cur > (previous_value[action] + epsilon)) changed = true;
+
+	previous_value[action] = cur;
+	return changed;
 }
