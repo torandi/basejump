@@ -1,6 +1,8 @@
 #ifndef TIME_HPP
 #define TIME_HPP
 
+#include "forward.hpp"
+
 #include <time.h>
 
 #ifdef HAVE_SYS_TIME_H
