@@ -13,6 +13,7 @@
 #include "shader.hpp"
 #include "timetable.hpp"
 #include "skybox.hpp"
+#include "material.hpp"
 #include <memory>
 
 static glm::vec3 offset(0,1.5,0);
