@@ -1,10 +1,6 @@
 #ifndef TIME_HPP
 #define TIME_HPP
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <time.h>
 
 #ifdef HAVE_SYS_TIME_H
