@@ -29,8 +29,6 @@ class Texture2D: public TextureBase {
 public:
 	static const unsigned int default_mipmap_level = 5;
 
-	virtual ~Texture2D();
-
 	/**
 	 * Preload a texture into memory. Useful during loading sequence.
 	 */
@@ -63,6 +61,7 @@ public:
 
 private:
 	Texture2D(const std::string &path, bool mipmap);
+	virtual ~Texture2D();
 
 	GLuint _texture;
 };

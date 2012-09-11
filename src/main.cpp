@@ -177,9 +177,6 @@ static void do_loading_scene() {
 }
 
 static void free_loading() {
-	for(Texture2D *t : loading_textures) {
-		delete t;
-	}
 	for(Quad * q : loading_quad) {
 		delete q;
 	}
