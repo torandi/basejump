@@ -3,6 +3,7 @@ class CL;
 class Color;
 class Data;
 struct Light;
+class Material;
 class Mesh;
 class MovableObject;
 class ParticleSystem;

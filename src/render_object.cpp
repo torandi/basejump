@@ -2,6 +2,7 @@
 #include "config.h"
 #endif
 
+#include "platform.hpp"
 #include "render_object.hpp"
 #include "engine.hpp"
 #include "globals.hpp"
@@ -9,27 +10,94 @@
 #include "shader.hpp"
 #include "texture.hpp"
 #include "utils.hpp"
+#include "data.hpp"
+#include "material.hpp"
 
 #include <string>
 #include <cstdio>
 
-#include <assimp/assimp.h>
-#include <assimp/aiScene.h>
-#include <assimp/aiPostProcess.h>
+#include <assimp/postprocess.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/IOStream.hpp>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-void RenderObject::color4_to_vec4(const struct aiColor4D *c, glm::vec4 &target) {
+/* Classes for imports with Data class */
+
+class AssimpDataStream : public Assimp::IOStream {
+	private:
+		Data * data_;
+
+	public:
+		AssimpDataStream(Data * data) : data_(data) {};
+
+		virtual 	~AssimpDataStream () {
+			delete data_;
+		}
+
+		virtual size_t FileSize () const  {
+			return data_->size();
+		}
+
+		virtual void Flush () {
+			//Writing not implemented
+		}
+
+		virtual size_t Read (void *pvBuffer, size_t pSize, size_t pCount) {
+			return data_->read(pvBuffer, pSize, pCount);
+		}
+
+		virtual aiReturn Seek (size_t pOffset, aiOrigin pOrigin) {
+			return (aiReturn) data_->seek( pOffset, (int)pOrigin);
+		}
+
+		virtual size_t Tell () const  {
+			return data_->tell();
+		}
+
+		virtual size_t Write (const void *pvBuffer, size_t pSize, size_t pCount) {
+			fprintf(stderr, "Writing of models is not implemented\n");
+			abort();
+		}
+};
+
+class AssimpDataImport : public Assimp::IOSystem {
+	public:
+		virtual void Close (Assimp::IOStream *pFile) {
+			delete pFile;
+		}
+
+		virtual bool Exists (const char *pFile) const {
+			return Data::file_exists(std::string(pFile));
+		}
+
+		virtual char getOsSeparator () const {
+			return __PATH_SEPARATOR_;
+		}
+
+		virtual Assimp::IOStream * Open (const char *pFile, const char *pMode="rb") {
+			Data * data = Data::open(pFile);
+			if(data) {
+				return new AssimpDataStream(data);
+			} else {
+				fprintf(verbose, "Failed to open file %s\n", pFile);
+				return NULL;
+			}
+		}
+
+		virtual ~AssimpDataImport() {};
+};
+
+void RenderObject::color4_to_vec4(const aiColor4D *c, glm::vec4 &target) {
 	target.x = c->r;
 	target.y = c->g;
 	target.z = c->b;
 	target.w = c->a;
 }
 
-RenderObject::~RenderObject() {
-	aiReleaseImport(scene);
-}
+RenderObject::~RenderObject() { }
 
 RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int aiOptions)
 	: MovableObject()
@@ -38,10 +106,9 @@ RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int
 	, name(model)
 	, scale(1.0f) {
 
-	const std::string real_path = PATH_BASE + model;
+	importer.SetIOHandler(new AssimpDataImport());
 
-	//aiImportFileFromMemory
-	scene = aiImportFile(real_path.c_str(),
+	scene = importer.ReadFile(model,
 		aiProcess_Triangulate | aiProcess_GenSmoothNormals |
 		aiProcess_JoinIdenticalVertices |
 		aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph  |
@@ -52,7 +119,7 @@ RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int
 		);
 
 	if ( !scene ) {
-		printf("Failed to load model `%s': %s\n", real_path.c_str(), aiGetErrorString());
+		printf("Failed to load model `%s': %s\n", model.c_str(), importer.GetErrorString());
 		return;
 	}
 
@@ -60,7 +127,7 @@ RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int
 	        "  Meshes: %d\n"
 	        "  Textures: %d\n"
 	        "  Materials: %d\n",
-	        real_path.c_str(), scene->mNumMeshes, scene->mNumTextures, scene->mNumMaterials);
+	        model.c_str(), scene->mNumMeshes, scene->mNumTextures, scene->mNumMaterials);
 
 	//Get bounds:
 	aiVector3D s_min, s_max;
@@ -257,7 +324,7 @@ void RenderObject::recursive_render(const aiNode* node,
 
 
 	aiMatrix4x4 m = node->mTransformation;
-	aiTransposeMatrix4(&m);
+	m.Transpose();
 
 	glm::mat4 matrix(parent_matrix);
 
@@ -311,21 +378,21 @@ const glm::mat4 RenderObject::matrix() const {
 	return MovableObject::matrix() * glm::scale(normalization_matrix_, scale);
 }
 
-void RenderObject::get_bounding_box_for_node (const struct aiNode* nd,
-	struct aiVector3D* min,
-	struct aiVector3D* max,
-	struct aiMatrix4x4* trafo){
+void RenderObject::get_bounding_box_for_node (const aiNode* nd,
+	aiVector3D* min,
+	aiVector3D* max,
+	aiMatrix4x4* trafo){
 
-	struct aiMatrix4x4 prev;
+	aiMatrix4x4 prev;
 	unsigned int n = 0, t;
 	prev = *trafo;
-	aiMultiplyMatrix4(trafo,&nd->mTransformation);
+	*trafo *= nd->mTransformation;
 
 	for (; n < nd->mNumMeshes; ++n) {
-		const struct aiMesh* mesh = scene->mMeshes[nd->mMeshes[n]];
+		const aiMesh* mesh = scene->mMeshes[nd->mMeshes[n]];
 		for (t = 0; t < mesh->mNumVertices; ++t) {
-			struct aiVector3D tmp = mesh->mVertices[t];
-			aiTransformVecByMatrix4(&tmp,trafo);
+			aiVector3D tmp = mesh->mVertices[t];
+			tmp *= *trafo;
 
 			min->x = std::min(min->x,tmp.x);
 			min->y = std::min(min->y,tmp.y);
@@ -345,9 +412,8 @@ void RenderObject::get_bounding_box_for_node (const struct aiNode* nd,
 
 
 
-void RenderObject::get_bounding_box (struct aiVector3D* min, struct aiVector3D* max) {
-	struct aiMatrix4x4 trafo;
-	aiIdentityMatrix4(&trafo);
+void RenderObject::get_bounding_box (aiVector3D* min, aiVector3D* max) {
+	aiMatrix4x4 trafo; //Set to identity
 
 	min->x = min->y = min->z =  1e10f;
 	max->x = max->y = max->z = -1e10f;
