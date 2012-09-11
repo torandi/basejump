@@ -3,17 +3,20 @@
 #endif
 
 typedef struct particle_t {
-	float3 direction;
+	float3 velocity;
 	
 	float ttl;
-	float speed;
-	float acc;
 	float rotation_speed;
-
 	float initial_scale;
 	float final_scale;
+
+	float wind_influence;
+	float gravity_influence;
 	float org_ttl; //original time to live, stored to get a percentage
 	int dead;
+
+	float4 birth_color;
+	float4 death_color;
 } particle_t __attribute__ ((aligned (16))) ;
 
 typedef struct vertex_t {
@@ -25,36 +28,36 @@ typedef struct vertex_t {
 
 typedef struct config_t {
 
+	float3 spawn_position;
+	float4 spawn_area; //The last component specifies radius (will be added to the position with a random angle)
+
 	float4 birth_color; 
 	float4 death_color;
 
 	float3 motion_rand; 
 
-	float3 spawn_direction;
-	float3 direction_var;
+	float3 avg_spawn_velocity;
+	float3 spawn_velocity_var;
 
-	float3 spawn_position;
-	float4 spawn_area; //The last component specifies radius (will be added to the position with a random angle)
-
-	float3 directional_speed;
-	float3 directional_speed_var;
+	float3 wind_velocity;	//Speed
+	float3 gravity;			//Acceleration
 
 	float avg_ttl;
 	float ttl_var;
-	float avg_spawn_speed; 
-	float spawn_speed_var;
-
-	float avg_acc;
-	float acc_var;
 	float avg_scale;
 	float scale_var;
 
 	float avg_scale_change;
 	float scale_change_var;
-
 	float avg_rotation_speed;
 	float rotation_speed_var;
 
+	float avg_wind_influence;
+	float wind_influence_var;
+	float avg_gravity_influence;
+	float gravity_influence_var;
+
+	int start_texture;
 	int num_textures;
 	int max_num_particles;
 

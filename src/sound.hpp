@@ -10,6 +10,10 @@
  */
 class Sound {
 	public:
+		/**
+		 * Must be called once and only once for each update
+		 */
+		static void update_system();
 		/*
 		 * Create a music player for the selected file.
 		 */
@@ -42,7 +46,6 @@ class Sound {
 		 */
 		void seek(double t);
 
-		static void update_system();
 	private:
 		static FMOD::System * system_;
 		static unsigned int system_usage_; //usage count

@@ -32,15 +32,14 @@ public:
 			normal->texture_bind(Shader::TEXTURE_ARRAY_0);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			Texture2D * blendmap = Texture2D::from_filename("park_blend.png");
-			terrain = new Terrain("park", 1.f, 20.f, blendmap, color, normal);
+			terrain = new Terrain("/textures/park_map.png", 1.f, 20.f, color, normal);
 			//terrain->absolute_move(glm::vec3(0.f, -10.f, 0.f));
 
 			lights.ambient_intensity() = glm::vec3(0.0f);
 			lights.num_lights() = 1;
 			lights.lights[0]->set_position(glm::vec3(10, 50.f, 10.f));
 			lights.lights[0]->intensity = glm::vec3(0.8f);
-			lights.lights[0]->type = Light::POINT_LIGHT;
+			lights.lights[0]->type = MovableLight::POINT_LIGHT;
 			lights.lights[0]->quadratic_attenuation = 0.00002f;
 
 			particle_shader = Shader::create_shader("/shaders/particles");
@@ -49,10 +48,8 @@ public:
 
 			snow.config.spawn_position = glm::vec4(-100.f, 0.f, -100.f, 1.f);
 			snow.config.spawn_area = glm::vec4(200.0f, 20.f, 200.0f, 0.0f);
-			snow.config.spawn_direction = glm::vec4(0, -1.f, 0.f, 1.f);
-			snow.config.direction_var = glm::vec4(0.3f, 0.0f, 0.3f, 0.f);
-			snow.config.avg_spawn_speed= 0.03f;
-			snow.config.spawn_speed_var = 0.01f;
+			snow.config.avg_spawn_velocity = glm::vec4(0, -1.f, 0.f, 1.f);
+			snow.config.spawn_velocity_var = glm::vec4(0.3f, 0.0f, 0.3f, 0.f);
 			snow.config.avg_ttl = 10.f;
 			snow.config.ttl_var = 5.f;
 			snow.config.avg_scale = 1.0f;
@@ -64,8 +61,7 @@ public:
 			snow.config.birth_color = glm::vec4(1.0f, 1.0f, 1.0f, 0.8);
 			snow.config.death_color = glm::vec4(1.0f ,1.0f, 1.0f, 0.6f);
 			snow.config.motion_rand = glm::vec4(0.001f, 0.f, 0.001f, 0);
-			snow.config.directional_speed = glm::vec4(0.1f, 0.f, .1f, 0.f);
-			snow.config.directional_speed_var = glm::vec4(0.05f, 0.f, 0.05f, 0.f);
+			snow.config.wind_velocity = glm::vec4(0.1f, 0.f, .1f, 0.f);
 			snow.update_config();
 			snow.update(1.f);
 			snow.update(1.f);

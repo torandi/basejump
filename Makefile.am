@@ -33,6 +33,8 @@ libfrob_a_SOURCES = \
 	src/movable_light.cpp src/movable_light.hpp \
 	src/movable_object.cpp src/movable_object.hpp \
 	src/particle_system.cpp src/particle_system.hpp \
+	src/path.cpp src/path.hpp \
+	src/rails.cpp src/rails.hpp \
 	src/rendertarget.cpp src/rendertarget.hpp \
 	src/render_object.cpp src/render_object.hpp \
 	src/scene.cpp src/scenefactory.cpp src/scene.hpp \
@@ -52,6 +54,7 @@ libfrob_a_SOURCES = \
 	src/scene/tv.cpp \
 	src/scene/water.cpp \
 	src/scene/winter.cpp \
+	vendor/src/nanosvg.cpp vendor/include/nanosvg.h \
 	autoload.cpp autoload.h
 
 if INPUT_ENABLED

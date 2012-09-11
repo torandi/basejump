@@ -177,9 +177,6 @@ static void do_loading_scene() {
 }
 
 static void free_loading() {
-	for(Texture2D *t : loading_textures) {
-		delete t;
-	}
 	for(Quad * q : loading_quad) {
 		delete q;
 	}
@@ -247,6 +244,10 @@ static void init(){
 	Engine::setup_opengl();
 	Shader::initialize();
 
+	//Set default fog
+	Shader::fog_t fog = { glm::vec4(0.584f, 0.698f, 0.698f, 1.f), 0.005f };
+	Shader::upload_fog(fog);
+
 	//Start loading screen:
 	prepare_loading_scene();
 	do_loading_scene();
@@ -276,6 +277,8 @@ static void init(){
 
 static void cleanup(){
 	Engine::cleanup();
+	Texture2D::cleanup();
+	SDL_Quit();
 }
 
 static void poll(){
@@ -498,6 +501,11 @@ int main(int argc, char* argv[]){
 
 	verbose = fopen(verbose_flag ? "/dev/stderr" : LOGFILE, "w");
 	if(verbose_flag) setup_fps_timer();
+
+	if(!verbose) {
+		fprintf(stderr, "Failed to open logfile: %s\n", strerror(errno));
+		verbose = stderr;
+	}
 
 	/* proper termination */
 	signal(SIGINT, handle_sigint);

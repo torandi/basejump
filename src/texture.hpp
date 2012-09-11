@@ -29,8 +29,6 @@ class Texture2D: public TextureBase {
 public:
 	static const unsigned int default_mipmap_level = 5;
 
-	virtual ~Texture2D();
-
 	/**
 	 * Preload a texture into memory. Useful during loading sequence.
 	 */
@@ -56,10 +54,17 @@ public:
 	virtual void texture_bind(Shader::TextureUnit unit) const;
 	virtual void texture_unbind() const;
 
+	/**
+	 * Deletes all cached textures
+	 */
+	static void cleanup();
+
 private:
 	Texture2D(const std::string &path, bool mipmap);
+	virtual ~Texture2D();
 
 	GLuint _texture;
+	std::string entry_name;
 };
 
 class Texture3D: public TextureBase {

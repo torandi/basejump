@@ -69,16 +69,16 @@ public:
 
 		lights.lights[0]->set_position(glm::vec3(-5.5f, 0.4f, 0.0f));
 		lights.lights[0]->intensity = glm::vec3(0.0f, 0.6f, 0.4f);
-		lights.lights[0]->type = Light::POINT_LIGHT;
+		lights.lights[0]->type = MovableLight::POINT_LIGHT;
 		lights.lights[0]->constant_attenuation = 0.0f;
 		lights.lights[0]->linear_attenuation = 0.1f;
 		lights.lights[0]->quadratic_attenuation = 0.4f;
 
 		lights.lights[1]->set_position(glm::vec3(-2.0f, 1.0f, 0.0f));
 		lights.lights[1]->intensity = glm::vec3(0.3f, 0.6f, 0.8f);
-		lights.lights[1]->type = Light::POINT_LIGHT;
+		lights.lights[1]->type = MovableLight::POINT_LIGHT;
 
-		lights.lights[2]->type = Light::POINT_LIGHT;
+		lights.lights[2]->type = MovableLight::POINT_LIGHT;
 
 
 		fog.avg_spawn_rate = 50000.f;
@@ -87,10 +87,8 @@ public:
 		fog.config.spawn_position = glm::vec4(-50.f, -1.f, -30.f, 1.f);
 	//	fog.config.spawn_position = glm::vec4(0.f, 0.f, 0.f, 1.f);
 		fog.config.spawn_area = glm::vec4(50.0f, 0.f, 60.0f, 0.0f);
-		fog.config.spawn_direction = glm::vec4(0, 0.f, 0.f, 1.f);
-		fog.config.direction_var = glm::vec4(0.3f, 0.3f, 0.3f, 0.f);
-		fog.config.avg_spawn_speed= 0.0001f;
-		fog.config.spawn_speed_var = 0.0003f;
+		fog.config.avg_spawn_velocity = glm::vec4(0, 0.f, 0.f, 1.f);
+		fog.config.spawn_velocity_var = glm::vec4(0.3f, 0.3f, 0.3f, 0.f);
 		fog.config.avg_ttl = 20.f;
 		fog.config.ttl_var = 10.f;
 		fog.config.avg_scale = 15.f;

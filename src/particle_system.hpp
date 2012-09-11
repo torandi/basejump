@@ -1,14 +1,17 @@
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
 
+#include "platform.hpp"
 #include "movable_object.hpp"
 #include "cl.hpp"
 #include <glm/glm.hpp>
+#include <list>
+#include <utility>
 
 class ParticleSystem : public MovableObject {
 	public:
 
-		ParticleSystem(const int max_num_particles, TextureArray* texture, bool oneshot=false);
+		ParticleSystem(const int max_num_particles, TextureArray* texture, bool _auto_spawn = true);
 		~ParticleSystem();
 
 		void update(float dt);
@@ -17,52 +20,53 @@ class ParticleSystem : public MovableObject {
 		void update_config();
 
 		//Change values in this struct and call update_config() to update
-		struct __ALIGNED__(16) {
+		struct __ALIGNED__(16) config_t {
 
-			glm::vec4 birth_color;
+				glm::vec4 spawn_position;
+				glm::vec4 spawn_area; //The last component specifies radius (will be added to the position with a random angle)
 
-			glm::vec4 death_color;
+				glm::vec4 birth_color;
 
-			glm::vec4 motion_rand;
+				glm::vec4 death_color;
 
-			glm::vec4 spawn_direction;
-			glm::vec4 direction_var;
+				glm::vec4 motion_rand;
 
-			glm::vec4 spawn_position;
-			glm::vec4 spawn_area;
+				glm::vec4 avg_spawn_velocity;
 
-			glm::vec4 directional_speed;
-			glm::vec4 directional_speed_var;
+				glm::vec4 spawn_velocity_var;
 
-			//Time to live
-			cl_float avg_ttl;
-			cl_float ttl_var;
-			//Spawn speed
-			cl_float avg_spawn_speed;
-			cl_float spawn_speed_var;
+				glm::vec4 wind_velocity;	//Speed
+				glm::vec4 gravity;			//Acceleration
 
-			//Acceleration
-			cl_float avg_acc;
-			cl_float acc_var;
-			//Scale
-			cl_float avg_scale;
-			cl_float scale_var;
+				//Time to live
+				cl_float avg_ttl;
+				cl_float ttl_var;
+				//Scale
+				cl_float avg_scale;
+				cl_float scale_var;
 
-			cl_float avg_scale_change;
-			cl_float scale_change_var;
+				cl_float avg_scale_change;
+				cl_float scale_change_var;
+				//Rotation
+				cl_float avg_rotation_speed;
+				cl_float rotation_speed_var;
 
-			//Rotation
-			cl_float avg_rotation_speed;
-			cl_float rotation_speed_var;
+				cl_float avg_wind_influence;
+				cl_float wind_influence_var;
+				cl_float avg_gravity_influence;
+				cl_float gravity_influence_var;
 
-			//These two should not be manually changed!
-			cl_int num_textures;
-			cl_int max_num_particles;
+				//Texture is choosen between start and start+num
+				cl_int start_texture;
+				cl_int num_textures;
+				//Should not be manually changed!
+				cl_int max_num_particles;
 
 		} config;
 
 		float avg_spawn_rate; //Number of particles to spawn per second
 		float spawn_rate_var;
+		bool auto_spawn;
 
 		struct __ALIGNED__(16) vertex_t {
 			glm::vec4 position;
@@ -73,11 +77,23 @@ class ParticleSystem : public MovableObject {
 
 		virtual void callback_position(const glm::vec3 &position);
 
+		void push_config();
+		void pop_config();
+
+		/*
+		 * Spawn count elements with current config
+		 */
+		void spawn(int count);
 	private:
+
+		/**
+		 * Internal function for spawning count particles now
+		 * event is set to the event for the execution
+		 */
+		void spawn_particles(cl_int count,cl::Event * event);
 
 		const int max_num_particles_;
 
-		bool spawn_; //set to false to stop spawning, must not be changed to true from false (but other way is ok)
 
 		//Texture * texture_;
 
@@ -91,20 +107,29 @@ class ParticleSystem : public MovableObject {
 		cl::Kernel run_kernel_, spawn_kernel_;
 
 		struct __ALIGNED__(16) particle_t {
-			glm::vec4 direction;
+				glm::vec4 velocity;
 
-			cl_float ttl;
-			cl_float speed;
-			cl_float acc;
-			cl_float rotation_speed;
+				cl_float ttl;
+				cl_float rotation_speed;
+				cl_float initial_scale;
+				cl_float final_scale;
 
-			cl_float initial_scale;
-			cl_float final_scale;
-			cl_float org_ttl;
-			cl_int dead;
+				cl_float wind_influence;
+				cl_float gravity_influence;
+				cl_float org_ttl;
+				cl_int dead;
+
+				glm::vec4 birth_color;
+				glm::vec4 death_color;
 		};
 
 		TextureArray* texture_;
+
+
+		typedef std::pair<config_t, int> spawn_data;
+
+		std::list<spawn_data> spawn_list_;
+		std::list<config_t> config_stack_;
 };
 
 

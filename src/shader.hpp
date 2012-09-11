@@ -76,6 +76,7 @@ public:
 
 		UNIFORM_LIGHTS,
 		UNIFORM_STATE,
+		UNIFORM_FOG,
 		NUM_GLOBAL_UNIFORMS
 	};
 
@@ -96,6 +97,10 @@ public:
 		TEXTURE_CUBEMAP_1,
 		TEXTURE_CUBEMAP_2,
 		TEXTURE_CUBEMAP_3,
+		TEXTURE_SHADOWMAP_0,
+		TEXTURE_SHADOWMAP_1,
+		TEXTURE_SHADOWMAP_2,
+		TEXTURE_SHADOWMAP_3,
 
 		/* Aliases */
 		TEXTURE_COLORMAP = TEXTURE_2D_0,
@@ -147,6 +152,11 @@ public:
 		glm::vec3 ambient_intensity;
 		float padding_2;
 		Light lights[MAX_NUM_LIGHTS];
+	};
+
+	struct __ALIGNED__(16) fog_t {
+		glm::vec4 color;
+		float density;
 	};
 
 	/**
@@ -232,6 +242,8 @@ public:
 	 * Upload current state.
 	 */
 	static void upload_state(const glm::ivec2& size);
+
+	static void upload_fog(const fog_t &fog);
 
 	/**
 	 * Upload white material

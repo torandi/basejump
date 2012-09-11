@@ -144,9 +144,18 @@ Texture2D* Texture2D::from_filename(const std::string &path, bool mipmap) {
 
 	/* create new instance */
 	Texture2D* texture = new Texture2D(path, mipmap);
+	texture->entry_name = entry.str();
 	texture_cache[entry.str()] = texture;
 
 	return texture;
+}
+
+void Texture2D::cleanup() {
+	for(auto it = texture_cache.begin(); it != texture_cache.end(); ) {
+		Texture2D * t = it->second;
+		texture_cache.erase(it++);
+		delete t;
+	}
 }
 
 Texture2D* Texture2D::default_colormap(){
@@ -193,6 +202,11 @@ Texture2D::Texture2D(const std::string& filename, bool mipmap)
 }
 
 Texture2D::~Texture2D(){
+
+	auto it = texture_cache.find(entry_name);
+	if ( it != texture_cache.end() ){
+		texture_cache.erase(it);
+	}
 	glDeleteTextures(1, &_texture);
 }
 

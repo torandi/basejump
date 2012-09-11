@@ -39,6 +39,10 @@ demo
 *.la
 *.a
 
+# windows binary
+*.dll
+*.exe
+
 # vim tempfiles
 *.swp
 

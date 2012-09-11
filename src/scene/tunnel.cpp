@@ -134,9 +134,8 @@ public:
 		glVertexAttribPointer(Shader::ATTR_BITANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*)offsetof(Shader::vertex_t, bitangent));
 		glVertexAttribPointer(Shader::ATTR_COLOR,     4, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*)offsetof(Shader::vertex_t, color));
 
-		material.activate();
+		material.bind();
 		glDrawElements(GL_QUADS, num_indices, GL_UNSIGNED_INT, 0);
-		material.deactivate();
 	}
 
 	virtual const Camera& get_current_camera(){
