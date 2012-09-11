@@ -32,8 +32,7 @@ public:
 			normal->texture_bind(Shader::TEXTURE_ARRAY_0);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			Texture2D * blendmap = Texture2D::from_filename("park_blend.png");
-			terrain = new Terrain("park", 1.f, 20.f, blendmap, color, normal);
+			terrain = new Terrain("/textures/park_map.png", 1.f, 20.f, color, normal);
 			//terrain->absolute_move(glm::vec3(0.f, -10.f, 0.f));
 
 			lights.ambient_intensity() = glm::vec3(0.0f);

@@ -2,10 +2,12 @@
 #include "config.h"
 #endif
 
+#include "utils.hpp"
 #include "terrain.hpp"
 #include "texture.hpp"
 #include "mesh.hpp"
 #include "globals.hpp"
+#include "utils.hpp"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -18,149 +20,142 @@
 Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
+	if(data_texture_ != NULL)
+		delete data_texture_;
+	free_surface();
 }
 
-Terrain::Terrain(const std::string &name, float horizontal_scale, float vertical_scale, Texture2D * blendmap, TextureArray * color_, TextureArray * normal_) :
+Terrain::Terrain(const std::string &file, float horizontal_scale, float vertical_scale,TextureArray * color_, TextureArray * normal_) :
 		horizontal_scale_(horizontal_scale),
 		vertical_scale_(vertical_scale),
-		map_(nullptr),
-		terrain_map_(blendmap),
-		base_(name)
-		{
+		map_(nullptr) {
 	textures_[0] = color_;
 	textures_[1] = normal_;
-	shader_ = Shader::create_shader("terrain");
 
-	glm::ivec2 size;
-	heightmap_ = TextureBase::load_image(base_ + "_map.png", &size);
-	height_texture_ = Texture2D::from_filename(base_ + "_map.png");
-	width_ = size.x;
-	height_ = size.y;
+	for(TextureArray * ta : textures_) {
+		ta->texture_bind(Shader::TEXTURE_ARRAY_0);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		ta->texture_unbind();
+	}
+
+	data_map_  = TextureBase::load_image(file , &size_);
+	data_texture_ = Texture2D::from_filename(file);
 	generate_terrain();
-	SDL_FreeSurface(heightmap_);
-
-	absolute_move(-glm::vec3(width_*horizontal_scale_, 0, height_*horizontal_scale_)/2.0f);
 }
 
-Texture2D * Terrain::heightmap() const {
-	return height_texture_;
+void Terrain::free_surface() {
+	if(data_map_ != nullptr) {
+		SDL_FreeSurface(data_map_);
+		data_map_ = nullptr;
+	}
 }
-Texture2D * Terrain::blendmap() const { return terrain_map_; }
+
+const glm::ivec2 &Terrain::size() const {
+	return size_;
+}
 
 void Terrain::generate_terrain() {
-	unsigned long numVertices = width_*height_;
+	unsigned long numVertices = size_.x*size_.y;
 
 	map_ = new float[numVertices];
 
 	fprintf(verbose,"Generating terrain...\n");
-	fprintf(verbose,"World size: %dx%d, scale: %fx%f\n", width_, height_, horizontal_scale_, vertical_scale_);
+	fprintf(verbose,"World size: %dx%d, scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
 
 	vertices_ = std::vector<vertex_t>(numVertices);
-	for(int y=0; y<height_; ++y) {
-		for(int x=0; x<width_; ++x) {
+	for(int y=0; y<size_.y; ++y) {
+		for(int x=0; x<size_.x; ++x) {
 			vertex_t v;
-			int i = y * width_ + x;
-			glm::vec4 color = get_pixel_color(x, y);
+			int i = y * size_.x + x;
+			glm::vec4 color = get_pixel_color(x, y, data_map_, size_);
 			float h = height_from_color(color);
-			v.position = glm::vec3(horizontal_scale_*x, h*vertical_scale_, horizontal_scale_*y);
-			v.tex_coord = glm::vec2(1.f-v.position.x/(width_*horizontal_scale_), 1.f-v.position.z/(height_*horizontal_scale_));
+			v.position = glm::vec3(horizontal_scale_*x, h*vertical_scale_, horizontal_scale_*y); 
+			v.tex_coord = glm::vec2((float)x/size_.x, 1.f-(float)y/size_.y);
 			vertices_[i] = v;
 			map_[i] =  h*vertical_scale_;
 		}
 	}
-	unsigned long indexCount = (height_ - 1 ) * (width_ -1) * 6;
+	unsigned long indexCount = (size_.y - 1 ) * (size_.x -1) * 6;
 
 	//build indices
 	indices_ = std::vector<unsigned int>(indexCount);
-	for(int x=0; x<width_- 1; ++x) {
-		for(int y=0; y<height_- 1; ++y) {
-			int i = y * (width_-1) + x;
-			indices_[i*6 + 0] = x + y*width_;
-			indices_[i*6 + 1] = x + (y+1)*width_;
-			indices_[i*6 + 2] = (x + 1) + y*width_;
-			indices_[i*6 + 3] = x + (y+1)*width_;
-			indices_[i*6 + 4] = (x+1) + (y+1)*width_;
-			indices_[i*6 + 5] = (x + 1) + y*width_;
+	for(int x=0; x<size_.x- 1; ++x) {
+		for(int y=0; y<size_.y- 1; ++y) {
+			int i = y * (size_.x-1) + x;
+			indices_[i*6 + 2] = (x + 1) + y*size_.x;
+			indices_[i*6 + 1] = x + (y+1)*size_.x;
+			indices_[i*6 + 0] = x + y*size_.x;
+
+			indices_[i*6 + 5] = (x + 1) + y*size_.x;
+			indices_[i*6 + 4] = (x+1) + (y+1)*size_.x;
+			indices_[i*6 + 3] = x + (y+1)*size_.x;
 		}
 	}
-	fprintf(verbose,"Terrain generated, creating mesh\n");
 
-	fprintf(verbose,"Generating normals\n");
 	generate_normals();
-	fprintf(verbose,"Generating tangents\n");
 	generate_tangents_and_bitangents();
-	fprintf(verbose,"Ortonormalizing tangent space\n");
 	ortonormalize_tangent_space();
-	fprintf(verbose,"Uploading to gfx memory\n");
 	generate_vbos();
 }
 
-float Terrain::height_from_color(const glm::vec4 &color) {
+float Terrain::height_from_color(const glm::vec4 &color) const {
 	return color.r;
 }
 
-float Terrain::get_height_at(int x, int y) {
-	return map_[y*width_ + x];
+float Terrain::height_at(int x, int y) const {
+	return map_[y*size_.x + x];
 }
 
-float Terrain::get_height_at(float x_, float y_) {
+float Terrain::height_at(float x_, float y_) const {
+	if(x_ > size_.x * horizontal_scale_|| x_ < 0 || y_ > size_.y*horizontal_scale_ || y_ < 0)
+		return 0;
 	int x = (int) (x_/horizontal_scale_);
 	int y = (int) (y_/horizontal_scale_);
 	float dx = (x_/horizontal_scale_) - x;
 	float dy = (y_/horizontal_scale_) - y;
 	float height=0;
-	height += (1.0-dx) * (1.0-dy) * map_[y*width_ + x];
-	height += dx * (1.0-dy) * map_[y*width_ + x+1];
-	height += (1.0-dx) * dy * map_[(y+1)*width_ + x];
-	height += dx * dy * map_[(y+1)*width_ + x+1];
+	height += (1.0-dx) * (1.0-dy) * height_at(x,y);
+	height += dx * (1.0-dy) * height_at(y,x+1);
+	height += (1.0-dx) * dy * height_at(y+1,x);
+	height += dx * dy * height_at(y+1, x+1);
 	return height;
 }
 
-glm::vec4 Terrain::get_pixel_color(int x, int y) {
+const glm::vec3 &Terrain::normal_at(int x, int y) const {
+	return vertices_[y*size_.x + x].normal;
+}
+
+glm::vec3 Terrain::normal_at(float x_, float y_) const {
+	if(x_ > size_.x * horizontal_scale_|| x_ < 0 || y_ > size_.y*horizontal_scale_ || y_ < 0)
+		return glm::vec3(0, 1, 0);
+	int x = (int) (x_/horizontal_scale_);
+	int y = (int) (y_/horizontal_scale_);
+	float dx = (x_/horizontal_scale_) - x;
+	float dy = (y_/horizontal_scale_) - y;
+	glm::vec3 normal(0.f);
+	normal += (1.f-dx) * (1.f-dy) * normal_at(x,y);
+	normal += dx * (1.f-dy) * normal_at(y,x+1);
+	normal += (1.f-dx) * dy * normal_at(y+1,x);
+	normal += dx * dy * normal_at(y+1, x+1);
+	return normal;
+}
+
+glm::vec4 Terrain::get_pixel_color(int x, int y, SDL_Surface * surface, const glm::ivec2 &size) {
+	glm::ivec4 c = TextureBase::get_pixel_color(x, y, surface, size);
 	glm::vec4 color;
+	color.r = (float)c.x/0xFF;
+	color.g = (float)c.y/0xFF;
+	color.b = (float)c.z/0xFF;
+	color.a = (float)c.w/0xFF;
 
-	Uint32 temp, pixel;
-	Uint8 red, green, blue, alpha;
-	pixel = ((Uint32*)heightmap_->pixels)[(height_-(y+1))*(width_)+(width_-(x+1))];
-
-	SDL_PixelFormat * fmt=heightmap_->format;
-
-	/* Get Red component */
-	temp = pixel & fmt->Rmask;  /* Isolate red component */
-	temp = temp >> fmt->Rshift; /* Shift it down to 8-bit */
-	temp = temp << fmt->Rloss;  /* Expand to a full 8-bit number */
-	red = (Uint8)temp;
-
-	/* Get Green component */
-	temp = pixel & fmt->Gmask;  /* Isolate green component */
-	temp = temp >> fmt->Gshift; /* Shift it down to 8-bit */
-	temp = temp << fmt->Gloss;  /* Expand to a full 8-bit number */
-	green = (Uint8)temp;
-
-	/* Get Blue component */
-	temp = pixel & fmt->Bmask;  /* Isolate blue component */
-	temp = temp >> fmt->Bshift; /* Shift it down to 8-bit */
-	temp = temp << fmt->Bloss;  /* Expand to a full 8-bit number */
-	blue = (Uint8)temp;
-
-	/* Get Alpha component */
-	temp = pixel & fmt->Amask;  /* Isolate alpha component */
-	temp = temp >> fmt->Ashift; /* Shift it down to 8-bit */
-	temp = temp << fmt->Aloss;  /* Expand to a full 8-bit number */
-	alpha = (Uint8)temp;
-
-	color.r = (float)red/0xFF;
-	color.g = (float)green/0xFF;
-	color.b = (float)blue/0xFF;
-	color.a = (float)alpha/0xFF;
-
-	return color;
+	return color;	
 }
 
 void Terrain::render() {
 	Shader::upload_model_matrix(matrix());
 
-	terrain_map_->texture_bind(Shader::TEXTURE_2D_0);
+	data_texture_->texture_bind(Shader::TEXTURE_2D_0);
 	textures_[0]->texture_bind(Shader::TEXTURE_ARRAY_0);
 	textures_[1]->texture_bind(Shader::TEXTURE_ARRAY_1);
 
