@@ -64,3 +64,9 @@ layout(std140) uniform StateData {
 	float width;
 	float height;
 } state;
+
+layout(std140) uniform Fog {
+	vec4 fog_color;
+	float fog_density;
+};
+

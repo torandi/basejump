@@ -76,6 +76,7 @@ public:
 
 		UNIFORM_LIGHTS,
 		UNIFORM_STATE,
+		UNIFORM_FOG,
 		NUM_GLOBAL_UNIFORMS
 	};
 
@@ -147,6 +148,11 @@ public:
 		glm::vec3 ambient_intensity;
 		float padding_2;
 		Light lights[MAX_NUM_LIGHTS];
+	};
+
+	struct __ALIGNED__(16) fog_t {
+		glm::vec4 color;
+		float density;
 	};
 
 	/**
@@ -232,6 +238,8 @@ public:
 	 * Upload current state.
 	 */
 	static void upload_state(const glm::ivec2& size);
+
+	static void upload_fog(const fog_t &fog);
 
 	/**
 	 * Upload white material

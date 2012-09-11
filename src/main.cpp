@@ -247,6 +247,10 @@ static void init(){
 	Engine::setup_opengl();
 	Shader::initialize();
 
+	//Set default fog
+	Shader::fog_t fog = { glm::vec4(0.584f, 0.698f, 0.698f, 1.f), 0.005f };
+	Shader::upload_fog(fog);
+
 	//Start loading screen:
 	prepare_loading_scene();
 	do_loading_scene();
