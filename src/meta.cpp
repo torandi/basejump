@@ -21,6 +21,7 @@ std::string MetaLightBase::get_string(Scene* instance, unsigned int offset) cons
 	case 6: str << light->position().x; break;
 	case 7: str << light->position().y; break;
 	case 8: str << light->position().z; break;
+	case 9: str << light->shadow_bias; break;
 	}
 
 	return str.str();
@@ -39,6 +40,7 @@ std::string MetaLightBase::set_string(Scene* instance, const std::string& str, u
 	case 6: light->set_position(glm::vec3(atof(str.c_str()), light->position().y, light->position().z)); break;
 	case 7: light->set_position(glm::vec3(light->position().x, atof(str.c_str()), light->position().z)); break;
 	case 8: light->set_position(glm::vec3(light->position().x, light->position().y, atof(str.c_str()))); break;
+	case 9: light->shadow_bias = (float)atof(str.c_str()); break;
 	}
 
 	return get_string(instance, offset);

@@ -52,10 +52,11 @@ class MovableLight : public MovableObject {
 		float &constant_attenuation;
 		float &linear_attenuation;
 		float &quadratic_attenuation;
+		float &shadow_bias;
 		glm::vec3 &intensity;
 		light_type_t type;
 
-		void render_shadow_map(const Camera &camera, std::function<void()> render_geometry);
+		void render_shadow_map(const Camera &camera, std::function<void(const glm::mat4& m)> render_geometry);
 };
 
 #endif

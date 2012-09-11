@@ -15,6 +15,7 @@ MovableLight::MovableLight(Light * light)
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
+	, shadow_bias(data->shadow_bias)
 	, intensity(data->intensity)
 	, type(MovableLight::DIRECTIONAL_LIGHT)
 	{
@@ -28,6 +29,7 @@ MovableLight::MovableLight() :
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
+	, shadow_bias(data->shadow_bias)
 	, intensity(data->intensity)
 	{
 		shadowmap_shader = Shader::create_shader("/shaders/passthru");
@@ -40,6 +42,7 @@ MovableLight::MovableLight(const MovableLight &ml)
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
+	, shadow_bias(data->shadow_bias)
 	, intensity(data->intensity)
 	{
 		shadowmap_shader = Shader::create_shader("/shaders/passthru");
@@ -86,7 +89,7 @@ glm::vec3 MovableLight::calculateFrustrumData(const Camera &cam, float near, flo
 	return cam.position() + far * 0.5f  * lz;
 }
 
-void MovableLight::render_shadow_map(const Camera &camera, std::function<void()> render_geometry) {
+void MovableLight::render_shadow_map(const Camera &camera, std::function<void(const glm::mat4& m)> render_geometry) {
 	if(shadow_map.fbo == nullptr) shadow_map.create_fbo();
 
 	float near, far;
@@ -186,7 +189,7 @@ void MovableLight::render_shadow_map(const Camera &camera, std::function<void()>
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
-	render_geometry();
+	render_geometry(glm::mat4());
 
 	shadow_map.fbo->unbind();
 }

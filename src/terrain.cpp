@@ -154,11 +154,11 @@ glm::vec4 Terrain::get_pixel_color(int x, int y, SDL_Surface * surface, const gl
 	return color;	
 }
 
-void Terrain::render() {
+void Terrain::render(const glm::mat4& m) {
 
 	shader_->bind();
 
-	Shader::upload_model_matrix(matrix());
+	Shader::upload_model_matrix(matrix() * m);
 
 	Shader::upload_material(material);
 

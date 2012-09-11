@@ -48,8 +48,8 @@ public:
 
 			snow.config.spawn_position = glm::vec4(-100.f, 0.f, -100.f, 1.f);
 			snow.config.spawn_area = glm::vec4(200.0f, 20.f, 200.0f, 0.0f);
-      snow.config.avg_spawn_velocity = glm::vec4(0, -1.f, 0.f, 1.f);
-      snow.config.spawn_velocity_var = glm::vec4(0.3f, 0.0f, 0.3f, 0.f);
+			snow.config.avg_spawn_velocity = glm::vec4(0, -1.f, 0.f, 1.f);
+			snow.config.spawn_velocity_var = glm::vec4(0.3f, 0.0f, 0.3f, 0.f);
 			snow.config.avg_ttl = 10.f;
 			snow.config.ttl_var = 5.f;
 			snow.config.avg_scale = 1.0f;

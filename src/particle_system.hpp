@@ -1,7 +1,7 @@
 #ifndef PARTICLE_SYSTEM_H
 #define PARTICLE_SYSTEM_H
 
-#include "platform.h"
+#include "platform.hpp"
 #include "movable_object.hpp"
 #include "cl.hpp"
 #include <glm/glm.hpp>

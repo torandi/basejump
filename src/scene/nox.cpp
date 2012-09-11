@@ -87,8 +87,8 @@ public:
 		fog.config.spawn_position = glm::vec4(-50.f, -1.f, -30.f, 1.f);
 	//	fog.config.spawn_position = glm::vec4(0.f, 0.f, 0.f, 1.f);
 		fog.config.spawn_area = glm::vec4(50.0f, 0.f, 60.0f, 0.0f);
-    fog.config.avg_spawn_velocity = glm::vec4(0, 0.f, 0.f, 1.f);
-    fog.config.spawn_velocity_var = glm::vec4(0.3f, 0.3f, 0.3f, 0.f);
+		fog.config.avg_spawn_velocity = glm::vec4(0, 0.f, 0.f, 1.f);
+		fog.config.spawn_velocity_var = glm::vec4(0.3f, 0.3f, 0.3f, 0.f);
 		fog.config.avg_ttl = 20.f;
 		fog.config.ttl_var = 10.f;
 		fog.config.avg_scale = 15.f;

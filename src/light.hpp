@@ -1,6 +1,8 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
+#include "platform.hpp"
+
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
