@@ -280,6 +280,8 @@ static void init(){
 
 static void cleanup(){
 	Engine::cleanup();
+	Texture2D::cleanup();
+	SDL_Quit();
 }
 
 static void poll(){
