@@ -166,6 +166,10 @@ void Mesh::generate_vbos() {
 }
 
 void Mesh::render(const glm::mat4& m) {
+	render_geometry(m);
+}
+
+void Mesh::render_geometry(const glm::mat4& m) {
 	Shader::upload_model_matrix(m * matrix());
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers_[0]);
