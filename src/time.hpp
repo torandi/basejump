@@ -1,7 +1,9 @@
 #ifndef TIME_HPP
 #define TIME_HPP
 
-#include "forward.hpp"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <time.h>
 
