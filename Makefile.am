@@ -52,6 +52,7 @@ libfrob_a_SOURCES = \
 	src/scene/tv.cpp \
 	src/scene/water.cpp \
 	src/scene/winter.cpp \
+	vendor/src/nanosvg.cpp vendor/include/nanosvg.h \
 	autoload.cpp autoload.h
 
 if INPUT_ENABLED
