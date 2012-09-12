@@ -239,7 +239,7 @@ static void loading_progress(const std::string& name, int index, int total){
 
 static void init(){
 	Logging::init();
-	Logging::add_destination(Logging::VERBOSE, stderr);
+	Logging::add_destination(verbose_flag ? Logging::VERBOSE : Logging::WARNING, stderr);
 	Logging::add_destination(Logging::VERBOSE, "frob.log");
 	Logging::info("FFS: Frobnicator Fubar System - Engine starting\n");
 	init_window();
