@@ -4,6 +4,7 @@
 
 #include "sound.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 
 #include <fmodex/fmod_errors.h>
 
@@ -24,8 +25,7 @@ void Sound::initialize_fmod() {
 
 void Sound::errcheck(const char * contex) {
 	if(result_ != FMOD_OK) {
-		fprintf(stderr, "[Sound] FMOD error in %s %s(%d))\n", contex, FMOD_ErrorString(result_), result_);
-		abort();
+		Logging::fatal("[Sound] FMOD error in %s %s(%d))\n", contex, FMOD_ErrorString(result_), result_);
 	}
 }
 
@@ -40,8 +40,7 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 
 	source = Data::open(file);
 	if(source == NULL) {
-		fprintf(stderr, "[Sound] Couldn't open file %s\n", file);
-		abort();
+		Logging::fatal("[Sound] Couldn't open file %s\n", file);
 	}
 
 	FMOD_CREATESOUNDEXINFO info = {0, };
@@ -56,7 +55,7 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 	errcheck("set loops");
 	if(mute_sound) {
 		channel_->setMute(true);
-		fprintf(stderr, "WARNING! Sound is MUTED!\n");
+		Logging::warning("WARNING! Sound is MUTED!\n");
 	}
 
 	sound_usage_count_ = new int;
@@ -75,7 +74,7 @@ Sound::Sound(const Sound &sound, int loops) :
 
 		result_ = system_->playSound(FMOD_CHANNEL_FREE, sound_, true /* paused */, &channel_);
 		if(result_ != FMOD_OK) {
-			fprintf(verbose, "[FMOD] Failed to start playing sound\n");
+			Logging::error("[FMOD] Failed to start playing sound\n");
 			channel_ = nullptr;
 			return;
 		}
