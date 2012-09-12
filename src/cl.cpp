@@ -4,6 +4,7 @@
 
 #include "cl.hpp"
 #include "data.hpp"
+#include "logging.hpp"
 #include "texture.hpp"
 
 #ifdef HAVE_GL_GLX_H
@@ -23,8 +24,7 @@ CL::CL() {
 
 	std::vector<cl::Platform> platforms;
 	if(cl::Platform::get(&platforms) == CL_INVALID_VALUE) {
-		fprintf(stderr, "[OpenCL] No platforms available\n");
-		abort();
+		Logging::fatal("[OpenCL] No platforms available\n");
 	}
 
 	platform_ = platforms[0]; //Just select the first platform
@@ -35,8 +35,9 @@ CL::CL() {
 	platform_.getInfo(CL_PLATFORM_VERSION, &version);
 	platform_.getInfo(CL_PLATFORM_EXTENSIONS, &extensions);
 
-	fprintf(verbose, "[OpenCL] Platform: %s %s\n"
-	        "  Extensions: %s\n", name.c_str(), version.c_str() ,extensions.c_str());
+	Logging::verbose("[OpenCL]\n"
+	                 "  - Platform: %s %s\n"
+	                 "  - Extensions: %s\n", name.c_str(), version.c_str() ,extensions.c_str());
 
 #if defined (__APPLE__) || defined(MACOSX)
 	CGLContextObj kCGLContext = CGLGetCurrentContext();
@@ -50,8 +51,7 @@ CL::CL() {
 	HGLRC current_context = wglGetCurrentContext();
 	HDC current_dc = wglGetCurrentDC();
 	if(current_dc == NULL || current_context == NULL) {
-		fprintf(stderr,"[OpenCL] No OpenGL context active\n");
-		abort();
+		Logging::fatal("[OpenCL] No OpenGL context active\n");
 	}
 
 	cl_context_properties properties[] = {
@@ -62,8 +62,7 @@ CL::CL() {
 	};
 #else
 	if(glXGetCurrentContext() == NULL) {
-		fprintf(stderr, "[OpenCL] glXGetCurrentContex() return NULL. Make sure to create OpenGL context before create the CL-context\n");
-		abort();
+		Logging::fatal("[OpenCL] glXGetCurrentContex() return NULL. Make sure to create OpenGL context before create the CL-context\n");
 	}
 	cl_context_properties properties[] =
 	{
@@ -92,8 +91,7 @@ CL::CL() {
 	                            &deviceSize);
 
 	if(deviceSize == 0) {
-		fprintf(stderr, "[OpenCL] Interop not possible\n");
-		abort();
+		Logging::fatal("[OpenCL] Interop not possible\n");
 	}
 
 	cl_bool image_support, available;
@@ -102,7 +100,7 @@ CL::CL() {
 	cl_device_type _type;
 	std::string type;
 
-	fprintf(verbose, "[OpenCL] Available devices: \n");
+	Logging::verbose("  - Available devices:\n");
 
 	for(unsigned int i=0; i< (deviceSize / sizeof(cl_device_id)); ++i) {
 		cl::Device device(devices[i]);
@@ -129,41 +127,37 @@ CL::CL() {
 			break;
 		}
 
-		fprintf(verbose, "[OpenCL] Device (%p): %s %s (%s)\n"
-		        "		Cores: %u, Frequency: %u MHz, Available: %s,"
-		        "		Image support: %s, max size: %lux%lu\n"
-		        "		Extensions: %s\n --- \n", (device)(),  name.c_str(), version.c_str(), type.c_str(), num_cores, frequency,available?"YES":"NO",image_support?"YES":"NO", max_width, max_height, extensions.c_str());
+		Logging::verbose("    - Device (%p): %s %s (%s)\n"
+		                 "      Cores: %u, Frequency: %u MHz\n"
+		                 "      Available: %s\n"
+		                 "      Image support: %s, max size: %lux%lu\n"
+		                 "      Extensions: %s\n", (device)(),  name.c_str(), version.c_str(), type.c_str(), num_cores, frequency,available?"YES":"NO",image_support?"YES":"NO", max_width, max_height, extensions.c_str());
 		devices_.push_back(device);
 	}
-
-	fprintf(verbose, "\n-------------------\n");
 
 	cl_device_id device_id;
 
 	context_ = cl::Context(devices_, properties, &CL::cl_error_callback, nullptr, &err);
 
 	if(err != CL_SUCCESS) {
-		fprintf(stderr, "[OpenCL] Failed to create context: %s\n", errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] Failed to create context: %s\n", errorString(err));
 	}
 
 	err = clGetGLContextInfoKHR(properties, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, sizeof(device_id), &device_id, NULL);
 	if(err != CL_SUCCESS) {
-		fprintf(stderr, "[OpenCL] Failed to get current device for context: %s\n", errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] Failed to get current device for context: %s\n", errorString(err));
 	}
 
 	context_device_ = cl::Device(device_id);
 
 	context_device_.getInfo(CL_DEVICE_VENDOR, &name);
 	context_device_.getInfo(CL_DEVICE_VERSION, &version);
-	fprintf(verbose, "[OpenCL] Context Device (%p): %s %s\n",(context_device_)(),  name.c_str(), version.c_str());
+	Logging::verbose("[OpenCL] Context Device (%p): %s %s\n",(context_device_)(),  name.c_str(), version.c_str());
 
 	queue_ = cl::CommandQueue(context_, context_device_, 0, &err);
 
 	if(err != CL_SUCCESS) {
-		fprintf(stderr, "[OpenCL] Failed to create a command queue: %s\n", errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] Failed to create a command queue: %s\n", errorString(err));
 	}
 }
 
@@ -171,14 +165,13 @@ void CL::load_file(const std::string &filename, std::stringstream &data, const s
 	Data * file = Data::open(filename);
 	if(file == nullptr) {
 		if(included_from.empty())
-			fprintf(stderr, "[OpenCL] Kernel preprocessor error: File %s not found\n", filename.c_str());
+			Logging::fatal("[OpenCL] Kernel preprocessor error: File %s not found\n", filename.c_str());
 		else
-			fprintf(stderr, "[OpenCL] Kernel preprocessor error: File %s not found (included from %s)\n", filename.c_str(), included_from.c_str());
-		abort();
+			Logging::fatal("[OpenCL] Kernel preprocessor error: File %s not found (included from %s)\n", filename.c_str(), included_from.c_str());
 	}
 	data << file;
 	delete file;
-	fprintf(verbose, "[OpenCL] Loaded %s\n", filename.c_str());
+	Logging::verbose("[OpenCL] Loaded %s\n", filename.c_str());
 }
 
 std::string CL::parse_file(
@@ -189,8 +182,7 @@ std::string CL::parse_file(
 
 	std::pair<std::set<std::string>::iterator, bool> ret = included_files.insert(filename);
 	if(ret.second == false) {
-		fprintf(stderr, "[OpenCL] Kernel preprocessor error: Found include loop when including %s from %s\n", filename.c_str(), included_from.c_str());
-		abort();
+		Logging::fatal("[OpenCL] Kernel preprocessor error: Found include loop when including %s from %s\n", filename.c_str(), included_from.c_str());
 	}
 
 	std::stringstream raw_content, parsed_content;
@@ -210,8 +202,7 @@ std::string CL::parse_file(
 			if(first_quote != std::string::npos) {
 				size_t end_quote = line.find_last_of('"');
 				if(end_quote == std::string::npos || end_quote == first_quote) {
-					fprintf(stderr, "%s\n[OpenCL] Kernel preprocessor error in %s:%d: Missing closing quote for #include command\n", buffer, filename.c_str(),  linenr);
-					abort();
+					Logging::fatal("%s\n[OpenCL] Kernel preprocessor error in %s:%d: Missing closing quote for #include command\n", buffer, filename.c_str(),  linenr);
 				}
 				//Trim quotes
 				line = line.substr(first_quote+1, (end_quote - first_quote)-1);
@@ -234,7 +225,7 @@ cl::Program CL::create_program(const std::string &source_file) const{
 		return it->second;
 	}
 
-	fprintf(verbose, "Building CL program %s\n", source_file.c_str());
+	Logging::verbose("Building CL program %s\n", source_file.c_str());
 
 	std::string src = parse_file(source_file, std::set<std::string>(), "");
 
@@ -244,7 +235,7 @@ cl::Program CL::create_program(const std::string &source_file) const{
 	cl::Program program = cl::Program(context_, source, &err);
 
 	if(err != CL_SUCCESS) {
-		fprintf(stderr, "[OpenCL] Program creation error: %s\n", errorString(err));
+		Logging::fatal("[OpenCL] Program creation error: %s\n", errorString(err));
 	}
 
 	err = program.build(devices_);
@@ -254,13 +245,11 @@ cl::Program CL::create_program(const std::string &source_file) const{
 	program.getBuildInfo(context_device_, CL_PROGRAM_BUILD_LOG, &build_log);
 
 	if(build_log.size() > 1) { /* 1+ because nvidia likes to put a single LF in the log */
-		fprintf(stderr, "[OpenCL] Build log: %s\n", build_log.c_str());
+		Logging::error("[OpenCL] Build log: %s\n", build_log.c_str());
 	}
 
 	if(err != CL_SUCCESS) {
-
-		fprintf(stderr, "[OpenCL] Failed to build program: %s\n", errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] Failed to build program: %s\n", errorString(err));
 	}
 
 	cache[source_file] = program;
@@ -272,8 +261,7 @@ cl::Kernel CL::load_kernel(const cl::Program &program, const char * kernel_name)
 	cl_int err;
 	cl::Kernel kernel = cl::Kernel(program, kernel_name, &err);
 	if(err != CL_SUCCESS) {
-		fprintf(stderr,"[OpenCL] Failed to create kernel %s: %s\n", kernel_name, errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] Failed to create kernel %s: %s\n", kernel_name, errorString(err));
 	}
 
 	return kernel;
@@ -283,8 +271,7 @@ cl::Buffer CL::create_buffer(cl_mem_flags flags, size_t size) const {
 	cl_int err;
 	cl::Buffer buffer = cl::Buffer(context_, flags, size, NULL, &err);
 	if(err != CL_SUCCESS) {
-		fprintf(stderr,"[OpenCL] Failed to create buffer: %s\n", errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] Failed to create buffer: %s\n", errorString(err));
 	}
 	return buffer;
 }
@@ -293,8 +280,7 @@ cl::BufferGL CL::create_gl_buffer(cl_mem_flags flags, GLuint gl_buffer) const {
 	cl_int err;
 	cl::BufferGL buffer(context_, flags, gl_buffer, &err);
 	if(err != CL_SUCCESS) {
-		fprintf(stderr,"[OpenCL] Failed to create gl buffer: %s\n", errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] Failed to create gl buffer: %s\n", errorString(err));
 	}
 	return buffer;
 }
@@ -303,13 +289,12 @@ cl::CommandQueue &CL::queue() { return queue_; }
 cl::Context &CL::context() { return context_; }
 
 void CL::cl_error_callback(const char * errorinfo, const void * private_info_size, size_t cb, void * user_data) {
-	fprintf(stderr, "[OpenCL] Got error callback: %s\n", errorinfo);
+	Logging::fatal("[OpenCL] Got error callback: %s\n", errorinfo);
 }
 
 void CL::check_error(const cl_int &err, const char * context) {
 	if(err != CL_SUCCESS) {
-		fprintf(stderr,"[OpenCL] %s: %s\n", context, errorString(err));
-		abort();
+		Logging::fatal("[OpenCL] %s: %s\n", context, errorString(err));
 	}
 }
 
