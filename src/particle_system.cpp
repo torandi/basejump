@@ -4,6 +4,7 @@
 
 #include "particle_system.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 #include "texture.hpp"
 
 #include <GL/glew.h>
@@ -26,7 +27,7 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	run_kernel_  = opencl->load_kernel(program_, "run_particles");
 	spawn_kernel_  = opencl->load_kernel(program_, "spawn_particles");
 
-	fprintf(verbose,"Created particle system with %d particles\n", max_num_particles);
+	Logging::verbose("Created particle system with %d particles\n", max_num_particles);
 
 	//Empty vec4s:
 	vertex_t * empty = new vertex_t[max_num_particles];
@@ -67,7 +68,7 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 
 	float * rnd = new float[max_num_particles];
 
-	fprintf(verbose, "Generating random numbers\n");
+	Logging::verbose("  - Generating random numbers\n");
 	for(int i = 0; i<max_num_particles; ++i) {
 		rnd[i] = frand();
 	}
@@ -191,7 +192,7 @@ void ParticleSystem::update(float dt) {
 	lock[0].wait(); //Wait to aquire gl objects
 
 	bool restore_config = !spawn_list_.empty();
-	
+
 	/*
 	 * Handle spawning
 	 */
@@ -200,7 +201,7 @@ void ParticleSystem::update(float dt) {
 
 		cl_int err = opencl->queue().enqueueWriteBuffer(config_, CL_TRUE, 0, sizeof(config_t), &sd.first, NULL, NULL);
 		CL::check_error(err, "[ParticleSystem] Write config");
-	
+
 		spawn_particles((cl_int) sd.second, &lock[0]);
 
 		spawn_list_.pop_front();
@@ -230,7 +231,7 @@ void ParticleSystem::update(float dt) {
 
 	err = opencl->queue().enqueueNDRangeKernel(run_kernel_, cl::NullRange, cl::NDRange(max_num_particles_), cl::NullRange, NULL, &lock[0]);
 	CL::check_error(err, "[ParticleSystem] Execute run_kernel");
-	
+
 	//render_blocking_events_.push_back(e2);
 /*
 	vertex_t * vertices = (vertex_t* ) opencl->queue().enqueueMapBuffer(cl_gl_buffers_[0], CL_TRUE, CL_MAP_READ, 0, sizeof(particle_t)*max_num_particles_, NULL, NULL, &err);
@@ -240,7 +241,7 @@ void ParticleSystem::update(float dt) {
 		printf("Dir: (%f, %f, %f), ttl: (%f/%f) speed: (%f) scale(%f->%f) rotation speed: %f\n", particles[i].direction.x, particles[i].direction.y,particles[i].direction.z, particles[i].ttl, particles[i].org_ttl, particles[i].speed, particles[i].initial_scale, particles[i].final_scale, particles[i].rotation_speed);
 	}
 
-	
+
 */
 	/*
 	vertex_t * vertices = (vertex_t*) opencl->queue().enqueueMapBuffer(cl_gl_buffers_[0], CL_TRUE, CL_MAP_READ, 0, sizeof(particle_t)*max_num_particles_, NULL, NULL, &err);
@@ -262,7 +263,7 @@ void ParticleSystem::update(float dt) {
 
 	//BEGIN DEBUG
 
-/*	
+/*
 	particle_t * particles = (particle_t*) opencl->queue().enqueueMapBuffer(particles_, CL_TRUE, CL_MAP_READ, 0, sizeof(particle_t)*max_num_particles_, NULL, NULL, &err);
 
 	opencl->queue().finish();
