@@ -16,14 +16,17 @@ namespace Logging {
 
 	class Destination {
 	public:
-		Destination(Severity severity, FILE* dst)
+		Destination(Severity severity, FILE* dst, bool autoclose)
 			: severity(severity)
-			, dst(dst) {
+			, dst(dst)
+			, autoclose(autoclose) {
 
 		}
 
 		~Destination(){
-			fclose(dst);
+			if ( autoclose ){
+				fclose(dst);
+			}
 		}
 
 		void write(Severity severity, const char* message){
@@ -33,6 +36,7 @@ namespace Logging {
 
 		Severity severity;
 		FILE* dst;
+		bool autoclose;
 	};
 
 	static std::vector<Destination*> output;
@@ -48,8 +52,8 @@ namespace Logging {
 		output.clear();
 	}
 
-	void add_destination(Severity severity, FILE* dst){
-		Destination* o = new Destination(severity, dst);
+	static void add_destination(Severity severity, FILE* dst, bool autoclose){
+		Destination* o = new Destination(severity, dst, false);
 		output.push_back(o);
 
 		if ( dst == stdout || dst == stderr ){
@@ -66,13 +70,17 @@ namespace Logging {
 		o->write(INFO, buf);
 	}
 
+	void add_destination(Severity severity, FILE* dst){
+		add_destination(severity, dst, false);
+	}
+
 	void add_destination(Severity severity, const char* filename){
 		FILE* fp = fopen(filename, "a");
 		if ( !fp ){
 			error("failed to open logging destination `%s'.", filename);
 			return;
 		}
-		add_destination(severity, fp);
+		add_destination(severity, fp, true);
 	}
 
 	void message(Severity severity, const char* fmt, ...){

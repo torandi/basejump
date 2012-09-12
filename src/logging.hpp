@@ -15,10 +15,30 @@ namespace Logging {
 		DEBUG,
 	};
 
+	/**
+	 * Initialize logging subsystem.
+	 */
 	void init();
+
+	/**
+	 * Closes all open logs.
+	 */
 	void cleanup();
 
+	/**
+	 * Add a logging destination.
+	 *
+	 * @param severity Anything with severity and higher will be included in this
+	 *                 output.
+	 * @param dst File pointer. Must be open for writing but will not closed during
+	 *            cleanup.
+	 */
 	void add_destination(Severity severity, FILE* dst);
+
+	/**
+	 * Add a logging desination. Same add FILE* but automatically opens and closes
+	 * file stream.
+	 */
 	void add_destination(Severity severity, const char* filename);
 
 	void __FORMAT__(printf, 2,3) message(Severity severity, const char* fmt, ...);
