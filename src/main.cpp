@@ -281,6 +281,7 @@ static void init(){
 static void cleanup(){
 	Engine::cleanup();
 	Texture2D::cleanup();
+	Logging::cleanup();
 	SDL_Quit();
 }
 
@@ -502,13 +503,7 @@ int main(int argc, char* argv[]){
 
 	parse_argv(argc, argv);
 
-	verbose = fopen(verbose_flag ? "/dev/stderr" : "frob_old.log", "w");
 	if(verbose_flag) setup_fps_timer();
-
-	if(!verbose) {
-		fprintf(stderr, "Failed to open logfile: %s\n", strerror(errno));
-		verbose = stderr;
-	}
 
 	/* proper termination */
 	signal(SIGINT, handle_sigint);
@@ -517,8 +512,6 @@ int main(int argc, char* argv[]){
 	init();
 	magic_stuff();
 	cleanup();
-
-	fclose(verbose);
 
 	return 0;
 }

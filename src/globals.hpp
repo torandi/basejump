@@ -10,7 +10,6 @@
 	extern Input input;
 #endif
 
-extern FILE* verbose;                    /* stderr if verbose output is enabled or /dev/null if not */
 extern Time global_time;                 /* current time */
 extern glm::ivec2 resolution;            /* current resolution */
 extern glm::mat4 screen_ortho;           /* orthographic projection for window */
