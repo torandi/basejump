@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "path.hpp"
 
 #include <vector>
@@ -50,7 +54,7 @@ Path::Path(const std::vector<glm::vec3> &in_path, bool optimize) {
 		const glm::vec3 * p[4];
 
 		/* We approximate the path_length of the subpath by
-		 * taking the middle point and taking the 
+		 * taking the middle point and taking the
 		 * path_length from that to the two points
 		 */
 		if( it == path.begin() ) p[0] = & ( path.back() );
@@ -72,7 +76,7 @@ Path::Path(const std::vector<glm::vec3> &in_path, bool optimize) {
 	//	printf("Added keypoint[%d]: {%f, %s}\n", kp.index, kp.path_point, glm::to_string(kp.position).c_str());
 		points.push_back(kp);
 	}
-	
+
 }
 
 float Path::length() const { return path_length; }
@@ -83,7 +87,7 @@ const Path::keypoint_t &Path::keypoint(int index) const {
 }
 
 float Path::distance_to_next(unsigned int from) const {
-	if(from+1 < points.size()) { 	
+	if(from+1 < points.size()) {
 		return points[from+1].path_point - points[from].path_point;
 	} else {
 		return path_length - points[from].path_point;
