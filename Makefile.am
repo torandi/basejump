@@ -113,10 +113,11 @@ autoload.cpp: autoload.lst Makefile
 	@echo '#endif' >> autoload.cpp
 	@echo '#include "autoload.h"' >> autoload.cpp
 	@echo '#include "globals.hpp"' >> autoload.cpp
+	@echo '#include "logging.hpp"' >> autoload.cpp
 	@echo '#include <cstdio>' >> autoload.cpp
 	@echo 'namespace Engine { void autoload_scenes(){' >> autoload.cpp
-	@echo ' 	fprintf(verbose, "Autoloading scenes.\n");' >> autoload.cpp
-	$(AM_V_GEN)sed 's/\(.*\):\(.*\)/	fprintf(verbose, "  %s -> %s\\n", \"\2\", \"\1\"); \1();/' autoload.lst >> autoload.cpp
+	@echo ' 	Logging::verbose("Autoloading scenes.\n");' >> autoload.cpp
+	$(AM_V_GEN)sed 's/\(.*\):\(.*\)/	Logging::verbose("  %s -> %s\\n", \"\2\", \"\1\"); \1();/' autoload.lst >> autoload.cpp
 	@echo "}}" >> autoload.cpp
 
 release: all
