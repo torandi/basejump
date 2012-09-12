@@ -250,7 +250,7 @@ TextureCubemap::TextureCubemap(std::vector<std::string> path)
 	/* ensure we got correct number of filenames */
 	if ( path.size() != 6 ){
 		fprintf(stderr, "TextureCubemap requires 6 filenames, got %zd\n", path.size());
-		while ( path.size() < 6 ) path.push_back("default.jpg");
+		while ( path.size() < 6 ) path.push_back("/textures/default.jpg");
 	}
 
 	glGenTextures(1, &_texture);
@@ -307,7 +307,7 @@ TextureArray::TextureArray(std::vector<std::string> path, bool mipmap)
 
 	if ( path.size() == 0 ){
 		fprintf(stderr, "TextureArray must have at least one image, got 0.\n");
-		path.push_back("default.jpg");
+		path.push_back("/textures/default.jpg");
 		_num++;
 	}
 
@@ -393,7 +393,7 @@ Texture3D::Texture3D(std::vector<std::string> path, bool mipmap)
 
 	if ( path.size() == 0 ){
 		fprintf(stderr, "Texture3D must have at least one image, got 0.\n");
-		path.push_back("default.jpg");
+		path.push_back("/textures/default.jpg");
 		_depth++;
 	}
 
