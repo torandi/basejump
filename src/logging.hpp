@@ -44,7 +44,16 @@ namespace Logging {
 	void __FORMAT__(printf, 2,3) message(Severity severity, const char* fmt, ...);
 	void vmessage(Severity severity, const char* fmt, va_list ap);
 
+	/**
+	 * Short for `message(FATAL, fmt, ...);`
+	 * @note It terminates the process using SIGTRAP or similar, e.g. execution
+	 *       may continue only using a debugger.
+	 */
 	void __FORMAT__(printf, 1,2) fatal(const char* fmt, ...);
+
+	/**
+	 * Short for `message(Severity, fmt, ...);`.
+	 */
 	void __FORMAT__(printf, 1,2) error(const char* fmt, ...);
 	void __FORMAT__(printf, 1,2) warning(const char* fmt, ...);
 	void __FORMAT__(printf, 1,2) info(const char* fmt, ...);
