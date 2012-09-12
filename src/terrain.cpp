@@ -2,11 +2,11 @@
 #include "config.h"
 #endif
 
-#include "utils.hpp"
 #include "terrain.hpp"
-#include "texture.hpp"
-#include "mesh.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
+#include "mesh.hpp"
+#include "texture.hpp"
 #include "utils.hpp"
 
 #include <SDL/SDL.h>
@@ -62,8 +62,9 @@ void Terrain::generate_terrain() {
 
 	map_ = new float[numVertices];
 
-	fprintf(verbose,"Generating terrain...\n");
-	fprintf(verbose,"World size: %dx%d, scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
+	Logging::verbose("Generating terrain...\n"
+	                 "  - World size: %dx%d\n"
+	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
 
 	vertices_ = std::vector<vertex_t>(numVertices);
 	for(int y=0; y<size_.y; ++y) {
@@ -72,7 +73,7 @@ void Terrain::generate_terrain() {
 			int i = y * size_.x + x;
 			glm::vec4 color = get_pixel_color(x, y, data_map_, size_);
 			float h = height_from_color(color);
-			v.position = glm::vec3(horizontal_scale_*x, h*vertical_scale_, horizontal_scale_*y); 
+			v.position = glm::vec3(horizontal_scale_*x, h*vertical_scale_, horizontal_scale_*y);
 			v.tex_coord = glm::vec2((float)x/size_.x, 1.f-(float)y/size_.y);
 			vertices_[i] = v;
 			map_[i] =  h*vertical_scale_;
@@ -151,7 +152,7 @@ glm::vec4 Terrain::get_pixel_color(int x, int y, SDL_Surface * surface, const gl
 	color.b = (float)c.z/0xFF;
 	color.a = (float)c.w/0xFF;
 
-	return color;	
+	return color;
 }
 
 void Terrain::render(const glm::mat4& m) {

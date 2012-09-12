@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "mesh.hpp"
+#include "logging.hpp"
 #include "shader.hpp"
 #include "utils.hpp"
 
@@ -58,10 +59,9 @@ void Mesh::set_vertices(const float vertices[][5], const size_t num_vertices) {
 }
 
 void Mesh::generate_normals() {
-   if(vertices_.size() == 3 || indices_.size() == 0) {
-      fprintf(stderr, "Mesh::generate_normals() called with vertices or indices empty\n");
-      abort();
-   }
+	if(vertices_.size() == 3 || indices_.size() == 0) {
+		Logging::fatal("Mesh::generate_normals() called with vertices or indices empty\n");
+	}
 
 	verify_immutable("calculate_normals()");
 
@@ -89,10 +89,9 @@ void Mesh::activate_tangents_and_bitangents() {
 
 //This method orgonormalizes the tangent space
 void Mesh::ortonormalize_tangent_space() {
-   if(! (has_normals_ && has_tangents_)) {
-      fprintf(stderr, "Mesh::ortonormalize_tangent_space() called with normals or tangents inactive\n");
-      abort();
-   }
+	if(! (has_normals_ && has_tangents_)) {
+		Logging::fatal("Mesh::ortonormalize_tangent_space() called with normals or tangents inactive\n");
+	}
 
 	for(std::vector<vertex_t>::iterator it=vertices_.begin(); it!=vertices_.end(); ++it) {
 		it->normal = glm::normalize(it->normal);
@@ -111,10 +110,9 @@ void Mesh::ortonormalize_tangent_space() {
 }
 
 void Mesh::generate_tangents_and_bitangents() {
-   if(vertices_.size() == 3 || indices_.size() == 0) {
-      fprintf(stderr, "Mesh::generate_tangents_and_bitangents() called with vertices or indices empty\n");
-      abort();
-   }
+	if(vertices_.size() == 3 || indices_.size() == 0) {
+		Logging::fatal("Mesh::generate_tangents_and_bitangents() called with vertices or indices empty\n");
+	}
 
 	for(unsigned int i=0; i<indices_.size(); i+=3) {
 		unsigned int tri[3] = {indices_[i], indices_[i+1], indices_[i+2]};
@@ -138,8 +136,7 @@ void Mesh::generate_tangents_and_bitangents() {
 
 void Mesh::verify_immutable(const char * where) {
 	if(vbos_generated_) {
-		fprintf(stderr,"Mesh::%s can not be used after vertex buffers have been generated\n", where);
-      abort();
+		Logging::fatal("Mesh::%s can not be used after vertex buffers have been generated\n", where);
 	}
 }
 

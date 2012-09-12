@@ -2,8 +2,9 @@
 #include "config.h"
 #endif
 
-#include "data.hpp"
 #include "timetable.hpp"
+#include "data.hpp"
+#include "logging.hpp"
 #include <cstdlib>
 #include <cstring>
 #include <glm/gtx/spline.hpp>
@@ -15,7 +16,7 @@ TimeTable::TimeTable(){
 int TimeTable::read_file(const std::string& filename){
 	Data * file = Data::open(filename);
 	if ( !file ){
-		fprintf(stderr, "Failed to open `%s': %s\n", filename.c_str(), strerror(errno));
+		Logging::error("Failed to open `%s': %s\n", filename.c_str(), strerror(errno));
 		return errno;
 	}
 
@@ -42,7 +43,7 @@ int TimeTable::read_file(const std::string& filename){
 
 		/* parse line */
 		if ( parse(entry) != 0 ){
-			fprintf(stderr, "%s:%d: malformed entry: \"%.*s\"\n", filename.c_str(), linenum, (int)(len-1), line);
+			Logging::warning("%s:%d: malformed entry: \"%.*s\"\n", filename.c_str(), linenum, (int)(len-1), line);
 		}
 
 		free(tmp);
@@ -103,18 +104,16 @@ glm::vec3 PointTable::at(float t){
 
 XYLerpTable::XYLerpTable(const std::string& filename){
 	int ret = read_file(filename);
+
 	if ( ret != 0 ){
-		fprintf(stderr, "XYLerpTable: Failed to read `%s': %s\n", filename.c_str(), strerror(ret));
-		abort();
+		Logging::error("XYLerpTable: Failed to read `%s': %s\n", filename.c_str(), strerror(ret));
+	} else if ( p.size() < 2 ){
+		Logging::error("%s: XYLerpTable requires at least two points, table ignored.\n", filename.c_str());
 	}
 
-	if ( p.size() < 2 ){
-		fprintf(stderr, "%s: XYLerpTable requires at least two points, table ignored.\n", filename.c_str());
-		p.clear();
-		while ( p.size() < 2 ){
-			const entry tmp = {0.0f, glm::vec2(0.0f, 0.0f)};
-			p.push_back(tmp);
-		}
+	while ( p.size() < 2 ){
+		const entry tmp = {0.0f, glm::vec2(0.0f, 0.0f)};
+		p.push_back(tmp);
 	}
 }
 

@@ -4,6 +4,7 @@
 
 #include "data.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -22,8 +23,7 @@ static long file_size(FILE* fp){
 	fseek(fp, cur, SEEK_SET);
 
 	if ( bytes == -1 ){
-		fprintf(stderr, "ftell(%d) failed: %s\n", fileno(fp), strerror(errno));
-		abort();
+		Logging::fatal("ftell(%d) failed: %s\n", fileno(fp), strerror(errno));
 	}
 
 	return bytes;
@@ -88,7 +88,7 @@ bool Data::file_exists(const std::string& filename){
 void * Data::load_from_file(const char * filename, size_t &size) {
 	FILE * file = fopen(filename, "rb");
 	if(file == nullptr) {
-		fprintf(verbose, "[Data] Couldn't open file `%s'\n", filename);
+		Logging::error("[Data] Couldn't open file `%s'\n", filename);
 		return nullptr;
 	}
 
@@ -98,11 +98,10 @@ void * Data::load_from_file(const char * filename, size_t &size) {
 	const size_t res = fread(data, 1, size, file);
 	if ( res != size ) {
 		if ( ferror(file) ){
-			fprintf(stderr, "Error when reading file `%s': %s\n", filename, strerror(errno));
+			Logging::fatal("Error when reading file `%s': %s\n", filename, strerror(errno));
 		} else {
-			fprintf(stderr, "Error when reading file `%s': read size was not the expected size (read %lu bytes, expected %lu)\n", filename, res, size);
+			Logging::fatal("Error when reading file `%s': read size was not the expected size (read %lu bytes, expected %lu)\n", filename, res, size);
 		}
-		abort();
 	}
 	fclose(file);
 
@@ -145,7 +144,7 @@ int Data::seek(long int offset, int origin) const {
 			break;
 		default:
 			errno = EINVAL;
-			fprintf(stderr, "Warning unknown origin to Data::seek\n");
+			Logging::warning("Warning unknown origin to Data::seek\n");
 			return -1;
 	}
 	if(newpos > ((char*)_data + _size)) {

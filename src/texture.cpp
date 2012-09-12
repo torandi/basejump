@@ -3,9 +3,10 @@
 #endif
 
 #include "texture.hpp"
-#include "utils.hpp"
-#include "globals.hpp"
 #include "data.hpp"
+#include "globals.hpp"
+#include "logging.hpp"
+#include "utils.hpp"
 
 #include <vector>
 #include <map>
@@ -28,11 +29,11 @@ static GLuint cube_map_index[6] = {
 
 SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) {
 	/* Load image using SDL Image */
-	fprintf(verbose, "Loading image `%s'\n", path.c_str());
+	Logging::verbose("Loading image `%s'\n", path.c_str());
 	Data * file = Data::open(path);
 
 	if ( !file ){
-		fprintf(stderr, "Failed to load texture at %s\n", path.c_str());
+		Logging::error("Failed to load texture at %s\n", path.c_str());
 		if ( path != "/textures/default.jpg" ){
 			return load_image("/textures/default.jpg", size);
 		}
@@ -44,8 +45,7 @@ SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) 
 	delete file;
 
 	if ( !surface ){
-		fprintf(stderr, "Failed to load surface from `%s'\n", path.c_str());
-		abort();
+		Logging::fatal("Failed to load surface from `%s'\n", path.c_str());
 	}
 
 	/* To properly support all formats the surface must be copied to a new
@@ -72,8 +72,7 @@ SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) 
 	);
 
 	if ( !rgba_surface ) {
-		fprintf(stderr, "Failed to create RGBA surface\n");
-		abort();
+		Logging::fatal("Failed to create RGBA surface\n");
 	}
 
 	/* Save the alpha blending attributes */
@@ -249,7 +248,7 @@ TextureCubemap::TextureCubemap(std::vector<std::string> path)
 
 	/* ensure we got correct number of filenames */
 	if ( path.size() != 6 ){
-		fprintf(stderr, "TextureCubemap requires 6 filenames, got %zd\n", path.size());
+		Logging::error("TextureCubemap requires 6 filenames, got %zd\n", path.size());
 		while ( path.size() < 6 ) path.push_back("/textures/default.jpg");
 	}
 
@@ -306,7 +305,7 @@ TextureArray::TextureArray(std::vector<std::string> path, bool mipmap)
 	, _texture(0) {
 
 	if ( path.size() == 0 ){
-		fprintf(stderr, "TextureArray must have at least one image, got 0.\n");
+		Logging::error("TextureArray must have at least one image, got 0.\n");
 		path.push_back("/textures/default.jpg");
 		_num++;
 	}
@@ -317,7 +316,7 @@ TextureArray::TextureArray(std::vector<std::string> path, bool mipmap)
 		SDL_FreeSurface(surface);
 	}
 
-	fprintf(verbose, "Creating TextureArray with %zd images at %dx%d\n", path.size(), size.x, size.y);
+	Logging::verbose("Creating TextureArray with %zd images at %dx%d\n", path.size(), size.x, size.y);
 
 	glGenTextures(1, &_texture);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, _texture);
@@ -392,7 +391,7 @@ Texture3D::Texture3D(std::vector<std::string> path, bool mipmap)
 	, _depth(path.size()) {
 
 	if ( path.size() == 0 ){
-		fprintf(stderr, "Texture3D must have at least one image, got 0.\n");
+		Logging::error("Texture3D must have at least one image, got 0.\n");
 		path.push_back("/textures/default.jpg");
 		_depth++;
 	}
@@ -403,7 +402,7 @@ Texture3D::Texture3D(std::vector<std::string> path, bool mipmap)
 		SDL_FreeSurface(surface);
 	}
 
-	fprintf(verbose, "Creating Texture3D with %zd images at %dx%d\n", path.size(), size.x, size.y);
+	Logging::verbose("Creating Texture3D with %zd images at %dx%d\n", path.size(), size.x, size.y);
 
 	glGenTextures(1, &_texture);
 	glBindTexture(GL_TEXTURE_3D, _texture);

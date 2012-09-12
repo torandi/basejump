@@ -4,6 +4,7 @@
 
 #include "engine.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 #include "scene.hpp"
 #include "shader.hpp"
 #include "utils.hpp"
@@ -24,25 +25,24 @@ namespace Engine {
 	void load_timetable(const std::string& filename){
 		int ret;
 		const char* tablename = filename.c_str();
-		fprintf(verbose, "Loading timetable from `%s'\n", tablename);
+		Logging::verbose("Loading timetable from `%s'\n", tablename);
 
 		auto func = [](const std::string& name, float begin, float end){
 			RenderTarget* target = rendertarget_by_name("scene:" + name);
 			Scene* scene = nullptr;
 
 			if ( !target ){
-				fprintf(stderr, "Timetable entry for missing scene `%s', ignored.\n", name.c_str());
+				Logging::error("Timetable entry for missing scene `%s', ignored.\n", name.c_str());
 				return;
 			} else if ( !(scene=dynamic_cast<Scene*>(target)) ){
-				fprintf(stderr, "Timetable entry for RenderTarget `%s', ignored.\n", name.c_str());
+				Logging::warning("Timetable entry for RenderTarget `%s', ignored.\n", name.c_str());
 				return;
 			}
 
 			scene->add_time(begin, end);
 		};
 		if ( (ret=timetable_parse(tablename, func)) != 0 ){
-			fprintf(stderr, "Failed to read `%s': %s\n", tablename, strerror(ret));
-			abort();
+			Logging::fatal("Failed to read `%s': %s\n", tablename, strerror(ret));
 		}
 	}
 
@@ -52,7 +52,7 @@ namespace Engine {
 		for ( auto resource : names ){
 			const size_t delimiter = resource.find(':');
 			if ( delimiter == std::string::npos ){
-				fprintf(stderr, "Resource `%s' does not contain prefix, preloading ignored.\n", resource.c_str());
+				Logging::warning("Resource `%s' does not contain prefix, preloading ignored.\n", resource.c_str());
 				continue;
 			}
 
@@ -64,7 +64,7 @@ namespace Engine {
 			if ( prefix == "texture" ){
 				Texture2D::preload(filename);
 			} else {
-				fprintf(stderr, "Resource `%s' has an unknown prefix, preloading ignored.\n", resource.c_str());
+				Logging::warning("Resource `%s' has an unknown prefix, preloading ignored.\n", resource.c_str());
 			}
 		}
 	}

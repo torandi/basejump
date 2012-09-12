@@ -4,6 +4,7 @@
 
 #include "rendertarget.hpp"
 #include "engine.hpp"
+#include "logging.hpp"
 #include "utils.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -28,8 +29,7 @@ RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLe
 
 	/* doublebuffer and MRT does not work together, yet. Because I'm to lazy to implement it */
 	if ( (flags & DOUBLE_BUFFER) && (flags & MULTIPLE_RENDER_TARGETS) ){
-		fprintf(stderr, "MRT with RenderTarget does not support doublebuffering, because I'm lazy.\n");
-		abort();
+		Logging::fatal("MRT with RenderTarget does not support doublebuffering, because I'm lazy.\n");
 	}
 
 	/* init_vbo is a no-op if it already is initialized */
@@ -84,34 +84,32 @@ RenderTarget::RenderTarget(const glm::ivec2& size, GLenum format, int flags, GLe
 	if(status != GL_FRAMEBUFFER_COMPLETE){
 		switch( status ) {
 		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-			fprintf(stderr, "Framebuffer object format is unsupported by the video hardware. (GL_FRAMEBUFFER_UNSUPPORTED_EXT)\n");
+			Logging::fatal("Framebuffer object format is unsupported by the video hardware. (GL_FRAMEBUFFER_UNSUPPORTED_EXT)\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-			fprintf(stderr, "Framebuffer incomplete attachment. (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT)\n");
+			Logging::fatal("Framebuffer incomplete attachment. (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT)\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-			fprintf(stderr, "Framebuffer incomplete missing attachment. (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT)\n");
+			Logging::fatal("Framebuffer incomplete missing attachment. (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT)\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-			fprintf(stderr, "Framebuffer incomplete dimensions. (GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT)\n");
+			Logging::fatal("Framebuffer incomplete dimensions. (GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT)\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-			fprintf(stderr, "Framebuffer incomplete formats. (GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT)\n");
+			Logging::fatal("Framebuffer incomplete formats. (GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT)\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-			fprintf(stderr, "Framebuffer incomplete draw buffer. (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT)\n");
+			Logging::fatal("Framebuffer incomplete draw buffer. (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT)\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-			fprintf(stderr, "Framebuffer incomplete read buffer. (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT)\n");
+			Logging::fatal("Framebuffer incomplete read buffer. (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT)\n");
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT:
-			fprintf(stderr, "Framebuffer incomplete multisample buffer. (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT)\n");
+			Logging::fatal("Framebuffer incomplete multisample buffer. (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT)\n");
 			break;
 		default:
-			fprintf(stderr, "Framebuffer incomplete: %s\n", gluErrorString(status));
+			Logging::fatal("Framebuffer incomplete: %s\n", gluErrorString(status));
 		}
-
-		abort();
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -138,12 +136,10 @@ RenderTarget* RenderTarget::MRT(unsigned int targets){
 
 	/* sanity check */
 	if ( !(flags & MULTIPLE_RENDER_TARGETS) ){
-		fprintf(stderr, "RenderTarget::MRT(..) called without MRT enabled on target. Set flag RenderTarget::MULTIPLE_RENDER_TARGETS when allocating RenderTarget.\n");
-		abort();
+		Logging::fatal("RenderTarget::MRT(..) called without MRT enabled on target. Set flag RenderTarget::MULTIPLE_RENDER_TARGETS when allocating RenderTarget.\n");
 	}
 	if ( targets > 4 ){
-		fprintf(stderr, "RenderTarget::MRT only supports 4 units, can be raised in code.\n");
-		abort();
+		Logging::fatal("RenderTarget::MRT only supports 4 units, can be raised in code.\n");
 	}
 
 	/* generate new textures */
@@ -199,8 +195,7 @@ void RenderTarget::init_vbo(){
 
 void RenderTarget::bind(){
 	if ( stack ){
-		fprintf(stderr, "Nesting problem with RenderTarget, another target already bound.\n");
-		abort();
+		Logging::fatal("Nesting problem with RenderTarget, another target already bound.\n");
 	}
 
 	glViewport(0, 0, size.x, size.y);
@@ -212,8 +207,7 @@ void RenderTarget::bind(){
 
 void RenderTarget::unbind(){
 	if ( !stack ){
-		fprintf(stderr, "Nesting problem with RenderTarget, no target is bound\n");
-		abort();
+		Logging::fatal("Nesting problem with RenderTarget, no target is bound\n");
 	}
 
 	front = back;

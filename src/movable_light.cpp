@@ -2,11 +2,12 @@
 #include "config.h"
 #endif
 
-#include <cfloat>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "movable_light.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
+
+#include <cfloat>
+#include <glm/gtc/matrix_transform.hpp>
 
 MovableLight::MovableLight(Light * light)
 	: MovableObject(light->position)
@@ -171,8 +172,7 @@ void MovableLight::render_shadow_map(const Camera &camera, std::function<void(co
 				break;
 			}
 		default:
-			printf("Shadowmaps are only implemented for directional lights at the moment\n");
-			abort();
+			Logging::fatal("Shadowmaps are only implemented for directional lights at the moment\n");
 	}
 
 	shadow_map.matrix = glm::translate(glm::mat4(1.f), glm::vec3(0.5f))

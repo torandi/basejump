@@ -5,6 +5,7 @@
 #include "data.hpp"
 #include "engine.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 #include "render_object.hpp"
 #include "rendertarget.hpp"
 #include "utils.hpp"
@@ -34,8 +35,6 @@
 #endif
 
 #include "light.hpp"
-
-#define LOGFILE "frob.log"
 
 static const unsigned int framerate = 60;
 static const uint64_t per_frame = 1000000 / framerate;
@@ -71,7 +70,7 @@ static void handle_sigint(int signum){
 }
 
 static void show_fps(int signum){
-	fprintf(stderr, "FPS: %d\n", frames);
+	Logging::verbose("FPS: %d\n", frames);
 	frames = 0;
 }
 
@@ -120,7 +119,7 @@ static void render_loading_scene() {
  * Render the loading screen
  */
 static void prepare_loading_scene() {
-	fprintf(verbose, "Preparing loading scene\n");
+	Logging::verbose("Preparing loading scene\n");
 
 	loading_textures[0] = Texture2D::from_filename("/textures/frob_nocolor.png");
 	loading_textures[1] = Texture2D::from_filename("/textures/frob_color.png");
@@ -184,12 +183,13 @@ static void free_loading() {
 
 static void init_window(){
 	if ( SDL_Init(SDL_INIT_VIDEO) != 0 ){
-		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
-		exit(1);
+		Logging::fatal("SDL_Init failed: %s\n", SDL_GetError());
 	}
 
 	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
-	if ( !vi ){ fprintf(stderr, "SDL_GetVideoInfo() failed\n"); abort(); }
+	if ( !vi ){
+		Logging::fatal("SDL_GetVideoInfo() failed\n");
+	}
 
 	if ( fullscreen && !resolution_given ){
 		resolution.x = vi->current_w;
@@ -197,7 +197,7 @@ static void init_window(){
 	}
 
 	/* show configuration */
-	fprintf(verbose, PACKAGE_NAME "-" VERSION "\n"
+	Logging::info(PACKAGE_NAME "-" VERSION "\n"
 	        "Configuration:\n"
 	        "  Demo: " NAME " (" TITLE ")\n"
 	        "  Data path: %s\n"
@@ -218,8 +218,7 @@ static void init_window(){
 
 	GLenum ret;
 	if ( (ret=glewInit()) != GLEW_OK ){
-		fprintf(stderr, "Failed to initialize GLEW: %s\n", glewGetErrorString(ret));
-		exit(1);
+		Logging::fatal("Failed to initialize GLEW: %s\n", glewGetErrorString(ret));
 	}
 
 	/* setup window projection matrix */
@@ -230,8 +229,8 @@ static void init_window(){
 	/* show OpenGL info */
 	GLint max_texture_units;
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_texture_units);
-	fprintf(verbose, "OpenGL Device: %s - %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
-	fprintf(verbose, "  - Supports %d texture units\n", max_texture_units);
+	Logging::verbose("OpenGL Device: %s - %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
+	Logging::verbose("  - Supports %d texture units\n", max_texture_units);
 }
 
 static void loading_progress(const std::string& name, int index, int total){
@@ -239,6 +238,10 @@ static void loading_progress(const std::string& name, int index, int total){
 }
 
 static void init(){
+	Logging::init();
+	Logging::add_destination(verbose_flag ? Logging::VERBOSE : Logging::WARNING, stderr);
+	Logging::add_destination(Logging::VERBOSE, "frob.log");
+	Logging::info("FFS: Frobnicator Fubar System - Engine starting\n");
 	init_window();
 	Data::add_search_path(PATH_BASE);
 	Engine::setup_opengl();
@@ -278,6 +281,7 @@ static void init(){
 static void cleanup(){
 	Engine::cleanup();
 	Texture2D::cleanup();
+	Logging::cleanup();
 	SDL_Quit();
 }
 
@@ -376,7 +380,7 @@ static void __UNUSED__  set_resolution(const char* str){
 	glm::ivec2 tmp;
 	int n = sscanf(str, "%dx%d", &tmp.x, &tmp.y);
 	if ( n != 2 || tmp.x <= 0 || tmp.y <= 0 ){
-		fprintf(stderr, "%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, str);
+		Logging::error("%s: Malformed resolution `%s', must be WIDTHxHEIGHT. Option ignored\n", program_name, str);
 		return;
 	}
 
@@ -395,7 +399,7 @@ void show_usage(){
 	       "  -w, --windowed          Inverse of --fullscreen.\n"
 	       "  -s, --seek=TIME         Seek to the given time in seconds.\n"
 	       "  -n, --no-vsync          Disable vsync.\n"
-	       "  -v, --verbose           Enable verbose output to stdout (redirected to " LOGFILE " otherwise)\n"
+	       "  -v, --verbose           Enable verbose output to stdout (redirected to logfile otherwise)\n"
 	       "  -q, --quiet             Inverse of --verbose.\n"
 				 "  -l, --no-loading        Don't show loading scene (faster load).\n"
 	       "  -h, --help              This text\n",
@@ -469,7 +473,7 @@ static void parse_argv(int argc, char* argv[]){
 #else /* HAVE_GETOPT_H */
 static void parse_argv(int argc, char* argv[]){
 	if ( argc > 1 ){
-		fprintf(stderr, "%s: warning: argument parsing has been disabled at compile-time.\n", program_name);
+		Logging::warning("%s: warning: argument parsing has been disabled at compile-time.\n", program_name);
 	}
 }
 #endif
@@ -484,7 +488,7 @@ static void setup_fps_timer(){
 	signal(SIGALRM, show_fps);
 	setitimer(ITIMER_REAL, &difftime, NULL);
 #else
-	fprintf(stderr, "%s: warning: no framerate timer available on this platform. FPS report will be diabled.\n");
+	Logging::warning("%s: warning: no framerate timer available on this platform. FPS report will be diabled.\n");
 #endif
 }
 
@@ -499,13 +503,7 @@ int main(int argc, char* argv[]){
 
 	parse_argv(argc, argv);
 
-	verbose = fopen(verbose_flag ? "/dev/stderr" : LOGFILE, "w");
 	if(verbose_flag) setup_fps_timer();
-
-	if(!verbose) {
-		fprintf(stderr, "Failed to open logfile: %s\n", strerror(errno));
-		verbose = stderr;
-	}
 
 	/* proper termination */
 	signal(SIGINT, handle_sigint);
@@ -514,8 +512,6 @@ int main(int argc, char* argv[]){
 	init();
 	magic_stuff();
 	cleanup();
-
-	fclose(verbose);
 
 	return 0;
 }

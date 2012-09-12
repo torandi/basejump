@@ -6,6 +6,7 @@
 #include "render_object.hpp"
 #include "engine.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 #include "rendertarget.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
@@ -58,8 +59,8 @@ class AssimpDataStream : public Assimp::IOStream {
 		}
 
 		virtual size_t Write (const void *pvBuffer, size_t pSize, size_t pCount) {
-			fprintf(stderr, "Writing of models is not implemented\n");
-			abort();
+			Logging::fatal("Writing of models is not implemented\n");
+			return 0;
 		}
 };
 
@@ -82,7 +83,7 @@ class AssimpDataImport : public Assimp::IOSystem {
 			if(data) {
 				return new AssimpDataStream(data);
 			} else {
-				fprintf(verbose, "Failed to open file %s\n", pFile);
+				Logging::error("Failed to open file %s\n", pFile);
 				return NULL;
 			}
 		}
@@ -119,15 +120,15 @@ RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int
 		);
 
 	if ( !scene ) {
-		printf("Failed to load model `%s': %s\n", model.c_str(), importer.GetErrorString());
+		Logging::error("Failed to load model `%s': %s\n", model.c_str(), importer.GetErrorString());
 		return;
 	}
 
-	fprintf(verbose, "Loaded model %s:\n"
-	        "  Meshes: %d\n"
-	        "  Textures: %d\n"
-	        "  Materials: %d\n",
-	        model.c_str(), scene->mNumMeshes, scene->mNumTextures, scene->mNumMaterials);
+	Logging::verbose("Loaded model %s:\n"
+	                 "  - Meshes: %d\n"
+	                 "  - Textures: %d\n"
+	                 "  - Materials: %d\n",
+	                 model.c_str(), scene->mNumMeshes, scene->mNumTextures, scene->mNumMaterials);
 
 	//Get bounds:
 	aiVector3D s_min, s_max;
@@ -153,7 +154,7 @@ TextureBase* RenderObject::load_texture(const std::string& path) {
 		if ( target ){
 			return target;
 		} else {
-			fprintf(stderr, "%s: no rendertarget named `%s', ignored.\n", name.c_str(), path.c_str());
+			Logging::error("%s: no rendertarget named `%s', ignored.\n", name.c_str(), path.c_str());
 			return Texture2D::default_colormap();
 		}
 	}
@@ -182,8 +183,7 @@ void RenderObject::pre_render() {
 		}
 
 		if ( !mtl_data.texture ){
-			fprintf(stderr, "RenderObject `%s' texture failed to load.\n", name.c_str());
-			abort();
+			Logging::fatal("RenderObject `%s' texture failed to load.\n", name.c_str());
 		}
 
 		//Check for normalmap:
@@ -207,7 +207,7 @@ void RenderObject::pre_render() {
 
 		aiString name;
 		if(AI_SUCCESS == mtl->Get(AI_MATKEY_NAME, name))
-			fprintf(verbose, "Loaded material %d %s\n", i, name.data);
+			Logging::verbose("Loaded material %d %s\n", i, name.data);
 
 		aiColor4D value;
 		if(AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &value))
@@ -296,7 +296,7 @@ void RenderObject::recursive_pre_render(const aiNode* node) {
 					indexData.push_back(index);
 				}
 			} else {
-				fprintf(verbose, "Derp, ignoring mesh with %d indices\n", face->mNumIndices);
+				Logging::warning("Derp, ignoring mesh with %d indices\n", face->mNumIndices);
 			}
 		}
 

@@ -3,6 +3,7 @@
 #endif
 
 #include "path.hpp"
+#include "logging.hpp"
 
 #include <vector>
 #include <cstdio>
@@ -31,8 +32,7 @@ void Path::optimize_vector(std::vector<glm::vec3> &path) {
 
 Path::Path(const std::vector<glm::vec3> &in_path, bool optimize) {
 	if(in_path.size() < 4) {
-		fprintf(stderr, "Path must contain at least four entries\n");
-		abort();
+		Logging::fatal("Path must contain at least four entries\n");
 	}
 	std::vector<glm::vec3> opt_path;
 

@@ -12,4 +12,3 @@ Input input;
 
 glm::ivec2 resolution(800,600);
 CL * opencl;
-FILE* verbose = nullptr;
