@@ -4,6 +4,7 @@
 
 #include "engine.hpp"
 #include "globals.hpp"
+#include "logging.hpp"
 #include "quad.hpp"
 #include "render_object.hpp"
 #include "rendertarget.hpp"
@@ -83,9 +84,9 @@ namespace Engine {
 	void start(double seek) {
 		sound->play();
 		if(global_time.sync_to_music(sound)) {
-			fprintf(verbose, "Syncinc to music!\n");
+			Logging::verbose("Syncinc to music!\n");
 		} else {
-			printf("Warning! Syncing disabled!\n");
+			Logging::warning("Warning! Syncing disabled!\n");
 		}
 		if(seek > 0.1) {
 			sound->seek(seek);
