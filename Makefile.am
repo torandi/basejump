@@ -27,6 +27,7 @@ libfrob_a_SOURCES = \
 	src/globals.cpp src/globals.hpp \
 	src/light.cpp src/light.hpp \
 	src/lights_data.cpp src/lights_data.hpp \
+	src/loading.cpp src/loading.hpp \
 	src/logging.cpp src/logging.hpp \
 	src/material.cpp src/material.hpp \
 	src/mesh.cpp src/mesh.hpp \

@@ -1,10 +1,11 @@
 #ifdef HAVE_CONFIG_H
-	#include "config.h"
+#include "config.h"
 #endif
 
 #include "data.hpp"
 #include "engine.hpp"
 #include "globals.hpp"
+#include "loading.hpp"
 #include "logging.hpp"
 #include "render_object.hpp"
 #include "rendertarget.hpp"
@@ -74,113 +75,6 @@ static void show_fps(int signum){
 	frames = 0;
 }
 
-static bool is_loading = true;
-static double loading_time = 0.f;
-static Texture2D* loading_textures[3];
-static Shader * loading_shader;
-static Quad * loading_quad[2];
-static GLint u_fade;
-
-static void render_loading_scene() {
-	Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
-
-	frames++;
-
-	glClearColor(0.f, 0.f, 0.f, 1.f);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-	if(loading_time < 1.f) {
-		glUniform1f(u_fade, 1.f);
-		loading_textures[0]->texture_bind(Shader::TEXTURE_COLORMAP);
-		loading_quad[0]->render();
-	}
-
-	float fade;
-
-	if(is_loading) {
-		fade = (float)std::min((float)loading_time,1.f);
-	} else {
-		fade = (float)std::max(2.f - (float)loading_time,0.f);
-	}
-
-	Shader::upload_blank_material();
-
-	glUniform1f(u_fade, fade);
-	loading_textures[1]->texture_bind(Shader::TEXTURE_COLORMAP);
-	loading_quad[0]->render();
-
-	loading_textures[2]->texture_bind(Shader::TEXTURE_COLORMAP);
-	loading_quad[1]->render();
-
-	SDL_GL_SwapBuffers();
-}
-
-/**
- * Render the loading screen
- */
-static void prepare_loading_scene() {
-	Logging::verbose("Preparing loading scene\n");
-
-	loading_textures[0] = Texture2D::from_filename("/textures/frob_nocolor.png");
-	loading_textures[1] = Texture2D::from_filename("/textures/frob_color.png");
-	loading_textures[2] = Texture2D::from_filename("/textures/loading.png");
-
-	loading_quad[0] = new Quad(glm::vec2(1.f, -1.f), false);
-	loading_quad[1] = new Quad(glm::vec2(1.f, -1.f), false);
-
-	float scale = resolution.x/1280.f;
-
-	loading_quad[0]->set_scale(glm::vec3(1024*scale,512*scale,1));
-	loading_quad[0]->set_position(glm::vec3(resolution.x/2.f - (1024*scale)/2.f, 3.f*resolution.y/10.f - (512*scale)/2.f,1.f));
-
-	loading_quad[1]->set_scale(glm::vec3(512*scale,128*scale,1));
-	loading_quad[1]->set_position(glm::vec3(resolution.x/2.f - (512*scale)/2.f, 7.f*resolution.y/10.f - (128*scale)/2.f,1.f));
-
-	loading_time = 0;
-
-};
-
-static void do_loading_scene() {
-#ifdef NOLOAD
-	return;
-#endif
-	if(skip_load_scene)
-		return;
-
-	loading_shader = Shader::create_shader("/shaders/loading");
-	u_fade = loading_shader->uniform_location("fade");
-
-	loading_shader->bind();
-	/* for calculating dt */
-	long t = util_utime();
-
-	while(running && ( ( is_loading && loading_time < 1.f) || (!is_loading && loading_time < 2.0f))) {
-		/* calculate dt */
-		const long cur = util_utime();
-		const long delta = cur - t;
-		const long delay = per_frame - delta;
-
-		loading_time += 1.0/framerate;
-
-		poll();
-		render_loading_scene();
-
-		/* move time forward */
-		t += per_frame;
-
-		/* fixed framerate */
-		if ( delay > 0 ){
-			util_usleep(delay);
-		}
-	}
-}
-
-static void free_loading() {
-	for(Quad * q : loading_quad) {
-		delete q;
-	}
-}
-
 static void init_window(){
 	if ( SDL_Init(SDL_INIT_VIDEO) != 0 ){
 		Logging::fatal("SDL_Init failed: %s\n", SDL_GetError());
@@ -233,10 +127,6 @@ static void init_window(){
 	Logging::verbose("  - Supports %d texture units\n", max_texture_units);
 }
 
-static void loading_progress(const std::string& name, int index, int total){
-	/* called by Engine::preload */
-}
-
 static void init(){
 	Logging::init();
 	Logging::add_destination(verbose_flag ? Logging::VERBOSE : Logging::WARNING, stderr);
@@ -251,28 +141,19 @@ static void init(){
 	Shader::fog_t fog = { glm::vec4(0.584f, 0.698f, 0.698f, 1.f), 0.005f };
 	Shader::upload_fog(fog);
 
-	//Start loading screen:
-	prepare_loading_scene();
-	do_loading_scene();
+	Loading::init(resolution);
 
 	static const char* resources[] = {
 		"texture:/textures/default.jpg",
 		"texture:/textures/default_normalmap.jpg",
 		"texture:/textures/white.jpg"};
-	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), loading_progress);
+	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), Loading::progress);
 	Engine::autoload_scenes();
 	opencl = new CL();
 	srand((unsigned int)time(0));
 
 	Engine::init();
-
-	//Stop loading scene
-	is_loading = false;
-	do_loading_scene();
-
-	//Wait
-	free_loading();
-
+	Loading::cleanup();
 	Engine::start(seek);
 	global_time.set_paused(false); /* start time */
 	checkForGLErrors("post init()");
