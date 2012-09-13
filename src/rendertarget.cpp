@@ -4,6 +4,7 @@
 
 #include "rendertarget.hpp"
 #include "engine.hpp"
+#include "globals.hpp"
 #include "logging.hpp"
 #include "utils.hpp"
 #include <glm/gtc/type_ptr.hpp>
@@ -212,6 +213,7 @@ void RenderTarget::unbind(){
 
 	front = back;
 	back = (back + 1) % max;
+	glViewport(0, 0, resolution.x, resolution.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	stack = nullptr;
 }
