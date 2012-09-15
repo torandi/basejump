@@ -13,6 +13,4 @@
 extern Time global_time;                 /* current time */
 extern glm::ivec2 resolution;            /* current resolution */
 
-extern CL * opencl;
-
 #endif /* GLOBALS_H */

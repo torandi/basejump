@@ -148,7 +148,7 @@ static void init(){
 		"texture:/textures/white.jpg"};
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), Loading::progress);
 	Engine::autoload_scenes();
-	opencl = new CL();
+	CL::init();
 	srand((unsigned int)time(0));
 
 	Engine::init();
@@ -159,6 +159,7 @@ static void init(){
 }
 
 static void cleanup(){
+	CL::cleanup();
 	Engine::cleanup();
 	Texture2D::cleanup();
 	Logging::cleanup();
