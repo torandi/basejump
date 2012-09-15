@@ -68,7 +68,7 @@ const GLenum Shader::global_uniform_usage_[] = {
 };
 
 GLuint Shader::global_uniform_buffers_[Shader::NUM_GLOBAL_UNIFORMS];
-Shader* Shader::current = nullptr;
+const Shader* Shader::current = nullptr;
 
 typedef std::map<std::string, Shader*> ShaderMap;
 typedef std::pair<std::string, Shader*> ShaderPair;
@@ -359,7 +359,7 @@ void Shader::init_uniforms() {
 	checkForGLErrors("Bind global uniforms to buffers");
 }
 
-void Shader::bind() {
+void Shader::bind() const {
 	if ( this == current ){
 		return; /* do nothing */
 	} else if ( current ){
