@@ -263,23 +263,23 @@ void RenderTarget::clear(const Color& color){
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 }
 
-void RenderTarget::draw(Shader* shader){
+void RenderTarget::draw(const Shader* shader) const {
 	draw(shader, glm::ivec2(0,0), size);
 }
 
-void RenderTarget::draw(Shader* shader, const glm::ivec2& pos){
+void RenderTarget::draw(const Shader* shader, const glm::ivec2& pos) const {
 	draw(shader, pos, size);
 }
 
-void RenderTarget::draw(Shader* shader, const glm::vec2& pos){
+void RenderTarget::draw(const Shader* shader, const glm::vec2& pos) const {
 	draw(shader, pos, glm::vec2(size.x, size.y));
 }
 
-void RenderTarget::draw(Shader* shader, const glm::ivec2& pos, const glm::ivec2& size){
+void RenderTarget::draw(const Shader* shader, const glm::ivec2& pos, const glm::ivec2& size) const {
 	draw(shader, glm::vec2(pos.x, pos.y), glm::vec2(size.x, size.y));
 }
 
-void RenderTarget::draw(Shader* shader, const glm::vec2& pos, const glm::vec2& size){
+void RenderTarget::draw(const Shader* shader, const glm::vec2& pos, const glm::vec2& size) const {
 	glm::mat4 model(1.f);
 
 	model = glm::translate(model, glm::vec3(pos.x, pos.y, 0.0f));
