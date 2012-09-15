@@ -8,6 +8,7 @@
 #include "texture.hpp"
 #include "quad.hpp"
 #include "utils.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
 static const unsigned long fade_time = 1e6; /* in µs */
 
@@ -17,9 +18,10 @@ namespace Loading {
 	static Texture2D* texture[3] = {nullptr, };
 	static Quad* quad[2] = {nullptr, };
 	static GLint u_fade = -1;
+	static glm::mat4 projection;
 
 	static void render(float s) {
-		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
+		Shader::upload_projection_view_matrices(projection, glm::mat4());
 		Shader::upload_blank_material();
 
 		glClearColor(0.f, 0.f, 0.f, 1.f);
@@ -41,6 +43,11 @@ namespace Loading {
 
 	void init(const glm::ivec2& resolution){
 		Logging::verbose("Preparing loading scene\n");
+
+		/* setup window projection matrix */
+		projection = glm::ortho(0.0f, static_cast<float>(resolution.x), 0.0f, static_cast<float>(resolution.y), -1.0f, 1.0f);
+		projection = glm::scale(projection, glm::vec3(1.0f, -1.0f, 1.0f));
+		projection = glm::translate(projection, glm::vec3(0.0f, -static_cast<float>(resolution.y), 0.0f));
 
 		shader = Shader::create_shader("/shaders/loading");
 		u_fade = shader->uniform_location("fade");
