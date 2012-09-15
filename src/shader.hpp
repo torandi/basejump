@@ -189,15 +189,15 @@ private:
 
 	GLint num_attributes_;
 
-	static Shader* current; /* current bound shader or null */
+	static const Shader* current; /* current bound shader or null */
 
 public:
 
-	std::string name;
+	const std::string name;
 
 	Shader &operator= (const Shader &shader);
 
-	void bind();
+	void bind() const;
 	static void unbind();
 
 	GLint num_attributes() const;

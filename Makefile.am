@@ -5,7 +5,7 @@ engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${C
 AM_CXXFLAGS = -Wall -Woverloaded-virtual -I${top_srcdir}/src ${engine_CXXFLAGS} ${VENDOR_CFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo nox2 examples_mrt
+bin_PROGRAMS = demo nox2 examples_mrt examples_blur
 TESTS =
 
 if BUILD_EDITOR
@@ -76,6 +76,10 @@ nox2_SOURCES = src/main.cpp src/nox2.cpp
 examples_mrt_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"example_mrt\"" -DTITLE="\"Example: MRT\""
 examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
 examples_mrt_LDADD = libfrob.a ${engine_LIBS}
+
+examples_blur_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"example_blur\"" -DTITLE="\"Example: Blur\""
+examples_blur_SOURCES = src/main.cpp examples/blur/blur.cpp
+examples_blur_LDADD = libfrob.a ${engine_LIBS}
 
 editor_CXXFLAGS = ${AM_CXXFLAGS} $(gtk3_CFLAGS)
 editor_LDFLAGS = -Wl,--export-dynamic -pthread

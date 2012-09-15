@@ -102,11 +102,24 @@ public:
 	 * Color-buffers is passed as texture unit 0..N and if depth is enabled it is
 	 * passed in unit 7.
 	 */
-	void draw(Shader* shader);
-	void draw(Shader* shader, const glm::vec2& pos);
-	void draw(Shader* shader, const glm::ivec2& pos);
-	void draw(Shader* shader, const glm::ivec2& pos, const glm::ivec2& size);
-	void draw(Shader* shader, const glm::vec2& pos, const glm::vec2& size);
+	void draw(const Shader* shader) const;
+	void draw(const Shader* shader, const glm::vec2& pos) const;
+	void draw(const Shader* shader, const glm::ivec2& pos) const;
+	void draw(const Shader* shader, const glm::ivec2& pos, const glm::ivec2& size) const;
+	void draw(const Shader* shader, const glm::vec2& pos, const glm::vec2& size) const;
+
+	/**
+	 * Transfer other target to this render target using shader.
+	 *
+	 * Roughly equivalent to:
+	 *   this->bind();
+	 *   target->draw(shader);
+	 *   this->unbind();
+	 *
+	 * @param shader The shader to use.
+	 * @param target Which rendertarget to transfer onto this.
+	 */
+	void transfer(const Shader* shader, const RenderTarget* target);
 
 private:
 	static GLuint vbo[2];
