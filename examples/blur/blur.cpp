@@ -15,6 +15,7 @@ static Shader* shader = nullptr;
 static Shader* split = nullptr;
 static Shader* blur[3] = {nullptr, nullptr, nullptr};
 static Camera cam(75, 1.3, 0.1, 10);
+extern glm::mat4 screen_ortho; /* defined in main.cpp */
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){

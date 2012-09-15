@@ -21,8 +21,6 @@
 #include <signal.h>
 #include <SDL/SDL.h>
 #include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <map>
 
 #ifdef HAVE_UNISTD_H
@@ -40,8 +38,8 @@ static Shader* blend_shader = nullptr;
 static Texture2D* text[NUM_TEXT_TEXTURES];
 static Quad* textarea = nullptr;
 static std::map<std::string, Scene*> scene;
-
 static Sound* sound;
+extern glm::mat4 screen_ortho; /* defined in main.cpp */
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
