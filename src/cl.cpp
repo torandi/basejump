@@ -15,7 +15,6 @@
 
 #define PP_INCLUDE "#include"
 
-extern FILE* verbose; /* because globals.hpp fails due to libX11 containing Time which collides with our Time class */
 std::map<std::string, cl::Program> CL::cache;
 
 
