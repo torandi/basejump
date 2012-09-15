@@ -313,3 +313,10 @@ void RenderTarget::draw(const Shader* shader, const glm::vec2& pos, const glm::v
 
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, 0);
 }
+
+void RenderTarget::transfer(const Shader* shader, const RenderTarget* target){
+	Shader::upload_projection_view_matrices(ortho(), glm::mat4());
+	bind();
+	target->draw(shader, glm::vec2(0,0), glm::vec2(size));
+	unbind();
+}

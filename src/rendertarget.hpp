@@ -108,6 +108,19 @@ public:
 	void draw(const Shader* shader, const glm::ivec2& pos, const glm::ivec2& size) const;
 	void draw(const Shader* shader, const glm::vec2& pos, const glm::vec2& size) const;
 
+	/**
+	 * Transfer other target to this render target using shader.
+	 *
+	 * Roughly equivalent to:
+	 *   this->bind();
+	 *   target->draw(shader);
+	 *   this->unbind();
+	 *
+	 * @param shader The shader to use.
+	 * @param target Which rendertarget to transfer onto this.
+	 */
+	void transfer(const Shader* shader, const RenderTarget* target);
+
 private:
 	static GLuint vbo[2];
 	static void init_vbo();
