@@ -18,6 +18,7 @@ Time::Time(int delta)
 	, sound_last_time(0.0)
 	, sound(nullptr) {
 
+	set_paused(false);
 }
 
 void Time::update(){

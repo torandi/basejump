@@ -155,7 +155,6 @@ static void init(){
 	Engine::init();
 	Loading::cleanup();
 	Engine::start(seek);
-	global_time.set_paused(false); /* start time */
 	checkForGLErrors("post init()");
 }
 
