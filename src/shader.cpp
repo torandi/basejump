@@ -37,37 +37,23 @@ struct state_data {
 	float height;
 };
 
-const char * Shader::global_uniform_names_[] = {
-	"projectionViewMatrices",
-	"modelMatrices",
-	"Camera",
-	"Material",
-	"LightsData",
-	"StateData",
-	"Fog"
+struct UBO {
+	const char* name;
+	size_t size;
+	GLenum usage;
 };
 
-const GLsizeiptr Shader::global_uniform_buffer_sizes_[] = {
-	sizeof(glm::mat4)*3,
-	sizeof(glm::mat4)*2,
-	sizeof(glm::vec3),
-	sizeof(Shader::material_t),
-	sizeof(Shader::lights_data_t),
-	sizeof(struct state_data),
-	sizeof(Shader::fog_t),
+static const struct UBO ubo[Shader::NUM_GLOBAL_UNIFORMS] = {
+	{"projectionViewMatrices", sizeof(glm::mat4)*3,           GL_DYNAMIC_DRAW},
+	{"modelMatrices",          sizeof(glm::mat4)*2,           GL_DYNAMIC_DRAW},
+	{"Camera",                 sizeof(glm::vec3),             GL_DYNAMIC_DRAW},
+	{"Material",               sizeof(Shader::material_t),    GL_DYNAMIC_DRAW},
+	{"LightsData",             sizeof(Shader::lights_data_t), GL_DYNAMIC_DRAW},
+	{"StateData",              sizeof(struct state_data),     GL_DYNAMIC_DRAW},
+	{"Fog",                    sizeof(Shader::fog_t),         GL_DYNAMIC_DRAW},
 };
 
-const GLenum Shader::global_uniform_usage_[] = {
-	GL_DYNAMIC_DRAW,
-	GL_DYNAMIC_DRAW,
-	GL_DYNAMIC_DRAW,
-	GL_DYNAMIC_DRAW,
-	GL_DYNAMIC_DRAW,
-	GL_DYNAMIC_DRAW,
-	GL_DYNAMIC_DRAW,
-};
-
-GLuint Shader::global_uniform_buffers_[Shader::NUM_GLOBAL_UNIFORMS];
+static GLuint global_uniform_buffers_[Shader::NUM_GLOBAL_UNIFORMS];
 const Shader* Shader::current = nullptr;
 
 typedef std::map<std::string, Shader*> ShaderMap;
@@ -84,9 +70,9 @@ void Shader::initialize() {
 	for( int i = 0; i < NUM_GLOBAL_UNIFORMS; ++i) {
 		//Allocate memory in the buffer:
 		glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[i]);
-		glBufferData(GL_UNIFORM_BUFFER, global_uniform_buffer_sizes_[i], NULL, global_uniform_usage_[i]);
+		glBufferData(GL_UNIFORM_BUFFER, ubo[i].size, NULL, ubo[i].usage);
 		//Bind buffers to range
-		glBindBufferRange(GL_UNIFORM_BUFFER, i, global_uniform_buffers_[i], 0, global_uniform_buffer_sizes_[i]);
+		glBindBufferRange(GL_UNIFORM_BUFFER, i, global_uniform_buffers_[i], 0, ubo[i].size);
 	}
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	checkForGLErrors("Bind and allocate global uniforms");
@@ -348,11 +334,11 @@ void Shader::usage_report(FILE* dst){
 void Shader::init_uniforms() {
 	//Bind global uniforms to blocks:
 	for(int i = 0; i < NUM_GLOBAL_UNIFORMS; ++i) {
-		global_uniform_block_index_[i] = glGetUniformBlockIndex(program_, global_uniform_names_[i]);
+		global_uniform_block_index_[i] = glGetUniformBlockIndex(program_, ubo[i].name);
 		if(global_uniform_block_index_[i] != -1) {
 			glUniformBlockBinding(program_, global_uniform_block_index_[i], i);
 		} else {
-			Logging::debug("Not binding global uniform %s, probably not used\n", global_uniform_names_[i]);
+			Logging::debug("Not binding global uniform %s, probably not used\n", ubo[i].name);
 		}
 	}
 
