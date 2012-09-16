@@ -50,6 +50,7 @@ static bool fullscreen = FULLSCREEN;
 static bool vsync = true;
 static bool verbose_flag = false;
 static bool skip_load_scene = false;
+glm::ivec2 resolution(800, 600);
 
 static void poll();
 

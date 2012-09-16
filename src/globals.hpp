@@ -10,6 +10,4 @@
 	extern Input input;
 #endif
 
-extern glm::ivec2 resolution;            /* current resolution */
-
 #endif /* GLOBALS_H */

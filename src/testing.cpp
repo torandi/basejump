@@ -11,6 +11,7 @@ static RenderTarget* fs = nullptr;
 static Shader* shader1 = nullptr;
 static Shader* shader2 = nullptr;
 extern glm::mat4 screen_ortho; /* defined in main.cpp */
+extern glm::ivec2 resolution; /* defined in main.cpp */
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){

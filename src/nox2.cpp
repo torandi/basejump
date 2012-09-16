@@ -41,6 +41,7 @@ static std::map<std::string, Scene*> scene;
 static Sound* sound;
 extern glm::mat4 screen_ortho; /* defined in main.cpp */
 extern Time global_time; /* defined in main.cpp */
+extern glm::ivec2 resolution; /* defined in main.cpp */
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
