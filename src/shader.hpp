@@ -170,10 +170,6 @@ private:
 	Shader(const std::string &name_, GLuint program);
 	~Shader();
 
-	static const char *global_uniform_names_[];
-	static const GLsizeiptr global_uniform_buffer_sizes_[];
-	static const GLenum global_uniform_usage_[];
-
 	static GLuint load_shader(GLenum eShaderType, const std::string &strFilename);
 	static GLuint create_program(const std::string &shader_name, const std::vector<GLuint> &shaderList);
 
@@ -181,7 +177,6 @@ private:
 	static std::string parse_shader(const std::string &filename, std::set<std::string> included_files=std::set<std::string>(), std::string included_from="");
 
 	GLint global_uniform_block_index_[NUM_GLOBAL_UNIFORMS];
-	static GLuint global_uniform_buffers_[NUM_GLOBAL_UNIFORMS];
 
 	void init_uniforms();
 
