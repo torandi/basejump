@@ -10,10 +10,10 @@
 
 static RenderObject* obj = nullptr;
 static RenderTarget* scene = nullptr;
-static RenderTarget* pass[2] = {nullptr, nullptr};
+static RenderTarget* pass[3] = {nullptr, nullptr, nullptr};
 static Shader* shader = nullptr;
 static Shader* split = nullptr;
-static Shader* blur[2] = {nullptr, nullptr};
+static Shader* blur[3] = {nullptr, nullptr, nullptr};
 static Camera cam(75, 1.3, 0.1, 10);
 
 namespace Engine {
@@ -28,10 +28,14 @@ namespace Engine {
 		scene    = new RenderTarget(resolution, GL_RGB8);
 		pass[0]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
 		pass[1]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
+		pass[2]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
 		shader   = Shader::create_shader("/shaders/normal");
 		split    = Shader::create_shader("/shaders/split");
 		blur[0]  = Shader::create_shader("/shaders/blur_vertical");
 		blur[1]  = Shader::create_shader("/shaders/blur_horizontal");
+		blur[2]  = Shader::create_shader("/shaders/blur_temporal");
+
+		glUniform1f(blur[2]->uniform_location("factor"), 0.75f);
 	}
 
 	void start(double seek) {
@@ -55,8 +59,11 @@ namespace Engine {
 	}
 
 	static void render_blur(){
+		pass[2]->texture_bind(Shader::TEXTURE_2D_1); /* for temporal blur */
+
 		pass[0]->transfer(blur[0], scene);
 		pass[1]->transfer(blur[1], pass[0]);
+		pass[2]->transfer(blur[2], pass[1]);
 	}
 
 	static void render_blit(){
@@ -64,7 +71,7 @@ namespace Engine {
 		Shader::upload_model_matrix(glm::mat4());
 		RenderTarget::clear(Color::magenta);
 		scene->texture_bind(Shader::TEXTURE_2D_1); /* for comparing */
-		pass[1]->draw(split, glm::vec2(0,0), glm::vec2(resolution));
+		pass[2]->draw(split, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
 	void render(){
