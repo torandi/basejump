@@ -10,7 +10,6 @@
 	extern Input input;
 #endif
 
-extern Time global_time;                 /* current time */
 extern glm::ivec2 resolution;            /* current resolution */
 
 #endif /* GLOBALS_H */
