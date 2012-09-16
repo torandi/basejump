@@ -75,7 +75,8 @@ public:
 		UNIFORM_MATERIAL,
 
 		UNIFORM_LIGHTS,
-		UNIFORM_STATE,
+		UNIFORM_RESOLUTION,
+		UNIFORM_FRAMEINFO,
 		UNIFORM_FOG,
 		NUM_GLOBAL_UNIFORMS
 	};
@@ -234,9 +235,14 @@ public:
 	static void upload_camera(const Camera &camera);
 
 	/**
-	 * Upload current state.
+	 * Upload current resolution (of window or RenderTarget).
 	 */
-	static void upload_state(const glm::ivec2& size);
+	static void upload_resolution(const glm::ivec2& size);
+
+	/**
+	 * Upload per-frame into such as time.
+	 */
+	static void upload_frameinfo(float t);
 
 	static void upload_fog(const fog_t &fog);
 

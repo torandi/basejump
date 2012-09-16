@@ -31,8 +31,7 @@ void main() {
 	tangent = (normalMatrix * in_tangent).xyz;
 	bitangent = (normalMatrix * in_bitangent).xyz;
 
-	tex_coord1 = in_texcoord + state.time*wave1;
-	tex_coord2 = in_texcoord + state.time*wave2;
+	tex_coord1 = in_texcoord + frame.time*wave1;
+	tex_coord2 = in_texcoord + frame.time*wave2;
 
 }
-

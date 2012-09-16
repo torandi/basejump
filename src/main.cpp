@@ -228,6 +228,7 @@ static void render(){
 
 static void update(float dt){
 	float t = global_time.get();
+	Shader::upload_frameinfo(t);
 	Engine::update(t, dt);
 }
 

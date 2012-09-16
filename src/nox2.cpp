@@ -118,7 +118,7 @@ namespace Engine {
 	static void render_composition(){
 		RenderTarget::clear(Color::black);
 
-		Shader::upload_state(resolution);
+		Shader::upload_resolution(resolution);
 		Shader::upload_projection_view_matrices(composition->ortho(), glm::mat4());
 		glViewport(0, 0, resolution.x, resolution.y);
 

@@ -8,12 +8,12 @@ const float offset_ratio = 0.6f;
 const float noise_ratio = 0.3f;
 
 float rand(vec2 co){
-	return fract(sin(dot(co.xy, vec2(12.9898, 78.233) * (state.time + 1.0f))) * 43758.5453);
+	return fract(sin(dot(co.xy, vec2(12.9898, 78.233) * (frame.time + 1.0f))) * 43758.5453);
 }
 
 void main() {
 	/* offset */
-	float x = uv.x * uv.y * 1337.0f * state.time;
+	float x = uv.x * uv.y * 1337.0f * frame.time;
 	x = mod(x,13.0f) * mod(x,123.0f);
 	float dx = mod(x, 0.003f) - 0.0015f;
 	float dy = mod(x, 0.002f) - 0.001f;

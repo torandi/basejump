@@ -286,7 +286,7 @@ void RenderTarget::draw(const Shader* shader, const glm::vec2& pos, const glm::v
 	model = glm::scale(model, glm::vec3(size.x, size.y, 1.0f));
 
 	Shader::upload_model_matrix(model);
-	Shader::upload_state(glm::ivec2(size));
+	Shader::upload_resolution(glm::ivec2(size));
 
 	shader->bind();
 

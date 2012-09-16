@@ -173,9 +173,7 @@ public:
 
 	virtual void update(float t, float dt){
 		camera.set_position(cam_pos1.at(t));
-
 		camera.look_at(cam_pos2.at(t));
-
 
 		fog.update(dt);
 
