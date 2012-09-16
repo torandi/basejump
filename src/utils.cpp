@@ -85,9 +85,9 @@ float radians_to_degrees(double rad) {
    return (float) (rad * (180/M_PI));
 }
 
-glm::vec2 screen_pos(const glm::vec2& v, const glm::vec2& size){
+glm::vec2 screen_pos(const glm::vec2& v, const glm::vec2& outer, const glm::vec2& inner){
 	const glm::vec2 w = glm::clamp(v, 0.0f, 1.0f);
-	const glm::vec2 delta = glm::vec2(resolution.x, resolution.y) - size;
+	const glm::vec2 delta = outer - inner;
 	return w * delta;
 }
 
