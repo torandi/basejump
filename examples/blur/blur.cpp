@@ -25,7 +25,7 @@ namespace Engine {
 		Data::add_search_path(PATH_BASE "examples/blur");
 
 		obj      = new RenderObject("/models/nox.obj", true);
-		scene    = new RenderTarget(resolution, GL_RGB8);
+		scene    = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
 		pass[0]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
 		pass[1]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
 		pass[2]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
@@ -35,7 +35,7 @@ namespace Engine {
 		blur[1]  = Shader::create_shader("/shaders/blur_horizontal");
 		blur[2]  = Shader::create_shader("/shaders/blur_temporal");
 
-		glUniform1f(blur[2]->uniform_location("factor"), 0.75f);
+		glUniform1f(blur[2]->uniform_location("factor"), 0.5f);
 	}
 
 	void start(double seek) {
