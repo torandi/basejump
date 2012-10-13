@@ -182,8 +182,8 @@ std::string Shader::parse_shader(
 static const char* str_shader_type(GLenum type){
 	switch ( type ){
 	case GL_VERTEX_SHADER: return "vertex";
-	case GL_FRAGMENT_SHADER: return "vertex";
-	case GL_GEOMETRY_SHADER: return "vertex";
+	case GL_FRAGMENT_SHADER: return "fragment";
+	case GL_GEOMETRY_SHADER: return "geometry";
 	case GL_TESS_EVALUATION_SHADER: return "tesselation evaluation";
 	case GL_TESS_CONTROL_SHADER: return "tesselation control";
 	default: return "unknown";
