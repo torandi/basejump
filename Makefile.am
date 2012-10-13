@@ -6,7 +6,8 @@ engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${C
 AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src ${engine_CXXFLAGS} ${VENDOR_CFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo nox2 examples_mrt examples_blur
+bin_PROGRAMS = demo nox2
+noinst_PROGRAMS = examples_mrt examples_blur
 TESTS = test/utils test/data
 
 if BUILD_EDITOR
