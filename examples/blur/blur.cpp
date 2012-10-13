@@ -24,7 +24,7 @@ namespace Engine {
 	}
 
 	void init(){
-		Data::add_search_path(PATH_BASE "examples/blur");
+		Data::add_search_path(srcdir "/examples/blur");
 
 		obj      = new RenderObject("/models/nox.obj", true);
 		scene    = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);

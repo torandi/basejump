@@ -94,12 +94,11 @@ static void init_window(){
 	Logging::info(PACKAGE_NAME "-" VERSION "\n"
 	        "Configuration:\n"
 	        "  Demo: " NAME " (" TITLE ")\n"
-	        "  Data path: %s\n"
 	        "  Resolution: %dx%d (%s)\n"
 #ifdef ENABLE_INPUT
 	        "  Input is enabled\n"
 #endif
-	        , PATH_BASE, resolution.x, resolution.y, fullscreen?"fullscreen":"windowed");
+	        , resolution.x, resolution.y, fullscreen?"fullscreen":"windowed");
 
 	if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 	SDL_SetVideoMode(resolution.x, resolution.y, 0, SDL_OPENGL|SDL_DOUBLEBUF|(fullscreen?SDL_FULLSCREEN:0));
@@ -133,7 +132,7 @@ static void init(){
 	Logging::add_destination(Logging::VERBOSE, "frob.log");
 	Logging::info("FFS: Frobnicator Fubar System - Engine starting\n");
 	init_window();
-	Data::add_search_path(PATH_BASE);
+	Data::add_search_path(srcdir);
 	Engine::setup_opengl();
 	Shader::initialize();
 

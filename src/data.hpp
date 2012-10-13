@@ -24,6 +24,11 @@ public:
 	static void add_search_path(std::string path);
 
 	/**
+	 * Add the default engine search path for builtin resources.
+	 */
+	static void add_default_path();
+
+	/**
 	 * Get current search path.
 	 */
 	static std::vector<std::string> get_search_path();

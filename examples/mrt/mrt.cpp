@@ -20,7 +20,7 @@ namespace Engine {
 	}
 
 	void init(){
-		Data::add_search_path(PATH_BASE "examples/mrt");
+		Data::add_search_path(srcdir "/examples/mrt");
 
 		mrt = (new RenderTarget(resolution, GL_RGB8, RenderTarget::MULTIPLE_RENDER_TARGETS))->MRT(2);
 		fs  = (new RenderTarget(resolution, GL_RGB8));

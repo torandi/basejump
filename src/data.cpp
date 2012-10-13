@@ -84,6 +84,10 @@ void Data::add_search_path(std::string path){
 	search_path.insert(path_cleanup(path));
 }
 
+void Data::add_default_path(){
+	add_search_path(datadir);
+}
+
 std::vector<std::string> Data::get_search_path(){
 	return std::vector<std::string>(search_path.begin(), search_path.end());
 }

@@ -58,9 +58,8 @@ AC_ARG_ENABLE([autoload], [AS_HELP_STRING([--enable-autoload], [Automatically lo
 AM_CONDITIONAL([AUTOLOAD], [test "x$enable_autoload" == "xyes"])
 
 dnl Setup paths
-AC_ARG_VAR([DATA_PATH], [Data path prefix. Default is relative path to top srcdir])
-AS_IF([test "x${DATA_PATH}" == "x"], [DATA_PATH="${srcdir}"])
-AC_DEFINE_UNQUOTED([PATH_BASE],    ["${DATA_PATH}/"],             [Base path])
+AC_DEFINE_UNQUOTED([srcdir], ["${srcdir}"], [srcdir])
+AC_DEFINE_UNQUOTED([datadir], ["${datadir}"], [datadir])
 
 dnl Defaults
 AC_ARG_VAR([FULLSCREEN], [If non-empty fullscreen is used by default])
