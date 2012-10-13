@@ -8,13 +8,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <vector>
+#include <set>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-static std::vector<std::string> search_path;
+static std::set<std::string> search_path;
 
 static long file_size(FILE* fp){
 	const long cur = ftell(fp);
@@ -62,16 +62,53 @@ Data * Data::open(const char * filename) {
 	return new Data(data, size);
 }
 
-void Data::add_search_path(std::string path){
+static std::string path_cleanup(std::string path){
+	/* if the path is empty it is already fine */
+	if ( path == "" ) return path;
+
 	/* make sure path has trailing slash */
 	const char last = path[path.length()-1];
 	if ( last != '/' ){
 		path += '/';
 	}
-	search_path.push_back(path);
+
+	/* windows dislikes ./ */
+	if ( path == "./" ){
+		return "";
+	}
+
+	return path;
 }
 
-std::string Data::expand_path(const std::string& filename){
+void Data::add_search_path(std::string path){
+	search_path.insert(path_cleanup(path));
+}
+
+std::vector<std::string> Data::get_search_path(){
+	return std::vector<std::string>(search_path.begin(), search_path.end());
+}
+
+void Data::remove_search_paths(){
+	search_path.clear();
+}
+
+std::string Data::expand_path(std::string filename){
+	if ( filename.length() == 0 ){
+		return "";
+	}
+
+	/**
+	 * It might seem a little bit stupid to enforce a leading slash then just
+	 * strip it off but it makes sense to always put a leading slash in the
+	 * filename they are distinguished from a plain relative path. Maybe think
+	 * of the paths as a chroot.
+	 */
+	if ( filename[0] != '/' ){
+		Logging::warning("Resource `%s' lacks leading slash, fixed.\n", filename.c_str());
+	} else {
+		filename = filename.substr(1);
+	}
+
 	for ( auto path : search_path ){
 		const std::string fullpath = path + filename;
 		if ( real_file_exists(fullpath) ){
