@@ -69,7 +69,7 @@ public:
 		 * Expand a local path to a real path.
 		 * E.g. /textures/foo.png -> ../textures/foo.png
 		 */
-		static std::string expand_path(const std::string& path);
+		static std::string expand_path(std::string path);
 
 		void * _data;
 		const size_t _size;

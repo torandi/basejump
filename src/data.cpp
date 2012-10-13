@@ -92,7 +92,23 @@ void Data::remove_search_paths(){
 	search_path.clear();
 }
 
-std::string Data::expand_path(const std::string& filename){
+std::string Data::expand_path(std::string filename){
+	if ( filename.length() == 0 ){
+		return "";
+	}
+
+	/**
+	 * It might seem a little bit stupid to enforce a leading slash then just
+	 * strip it off but it makes sense to always put a leading slash in the
+	 * filename they are distinguished from a plain relative path. Maybe think
+	 * of the paths as a chroot.
+	 */
+	if ( filename[0] != '/' ){
+		Logging::warning("Resource `%s' lacks leading slash, fixed.\n", filename.c_str());
+	} else {
+		filename = filename.substr(1);
+	}
+
 	for ( auto path : search_path ){
 		const std::string fullpath = path + filename;
 		if ( real_file_exists(fullpath) ){
