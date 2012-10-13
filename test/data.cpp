@@ -14,6 +14,7 @@ class Test: public CppUnit::TestFixture {
 	CPPUNIT_TEST(test_remove_path);
 	CPPUNIT_TEST(test_add_empty_path);
 	CPPUNIT_TEST(test_trailing_slash);
+	CPPUNIT_TEST(test_add_duplicate);
 	CPPUNIT_TEST(test_dot_slash);
   CPPUNIT_TEST_SUITE_END();
 
@@ -51,15 +52,22 @@ public:
 	  CPPUNIT_ASSERT_EQUAL(std::string("path2/"), path[1]);
   }
 
+	void test_add_duplicate(){
+	  Data::add_search_path("path1");
+	  Data::add_search_path("path1");
+	  Data::add_search_path("path1/");
+	  const std::vector<std::string> path = Data::get_search_path();
+	  CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), path.size());
+	  CPPUNIT_ASSERT_EQUAL(std::string("path1/"), path[0]);
+  }
+
 	void test_dot_slash(){
 	  Data::add_search_path("");
 	  Data::add_search_path(".");
 	  Data::add_search_path("./");
 	  const std::vector<std::string> path = Data::get_search_path();
-	  CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), path.size());
+	  CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), path.size());
 	  CPPUNIT_ASSERT_EQUAL(std::string(""), path[0]);
-	  CPPUNIT_ASSERT_EQUAL(std::string(""), path[1]);
-	  CPPUNIT_ASSERT_EQUAL(std::string(""), path[2]);
   }
 };
 

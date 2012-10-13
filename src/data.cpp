@@ -8,13 +8,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <vector>
+#include <set>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-static std::vector<std::string> search_path;
+static std::set<std::string> search_path;
 
 static long file_size(FILE* fp){
 	const long cur = ftell(fp);
@@ -81,11 +81,11 @@ static std::string path_cleanup(std::string path){
 }
 
 void Data::add_search_path(std::string path){
-	search_path.push_back(path_cleanup(path));
+	search_path.insert(path_cleanup(path));
 }
 
 std::vector<std::string> Data::get_search_path(){
-	return search_path;
+	return std::vector<std::string>(search_path.begin(), search_path.end());
 }
 
 void Data::remove_search_paths(){
