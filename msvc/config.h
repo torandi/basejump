@@ -10,8 +10,9 @@
 
 /* frob-specific settings */
 #define FULLSCREEN 0
-#define PATH_BASE "./"
 #define NOLOAD 1
+#define srcdir ""
+#define datadir ""
 
 #include "crt.hpp"
 #include "forward.hpp"
