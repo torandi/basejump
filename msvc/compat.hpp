@@ -37,6 +37,7 @@ typedef unsigned int useconds_t;
 /* Fuck you microsoft, sincerly - me */
 #undef near
 #undef far
+#undef ERROR
 
 /* missing functions */
 #include <cmath>
