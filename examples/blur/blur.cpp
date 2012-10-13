@@ -45,6 +45,9 @@ namespace Engine {
 	}
 
 	void cleanup(){
+		delete pass[0];
+		delete pass[1];
+		delete pass[2];
 		delete scene;
 		delete obj;
 		Shader::cleanup();

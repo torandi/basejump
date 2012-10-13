@@ -96,6 +96,7 @@ namespace Logging {
 		for ( auto dst : output ){
 			dst->write(severity, message);
 		}
+		free(message);
 	}
 
 	void fatal(const char* fmt, ...){
