@@ -69,14 +69,16 @@ layout(std140) uniform LightsData {
 	light_data lights[maxNumberOfLights];
 } Lgt;
 
-layout(std140) uniform StateData {
-	float time;
+layout(std140) uniform Resolution {
 	float width;
 	float height;
-} state;
+} resolution;
+
+layout(std140) uniform Frame {
+	float time;
+} frame;
 
 layout(std140) uniform Fog {
 	vec4 fog_color;
 	float fog_density;
 };
-

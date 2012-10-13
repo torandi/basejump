@@ -1,4 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
+AM_DEFAULT_SOURCE_EXT = .cpp
 
 engine_CXXFLAGS = ${GL_CFLAGS} ${GLU_CFLAGS} ${GLEW_CFLAGS} ${GLM_CFLAGS} ${SDL_CFLAGS} ${CL_CFLAGS}
 engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${CL_LIBS} -lSDL_image -lfmodex -lassimp
@@ -6,7 +7,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = demo nox2 examples_mrt examples_blur
-TESTS =
+TESTS = test/utils
 
 if BUILD_EDITOR
 bin_PROGRAMS += editor
@@ -94,6 +95,9 @@ editor_SOURCES = \
 test_editor_classify_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS) $(gtk3_CFLAGS)
 test_editor_classify_LDFLAGS = $(CPPUNIT_LIBS)
 test_editor_classify_SOURCES = test/editor_classify.cpp src/editor/classify.cpp
+
+test_utils_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
+test_utils_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 .PHONY: .autoload.tmp
 BUILT_SOURCES = autoload.h autoload.cpp

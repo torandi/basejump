@@ -7,7 +7,7 @@ out vec4 ocolor;
 const float PixelWeight[13] = float[13](0.159577, 0.147308, 0.115877, 0.077674, 0.044368, 0.021596, 0.008958, 0.003166, 0.000954, 0.000245, 0.000054, 0.000010, 0.000002);
 
 void main() {
-  float dy = 1.0f / state.height;
+  float dy = 1.0f / resolution.height;
 
   ocolor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	for ( int i = -12; i <= 12; i++ ){

@@ -12,14 +12,22 @@
 #endif
 
 #include <sstream>
+#include <map>
 
 #define PP_INCLUDE "#include"
 
-extern FILE* verbose; /* because globals.hpp fails due to libX11 containing Time which collides with our Time class */
-std::map<std::string, cl::Program> CL::cache;
+namespace CL {
+static void CL_CALLBACK cl_error_callback(const char * errorinfo, const void * private_info_size, size_t cb, void * user_data);
+static const char* errorString(cl_int error);
 
+static std::map<std::string, cl::Program> cache;
+static std::vector<cl::Device> devices_;
+static cl::Platform platform_;
+static cl::Context context_;
+static cl::CommandQueue queue_;
+static cl::Device context_device_;
 
-CL::CL() {
+void init(){
 	cl_int err;
 
 	std::vector<cl::Platform> platforms;
@@ -137,7 +145,7 @@ CL::CL() {
 
 	cl_device_id device_id;
 
-	context_ = cl::Context(devices_, properties, &CL::cl_error_callback, nullptr, &err);
+	context_ = cl::Context(devices_, properties, cl_error_callback, nullptr, &err);
 
 	if(err != CL_SUCCESS) {
 		Logging::fatal("[OpenCL] Failed to create context: %s\n", errorString(err));
@@ -161,7 +169,11 @@ CL::CL() {
 	}
 }
 
-void CL::load_file(const std::string &filename, std::stringstream &data, const std::string &included_from) {
+void cleanup(){
+
+}
+
+static void load_file(const std::string &filename, std::stringstream &data, const std::string &included_from) {
 	Data * file = Data::open(filename);
 	if(file == nullptr) {
 		if(included_from.empty())
@@ -174,10 +186,10 @@ void CL::load_file(const std::string &filename, std::stringstream &data, const s
 	Logging::verbose("[OpenCL] Loaded %s\n", filename.c_str());
 }
 
-std::string CL::parse_file(
-		const std::string &filename,
-		std::set<std::string> included_files,
-		const std::string &included_from
+static std::string parse_file(
+	const std::string &filename,
+	std::set<std::string> included_files,
+	const std::string &included_from
 	) {
 
 	std::pair<std::set<std::string>::iterator, bool> ret = included_files.insert(filename);
@@ -219,7 +231,7 @@ std::string CL::parse_file(
 	return parsed_content.str();
 }
 
-cl::Program CL::create_program(const std::string &source_file) const{
+cl::Program create_program(const std::string &source_file){
 	auto it = cache.find(source_file);
 	if(it != cache.end()) {
 		return it->second;
@@ -257,7 +269,7 @@ cl::Program CL::create_program(const std::string &source_file) const{
 	return program;
 }
 
-cl::Kernel CL::load_kernel(const cl::Program &program, const char * kernel_name) const{
+cl::Kernel load_kernel(const cl::Program &program, const char * kernel_name){
 	cl_int err;
 	cl::Kernel kernel = cl::Kernel(program, kernel_name, &err);
 	if(err != CL_SUCCESS) {
@@ -267,7 +279,7 @@ cl::Kernel CL::load_kernel(const cl::Program &program, const char * kernel_name)
 	return kernel;
 }
 
-cl::Buffer CL::create_buffer(cl_mem_flags flags, size_t size) const {
+cl::Buffer create_buffer(cl_mem_flags flags, size_t size){
 	cl_int err;
 	cl::Buffer buffer = cl::Buffer(context_, flags, size, NULL, &err);
 	if(err != CL_SUCCESS) {
@@ -276,7 +288,7 @@ cl::Buffer CL::create_buffer(cl_mem_flags flags, size_t size) const {
 	return buffer;
 }
 
-cl::BufferGL CL::create_gl_buffer(cl_mem_flags flags, GLuint gl_buffer) const {
+cl::BufferGL create_gl_buffer(cl_mem_flags flags, GLuint gl_buffer){
 	cl_int err;
 	cl::BufferGL buffer(context_, flags, gl_buffer, &err);
 	if(err != CL_SUCCESS) {
@@ -285,27 +297,29 @@ cl::BufferGL CL::create_gl_buffer(cl_mem_flags flags, GLuint gl_buffer) const {
 	return buffer;
 }
 
-cl::CommandQueue &CL::queue() { return queue_; }
-cl::Context &CL::context() { return context_; }
+cl::CommandQueue &queue() {
+	return queue_;
+}
 
-void CL::cl_error_callback(const char * errorinfo, const void * private_info_size, size_t cb, void * user_data) {
+cl_int finish(){
+	return queue().finish();
+}
+
+cl_int flush(){
+	return queue().flush();
+}
+
+static void cl_error_callback(const char * errorinfo, const void * private_info_size, size_t cb, void * user_data) {
 	Logging::fatal("[OpenCL] Got error callback: %s\n", errorinfo);
 }
 
-void CL::check_error(const cl_int &err, const char * context) {
+void check_error(const cl_int &err, const char* context){
 	if(err != CL_SUCCESS) {
 		Logging::fatal("[OpenCL] %s: %s\n", context, errorString(err));
 	}
 }
 
-void CL::waitForEvent(const std::vector<cl::Event> &events) {
-	if(events.size() == 0)
-		return;
-	cl_int err = WaitForEvents(events);
-	CL::check_error(err, "Wait for events");
-}
-
-const char* CL::errorString(cl_int error) {
+static const char* errorString(cl_int error){
 	static const char* errorString[] = {
 		"CL_SUCCESS",
 		"CL_DEVICE_NOT_FOUND",
@@ -372,11 +386,9 @@ const char* CL::errorString(cl_int error) {
 		"CL_INVALID_MIP_LEVEL",
 		"CL_INVALID_GLOBAL_WORK_SIZE",
 	};
-
-	const int errorCount = sizeof(errorString) / sizeof(errorString[0]);
+	static const int errorCount = sizeof(errorString) / sizeof(errorString[0]);
 
 	const int index = -error;
-
 	return (index >= 0 && index < errorCount) ? errorString[index] : "";
-
+}
 }

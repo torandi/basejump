@@ -24,7 +24,6 @@
 #include <SDL/SDL.h>
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <map>
 
 #ifdef HAVE_UNISTD_H
@@ -51,6 +50,7 @@ static bool fullscreen = FULLSCREEN;
 static bool vsync = true;
 static bool verbose_flag = false;
 static bool skip_load_scene = false;
+glm::ivec2 resolution(800, 600);
 
 static void poll();
 
@@ -149,7 +149,7 @@ static void init(){
 		"texture:/textures/white.jpg"};
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), Loading::progress);
 	Engine::autoload_scenes();
-	opencl = new CL();
+	CL::init();
 	srand((unsigned int)time(0));
 
 	Engine::init();
@@ -159,6 +159,7 @@ static void init(){
 }
 
 static void cleanup(){
+	CL::cleanup();
 	Engine::cleanup();
 	Texture2D::cleanup();
 	Logging::cleanup();
@@ -227,6 +228,7 @@ static void render(){
 
 static void update(float dt){
 	float t = global_time.get();
+	Shader::upload_frameinfo(t);
 	Engine::update(t, dt);
 }
 

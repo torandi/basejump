@@ -21,8 +21,6 @@
 #include <signal.h>
 #include <SDL/SDL.h>
 #include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <map>
 
 #ifdef HAVE_UNISTD_H
@@ -40,8 +38,10 @@ static Shader* blend_shader = nullptr;
 static Texture2D* text[NUM_TEXT_TEXTURES];
 static Quad* textarea = nullptr;
 static std::map<std::string, Scene*> scene;
-
 static Sound* sound;
+extern glm::mat4 screen_ortho; /* defined in main.cpp */
+extern Time global_time; /* defined in main.cpp */
+extern glm::ivec2 resolution; /* defined in main.cpp */
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
@@ -120,7 +120,7 @@ namespace Engine {
 	static void render_composition(){
 		RenderTarget::clear(Color::black);
 
-		Shader::upload_state(resolution);
+		Shader::upload_resolution(resolution);
 		Shader::upload_projection_view_matrices(composition->ortho(), glm::mat4());
 		glViewport(0, 0, resolution.x, resolution.y);
 

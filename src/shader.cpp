@@ -31,10 +31,13 @@
 #define FRAG_SHADER_EXTENTION ".frag"
 #define GEOM_SHADER_EXTENTION ".geom"
 
-struct state_data {
-	float time;
+struct resolution_data {
 	float width;
 	float height;
+};
+
+struct frame_data {
+	float time;
 };
 
 struct UBO {
@@ -49,7 +52,8 @@ static const struct UBO ubo[Shader::NUM_GLOBAL_UNIFORMS] = {
 	{"Camera",                 sizeof(glm::vec3),             GL_DYNAMIC_DRAW},
 	{"Material",               sizeof(Shader::material_t),    GL_DYNAMIC_DRAW},
 	{"LightsData",             sizeof(Shader::lights_data_t), GL_DYNAMIC_DRAW},
-	{"StateData",              sizeof(struct state_data),     GL_DYNAMIC_DRAW},
+	{"Resolution",             sizeof(struct resolution_data),GL_DYNAMIC_DRAW},
+	{"Frame",                  sizeof(struct frame_data),     GL_DYNAMIC_DRAW},
 	{"Fog",                    sizeof(Shader::fog_t),         GL_DYNAMIC_DRAW},
 };
 
@@ -437,17 +441,27 @@ void Shader::upload_camera(const Camera &camera) {
 	upload_projection_view_matrices(camera.projection_matrix(), camera.view_matrix());
 }
 
-void Shader::upload_state(const glm::ivec2& size){
-	struct state_data data = {
-		global_time.get(),
+void Shader::upload_resolution(const glm::ivec2& size){
+	struct resolution_data data = {
 		(float)size.x,
-		(float)size.y
+		(float)size.y,
 	};
 
-	glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[UNIFORM_STATE]);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct state_data), &data);
+	glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[UNIFORM_RESOLUTION]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct resolution_data), &data);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	checkForGLErrors("Shader::upload_state");
+	checkForGLErrors("Shader::upload_resolution");
+}
+
+void Shader::upload_frameinfo(float t){
+	struct frame_data data = {
+		t,
+	};
+
+	glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[UNIFORM_FRAMEINFO]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(struct frame_data), &data);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	checkForGLErrors("Shader::upload_frameinfo");
 }
 
 void Shader::upload_fog(const fog_t &fog) {

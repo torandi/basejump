@@ -199,6 +199,7 @@ void RenderTarget::bind(){
 		Logging::fatal("Nesting problem with RenderTarget, another target already bound.\n");
 	}
 
+	glPushAttrib(GL_VIEWPORT_BIT);
 	glViewport(0, 0, size.x, size.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color[back], 0);
@@ -213,8 +214,8 @@ void RenderTarget::unbind(){
 
 	front = back;
 	back = (back + 1) % max;
-	glViewport(0, 0, resolution.x, resolution.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glPopAttrib();
 	stack = nullptr;
 }
 
@@ -286,7 +287,7 @@ void RenderTarget::draw(const Shader* shader, const glm::vec2& pos, const glm::v
 	model = glm::scale(model, glm::vec3(size.x, size.y, 1.0f));
 
 	Shader::upload_model_matrix(model);
-	Shader::upload_state(glm::ivec2(size));
+	Shader::upload_resolution(glm::ivec2(size));
 
 	shader->bind();
 

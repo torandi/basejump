@@ -10,10 +10,4 @@
 	extern Input input;
 #endif
 
-extern Time global_time;                 /* current time */
-extern glm::ivec2 resolution;            /* current resolution */
-extern glm::mat4 screen_ortho;           /* orthographic projection for window */
-
-extern CL * opencl;
-
 #endif /* GLOBALS_H */

@@ -27,8 +27,10 @@ float radians_to_degrees(double rad);
 
 void print_mat4(const glm::mat4 &m);
 
-inline float frand() {
-	return (float)rand()/RAND_MAX;
+inline float frand(float lower = 0.0f, float upper = RAND_MAX) {
+	const float pivot = upper - lower;
+	const float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+	return lower + r * pivot;
 }
 
 /**
@@ -41,8 +43,12 @@ inline float atoff(const char* str){
 /**
  * Reposition a position onto screen so [0,0] -> [0,0] and [1,1] -> [w-x, h-y].
  * E.g. [0.5, 0.5] will center box.
+ *
+ * @param v Point in [0,0] - [1,1].
+ * @param outer Size of the boundary.
+ * @param inner Size of a box which will be fit into the boundary.
  */
-glm::vec2 screen_pos(const glm::vec2& v, const glm::vec2& size);
+glm::vec2 screen_pos(const glm::vec2& v, const glm::vec2& outer, const glm::vec2& inner = glm::vec2(0,0));
 
 /**
  * Parse timetable.

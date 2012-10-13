@@ -1,5 +1,4 @@
 class Camera;
-class CL;
 class Color;
 class Data;
 struct Light;

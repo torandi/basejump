@@ -37,6 +37,7 @@ public:
 		, particle_shader(nullptr)
 		, fog(10000, TextureArray::from_filename("/textures/fog.png", nullptr))
 		, video(glm::vec2(1.f), true, true)
+		, render_hologram(false)
 	{
 
 		logo.set_scale(0.1f);
@@ -149,10 +150,7 @@ public:
 		particle_shader->bind();
 		fog.render();
 
-
-		const float t = global_time.get();
-
-		if( t  > 64 && t < 96) {
+		if ( render_hologram ) {
 			glPushAttrib(GL_ENABLE_BIT);
 			glDisable(GL_CULL_FACE);
 			hologram_shader->bind();
@@ -173,9 +171,7 @@ public:
 
 	virtual void update(float t, float dt){
 		camera.set_position(cam_pos1.at(t));
-
 		camera.look_at(cam_pos2.at(t));
-
 
 		fog.update(dt);
 
@@ -228,6 +224,8 @@ public:
 			video.set_scale(glm::vec3(HOLOGRAM_SCALE, HOLOGRAM_SCALE*s, HOLOGRAM_SCALE));
 			video.set_position(glm::vec3(-29.59,-(HOLOGRAM_SCALE/2.f)*s,3.10));
 		}
+
+		render_hologram = (t > 64) && (t < 96);
 	}
 
 	void render_scene(){
@@ -266,6 +264,7 @@ public:
 	TextureArray * hologram;
 	Quad video;
 	Shader * hologram_shader;
+	bool render_hologram;
 };
 
 template <>
