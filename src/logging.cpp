@@ -8,7 +8,7 @@
 #include <ctime>
 #include <csignal>
 
-#ifndef SYS_TIME_H
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 
@@ -60,10 +60,16 @@ namespace Logging {
 			return;
 		}
 
+#ifdef HAVE_GETTIMEOFDAY
 		struct timeval tv;
 		gettimeofday(&tv, nullptr);
-
 		struct tm* local = localtime(&tv.tv_sec);
+#else
+		__time64_t tv;
+		struct tm tm, *local = &tm;
+        _time64(&tv);
+        _localtime64_s(local, &tv);
+#endif
 
 		char buf[64] = {0,};
 		strftime(buf, sizeof(buf), "\nLogging started at %Y-%m-%d %H.%M.%S\n", local);

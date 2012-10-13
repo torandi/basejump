@@ -77,6 +77,8 @@
     <ClInclude Include="..\src\input.hpp" />
     <ClInclude Include="..\src\light.hpp" />
     <ClInclude Include="..\src\lights_data.hpp" />
+    <ClInclude Include="..\src\loading.hpp" />
+    <ClInclude Include="..\src\logging.hpp" />
     <ClInclude Include="..\src\material.hpp" />
     <ClInclude Include="..\src\mesh.hpp" />
     <ClInclude Include="..\src\meta.hpp" />
@@ -110,6 +112,8 @@
     <ClCompile Include="..\src\input.cpp" />
     <ClCompile Include="..\src\light.cpp" />
     <ClCompile Include="..\src\lights_data.cpp" />
+    <ClCompile Include="..\src\loading.cpp" />
+    <ClCompile Include="..\src\logging.cpp" />
     <ClCompile Include="..\src\material.cpp" />
     <ClCompile Include="..\src\mesh.cpp" />
     <ClCompile Include="..\src\meta.cpp" />

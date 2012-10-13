@@ -309,7 +309,7 @@ cl_int flush(){
 	return queue().flush();
 }
 
-static void cl_error_callback(const char * errorinfo, const void * private_info_size, size_t cb, void * user_data) {
+static void CL_CALLBACK cl_error_callback(const char * errorinfo, const void * private_info_size, size_t cb, void * user_data) {
 	Logging::fatal("[OpenCL] Got error callback: %s\n", errorinfo);
 }
 
