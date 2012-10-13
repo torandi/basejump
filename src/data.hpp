@@ -1,8 +1,11 @@
 #ifndef DATA_HPP
 #define DATA_HPP
+
 #include <cstdio>
 #include <string>
 #include <ostream>
+#include <vector>
+
 /*
  * This is intended as the single point of i/o, so as to make it easy to
  * change data reading method (ex to a in-exec type)
@@ -14,8 +17,22 @@ public:
 
 	/**
 	 * Add a path which will be searched while resolving files path.
+	 *
+	 * "" is preferred for cwd, but both "." and "./" is accepted (converted to "")
+	 * A trailing slash is added to all other paths.
 	 */
 	static void add_search_path(std::string path);
+
+	/**
+	 * Get current search path.
+	 */
+	static std::vector<std::string> get_search_path();
+
+	/**
+	 * Remove all paths.
+	 * Mainly useful for testing.
+	 */
+	static void remove_search_paths();
 
 		/**
 		 * Test if a filename exists.

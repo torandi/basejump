@@ -62,13 +62,34 @@ Data * Data::open(const char * filename) {
 	return new Data(data, size);
 }
 
-void Data::add_search_path(std::string path){
+static std::string path_cleanup(std::string path){
+	/* if the path is empty it is already fine */
+	if ( path == "" ) return path;
+
 	/* make sure path has trailing slash */
 	const char last = path[path.length()-1];
 	if ( last != '/' ){
 		path += '/';
 	}
-	search_path.push_back(path);
+
+	/* windows dislikes ./ */
+	if ( path == "./" ){
+		return "";
+	}
+
+	return path;
+}
+
+void Data::add_search_path(std::string path){
+	search_path.push_back(path_cleanup(path));
+}
+
+std::vector<std::string> Data::get_search_path(){
+	return search_path;
+}
+
+void Data::remove_search_paths(){
+	search_path.clear();
 }
 
 std::string Data::expand_path(const std::string& filename){

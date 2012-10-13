@@ -7,7 +7,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = demo nox2 examples_mrt examples_blur
-TESTS = test/utils
+TESTS = test/utils test/data
 
 if BUILD_EDITOR
 bin_PROGRAMS += editor
@@ -95,6 +95,9 @@ editor_SOURCES = \
 test_editor_classify_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS) $(gtk3_CFLAGS)
 test_editor_classify_LDFLAGS = $(CPPUNIT_LIBS)
 test_editor_classify_SOURCES = test/editor_classify.cpp src/editor/classify.cpp
+
+test_data_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
+test_data_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 test_utils_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
 test_utils_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
