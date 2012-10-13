@@ -63,6 +63,8 @@ namespace Engine {
 
 			if ( prefix == "texture" ){
 				Texture2D::preload(filename);
+			} else if ( prefix == "shader" ){
+				Shader::create_shader(filename);
 			} else {
 				Logging::warning("Resource `%s' has an unknown prefix, preloading ignored.\n", resource.c_str());
 			}

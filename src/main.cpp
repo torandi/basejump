@@ -145,7 +145,10 @@ static void init(){
 	static const char* resources[] = {
 		"texture:/textures/default.jpg",
 		"texture:/textures/default_normalmap.jpg",
-		"texture:/textures/white.jpg"};
+		"texture:/textures/white.jpg",
+		"shader:/shaders/normal",
+		"shader:/shaders/passthru",
+	};
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), Loading::progress);
 	Engine::autoload_scenes();
 	CL::init();
