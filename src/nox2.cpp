@@ -114,7 +114,7 @@ namespace Engine {
 		if(s > 1.f) {
 			s += (s-1.f)*(s-1.f);
 		}
-		return (resolution.x - 512.f + trim - (resolution.x)*s);
+		return ((float)resolution.x - 512.f + trim - (float)resolution.x * s);
 	}
 
 	static void render_composition(){

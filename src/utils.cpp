@@ -57,7 +57,7 @@ unsigned long util_utime(){
 #endif
 }
 
-void util_usleep(unsigned long wait){
+void util_usleep(useconds_t wait){
 #ifdef HAVE_USLEEP
 	usleep(wait);
 #elif defined(WIN32)

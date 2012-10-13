@@ -253,7 +253,7 @@ static void magic_stuff(){
 
 		/* fixed framerate */
 		if ( delay > 0 ){
-			util_usleep(delay);
+			util_usleep(static_cast<useconds_t>(delay));
 		}
 	}
 }

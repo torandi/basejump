@@ -19,36 +19,36 @@
 static glm::vec3 offset(0,1.5,0);
 
 static float arc[][3] = {
-	{0.000000,  3.966543, 0.00f},
-	{1.050000,  3.956699, 0.05f},
-	{2.189144,  3.951092, 0.10f},
-	{3.407661,  3.878636, 0.15f},
-	{4.586273,  3.562828, 0.20f},
-	{5.609610,  2.898265, 0.25f},
-	{6.377500,  1.950000, 0.30f},
-	{6.814777,  0.810856, 0.35f},
-	{6.878636, -0.407661, 0.40f},
-	{6.562828, -1.586273, 0.45f},
-	{5.898265, -2.609610, 0.50f},
-	{4.950000, -3.377500, 0.55f},
-	{3.810856, -3.814777, 0.60f},
-	{2.592339, -3.950274, 0.65f},
-	{1.413727, -3.954323, 0.70f},
-	{0.000000, -3.962843, 0.75f},
-	{0.000000, -1.950001, 0.80f},
-	{0.000000, -0.810856, 0.85f},
-	{0.000000,  0.407661, 0.90f},
-	{0.000000,  1.586274, 0.95f},
-	{0.000000,  3.966543, 1.00f},
+	{0.000000f,  3.966543f, 0.00f},
+	{1.050000f,  3.956699f, 0.05f},
+	{2.189144f,  3.951092f, 0.10f},
+	{3.407661f,  3.878636f, 0.15f},
+	{4.586273f,  3.562828f, 0.20f},
+	{5.609610f,  2.898265f, 0.25f},
+	{6.377500f,  1.950000f, 0.30f},
+	{6.814777f,  0.810856f, 0.35f},
+	{6.878636f, -0.407661f, 0.40f},
+	{6.562828f, -1.586273f, 0.45f},
+	{5.898265f, -2.609610f, 0.50f},
+	{4.950000f, -3.377500f, 0.55f},
+	{3.810856f, -3.814777f, 0.60f},
+	{2.592339f, -3.950274f, 0.65f},
+	{1.413727f, -3.954323f, 0.70f},
+	{0.000000f, -3.962843f, 0.75f},
+	{0.000000f, -1.950001f, 0.80f},
+	{0.000000f, -0.810856f, 0.85f},
+	{0.000000f,  0.407661f, 0.90f},
+	{0.000000f,  1.586274f, 0.95f},
+	{0.000000f,  3.966543f, 1.00f},
 };
-static const size_t per_segment = sizeof(arc) / (3*sizeof(float));
+static const unsigned int per_segment = sizeof(arc) / (3*sizeof(float));
 
 static float noise_x(float s, unsigned int i){
-	return sin(s * 28.0 + i % (per_segment-1)) * 0.2f + sin(s * 943.0f) * 0.7f;
+	return sinf(s * 28.0f + static_cast<float>(i % (per_segment-1))) * 0.2f + sinf(s * 943.0f) * 0.7f;
 }
 
 static float noise_y(float s, unsigned int i){
-	return sin(s * 138.0 + i % (per_segment-1)) * 0.2f + sin(s * 24.0f) * 0.3f;
+	return sinf(s * 138.0f + static_cast<float>(i % (per_segment-1))) * 0.2f + sinf(s * 24.0f) * 0.3f;
 }
 
 static float noise_z(float s, unsigned int i){
@@ -59,7 +59,7 @@ class TunnelScene: public Scene {
 public:
 	TunnelScene(const glm::ivec2& size)
 		: Scene(size)
-		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
+		, camera(75.f, size, 0.1f, 100.0f)
 		, position("scene/tunnel.txt")
 		, shader(nullptr) {
 
@@ -80,13 +80,14 @@ public:
 		/* generate vertices */
 		for ( unsigned int seg = 0; seg < num_segment; seg++ ){
 			for ( unsigned int c = 0; c < per_segment; c++ ){
+				const float s = static_cast<float>(seg);
 				const unsigned int i = seg * per_segment + c;
 
-				vertices[i].pos.x = arc[c][1]  + noise_x(seg, i);
-				vertices[i].pos.y = arc[c][0]  + noise_y(seg, i);
-				vertices[i].pos.z = seg * 5.0f + noise_z(seg, i);
+				vertices[i].pos.x = arc[c][1]  + noise_x(s, i);
+				vertices[i].pos.y = arc[c][0]  + noise_y(s, i);
+				vertices[i].pos.z = s * 5.0f + noise_z(s, i);
 				vertices[i].uv.x = arc[c][2];
-				vertices[i].uv.y = seg * 0.25f;
+				vertices[i].uv.y = s * 0.25f;
 			}
 		}
 
@@ -136,7 +137,7 @@ public:
 		glVertexAttribPointer(Shader::ATTR_COLOR,     4, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*)offsetof(Shader::vertex_t, color));
 
 		material.bind();
-		glDrawElements(GL_QUADS, num_indices, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_QUADS, static_cast<GLsizei>(num_indices), GL_UNSIGNED_INT, 0);
 	}
 
 	virtual const Camera& get_current_camera(){
@@ -145,7 +146,7 @@ public:
 
 	virtual void update(float t, float dt){
 		camera.set_position(position.at(t) + offset);
-		camera.look_at(position.at(t+0.1)  + offset);
+		camera.look_at(position.at(t+0.1f)  + offset);
 	}
 
 	Camera camera;

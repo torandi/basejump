@@ -13,7 +13,7 @@ public:
 		: Scene(size)
 		, shader(nullptr)
 		, expl(500000, TextureArray::from_filename("particle.png", nullptr))
-		, camera(75.f, size.x/(float)size.y, 0.1f, 100.f) {
+		, camera(75.f, size, 0.1f, 100.f) {
 			camera.set_position(glm::vec3(0.f, 0.f, -1));
 			camera.look_at(glm::vec3(0.f, 0.f, 0.f));
 			/*fire.config.spawn_position = glm::vec4(0.f, -0.5f, -0.2f, 1.f);

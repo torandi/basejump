@@ -55,7 +55,7 @@ void MovableLight::update() {
 	data->position = position_;
 	data->is_directional = (type == DIRECTIONAL_LIGHT);
 	data->matrix = shadow_map.matrix;
-	data->shadowmap_scale = glm::vec2(1.f / shadow_map.resolution.x, 1.f / shadow_map.resolution.y);
+	data->shadowmap_scale = glm::vec2(1.f / static_cast<float>(shadow_map.resolution.x), 1.f / static_cast<float>(shadow_map.resolution.y));
 	if(shadow_map.fbo != NULL) {
 		shadow_map.fbo->depth_bind((Shader::TextureUnit) (Shader::TEXTURE_SHADOWMAP_0 + data->shadowmap_index));
 	}
@@ -63,7 +63,7 @@ void MovableLight::update() {
 
 glm::vec3 MovableLight::calculateFrustrumData(const Camera &cam, float near, float far, glm::vec3 * points) const {
 	//Near plane:
-	float y = near * tan(cam.fov() / 2.f);
+	float y = near * tanf(cam.fov() / 2.f);
 	float x = y * cam.aspect();
 
 	glm::vec3 lx, ly, lz;
@@ -79,7 +79,7 @@ glm::vec3 MovableLight::calculateFrustrumData(const Camera &cam, float near, flo
 	points[2] = near_center +  x * lx +  y * ly;
 	points[3] = near_center +  x * lx + -y * ly;
 
-	y = far * tan(cam.fov() / 2.f);
+	y = far * tanf(cam.fov() / 2.f);
 	x = y * cam.aspect();
 
 	points[4] = far_center + -x * lx + -y * ly;
@@ -106,14 +106,14 @@ void MovableLight::render_shadow_map(const Camera &camera, std::function<void(co
 				lightv[0] = glm::normalize(position());
 
 				glm::vec3 hint;
-				if(abs(lightv[0].x) <= abs(lightv[0].y)) {
-					if(abs(lightv[0].x) <= abs(lightv[0].z)) {
+				if(fabs(lightv[0].x) <= fabs(lightv[0].y)) {
+					if(fabs(lightv[0].x) <= fabs(lightv[0].z)) {
 						hint = glm::vec3(1.f, 0.f, 0.f);
 					} else {
 						hint = glm::vec3(0.f, 0.f, 1.f);
 					}
 				} else {
-					if(abs(lightv[0].y) <= abs(lightv[0].z)) {
+					if(fabs(lightv[0].y) <= fabs(lightv[0].z)) {
 						hint = glm::vec3(0.f, 1.f, 0.f);
 					} else {
 						hint = glm::vec3(0.f, 0.f, 1.f);

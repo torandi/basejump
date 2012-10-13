@@ -185,7 +185,7 @@ void Mesh::render_geometry(const glm::mat4& m) {
 
 	checkForGLErrors("Mesh::render(): Set vertex attribs");
 
-	glDrawElements(GL_TRIANGLES, num_faces_, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(num_faces_), GL_UNSIGNED_INT, 0);
 
 	checkForGLErrors("Mesh::render(): glDrawElements()");
 

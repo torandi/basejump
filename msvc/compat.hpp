@@ -8,6 +8,7 @@ typedef unsigned __int64 ssize_t;
 #elif defined(_WIN32)
 typedef signed int ssize_t;
 #endif
+typedef unsigned int useconds_t;
 
 /* missing definitions of M_PI and friends */
 #define M_E 2.71828182845904523536

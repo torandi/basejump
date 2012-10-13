@@ -73,8 +73,8 @@ void Terrain::generate_terrain() {
 			int i = y * size_.x + x;
 			glm::vec4 color = get_pixel_color(x, y, data_map_, size_);
 			float h = height_from_color(color);
-			v.position = glm::vec3(horizontal_scale_*x, h*vertical_scale_, horizontal_scale_*y);
-			v.tex_coord = glm::vec2((float)x/size_.x, 1.f-(float)y/size_.y);
+			v.position = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
+			v.tex_coord = glm::vec2(static_cast<float>(x) / static_cast<float>(size_.x), 1.f - static_cast<float>(y) / static_cast<float>(size_.y));
 			vertices_[i] = v;
 			map_[i] =  h*vertical_scale_;
 		}
@@ -111,7 +111,7 @@ float Terrain::height_at(int x, int y) const {
 }
 
 float Terrain::height_at(float x_, float y_) const {
-	if(x_ > size_.x * horizontal_scale_|| x_ < 0 || y_ > size_.y*horizontal_scale_ || y_ < 0)
+	if(x_ > static_cast<float>(size_.x) * horizontal_scale_|| x_ < 0 || y_ > static_cast<float>(size_.y)*horizontal_scale_ || y_ < 0)
 		return 0;
 	int x = (int) (x_/horizontal_scale_);
 	int y = (int) (y_/horizontal_scale_);

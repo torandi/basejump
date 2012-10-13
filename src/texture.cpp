@@ -40,7 +40,7 @@ SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) 
 		abort();
 	}
 
-	SDL_RWops * rw = SDL_RWFromConstMem(file->data(), file->size());
+	SDL_RWops* rw = SDL_RWFromConstMem(file->data(), static_cast<int>(file->size()));
 	SDL_Surface* surface = IMG_Load_RW(rw, 1);
 	delete file;
 
@@ -95,7 +95,7 @@ SDL_Surface* TextureBase::load_image(const std::string &path, glm::ivec2* size) 
 
 	/* flip image correct (SDL used flipped images) */
 	uint8_t* t = (uint8_t*)malloc(rgba_surface->pitch);
-	int middle = (int)(rgba_surface->h * 0.5f);
+	const int middle = rgba_surface->h / 2;
 	for ( int i = 0; i < middle; i++ ){
 		uint8_t* a = (uint8_t*)rgba_surface->pixels + rgba_surface->pitch * i;
 		uint8_t* b = (uint8_t*)rgba_surface->pixels + rgba_surface->pitch * (rgba_surface->h - i-1);
@@ -436,7 +436,7 @@ Texture3D::~Texture3D(){
 	glDeleteTextures(1, &_texture);
 }
 
-int Texture3D::depth() const {
+size_t Texture3D::depth() const {
 	return _depth;
 }
 

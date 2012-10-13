@@ -44,7 +44,7 @@ long Time::update_delta(){
 
 	/* scaled time */
 	const float k = (float)scale / 100.0f;
-	return static_cast<long>(delta * k);
+	return static_cast<long>((float)delta * k);
 }
 
 void Time::step(int amount){

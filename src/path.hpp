@@ -12,7 +12,7 @@
 class Path {
 	public:
 		/*
-		 * Adds and removes keyframes to optimize path, either 
+		 * Adds and removes keyframes to optimize path, either
 		 * call Path(vector,optimize) with second argument true (default) or
 		 * call this first
 		 */
@@ -26,7 +26,7 @@ class Path {
 
 	private:
 		struct keypoint_t {
-			unsigned int index;
+			size_t index;
 			float path_point; /* A number indicating where on the path this keypoint exists */
 			glm::vec3 position; /* The position in 3d space */
 		};

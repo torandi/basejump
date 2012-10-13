@@ -18,7 +18,7 @@ public:
 		, shader(nullptr)
 		, tv_test("tv.obj", false)
 		, tv_room("tv_room.obj", false)
-		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
+		, camera(75.f, size, 0.1f, 100.0f)
 		, v("scene/tv_cam1.txt")
 		, skybox("skydark")
 		, fire(2000,  TextureArray::from_filename("fire1.png", "fire2.png", "fire3.png", nullptr))

@@ -59,13 +59,13 @@ namespace Loading {
 		quad[0] = new Quad(glm::vec2(1.f, -1.f), false);
 		quad[1] = new Quad(glm::vec2(1.f, -1.f), false);
 
-		float scale = resolution.x/1280.f;
+		float scale = static_cast<float>(resolution.x)/1280.f;
 
 		quad[0]->set_scale(glm::vec3(1024*scale,512*scale,1));
-		quad[0]->set_position(glm::vec3(resolution.x/2.f - (1024*scale)/2.f, 3.f*resolution.y/10.f - (512*scale)/2.f,1.f));
+		quad[0]->set_position(glm::vec3(static_cast<float>(resolution.x)/2.f - (1024*scale)/2.f, 3.f*static_cast<float>(resolution.y)/10.f - (512*scale)/2.f,1.f));
 
 		quad[1]->set_scale(glm::vec3(512*scale,128*scale,1));
-		quad[1]->set_position(glm::vec3(resolution.x/2.f - (512*scale)/2.f, 7.f*resolution.y/10.f - (128*scale)/2.f,1.f));
+		quad[1]->set_position(glm::vec3(static_cast<float>(resolution.x)/2.f - (512*scale)/2.f,  7.f*static_cast<float>(resolution.y)/10.f - (128*scale)/2.f,1.f));
 
 		render(0.0f);
 	}
@@ -74,7 +74,7 @@ namespace Loading {
 		long t = util_utime();
 		float s = 0.0f;
 		while ( s < 1.0 ){
-			render(1.0 - s);
+			render(1.0f - s);
 			s = static_cast<float>(util_utime() - t ) / fade_time;
 		}
 
@@ -84,7 +84,7 @@ namespace Loading {
 	}
 
 	void progress(const std::string& name, int elem, int total){
-		const float s = (float)elem / total;
+		const float s = static_cast<float>(elem) / static_cast<float>(total);
 		render(s);
 	}
 }

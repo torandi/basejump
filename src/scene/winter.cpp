@@ -16,7 +16,7 @@ class WinterScene : public Scene {
 public:
 	WinterScene (const glm::ivec2 &size)
 		: Scene(size)
-		, camera(75.f, size.x/(float)size.y, 0.1f, 100.f)
+		, camera(75.f, size, 0.1f, 100.f)
 		, particle_shader(nullptr)
 		, snow(500000, TextureArray::from_filename("snow1.png", nullptr))
 	 {

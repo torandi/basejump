@@ -11,7 +11,7 @@ class TestScene: public Scene {
 public:
 	TestScene(const glm::ivec2& size)
 		: Scene(size)
-		, camera(60, 1, 0.1, 100) {
+		, camera(60, 1.0f, 0.1f, 100) {
 
 	}
 

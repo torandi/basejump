@@ -14,7 +14,7 @@ static RenderTarget* pass[3] = {nullptr, nullptr, nullptr};
 static Shader* shader = nullptr;
 static Shader* split = nullptr;
 static Shader* blur[3] = {nullptr, nullptr, nullptr};
-static Camera cam(75, 1.3, 0.1, 10);
+static Camera cam(75, 1.3f, 0.1f, 10);
 extern glm::mat4 screen_ortho; /* defined in main.cpp */
 extern glm::ivec2 resolution; /* defined in main.cpp */
 
@@ -83,7 +83,7 @@ namespace Engine {
 	}
 
 	void update(float t, float dt){
-		const float s = t*0.5;
+		const float s = t*0.5f;
 		const float d = 0.7f;
 
 		cam.look_at(glm::vec3(0,0,0));

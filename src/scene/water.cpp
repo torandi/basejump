@@ -23,7 +23,7 @@ public:
 		, water_shader(nullptr)
 		, water(Texture2D::from_filename("water.png"))
 		, skybox("skydark")
-		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
+		, camera(75.f, size, 0.1f, 100.0f)
 		, cube("cube.obj")
 		, nox("nox.obj")
 		{

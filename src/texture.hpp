@@ -80,12 +80,12 @@ public:
 	virtual void texture_bind(Shader::TextureUnit unit) const;
 	virtual void texture_unbind() const;
 
-	int depth() const;
+	size_t depth() const;
 private:
 	Texture3D(std::vector<std::string> path, bool mipmap);
 
 	GLuint _texture;
-	int _depth;
+	size_t _depth;
 };
 
 class TextureCubemap: public TextureBase {

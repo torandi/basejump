@@ -59,7 +59,7 @@ namespace Engine {
 			const std::string prefix = resource.substr(0, delimiter);
 			const std::string filename = resource.substr(delimiter+1);
 
-			progress(filename, index++, names.size());
+			progress(filename, index++, static_cast<int>(names.size()));
 
 			if ( prefix == "texture" ){
 				Texture2D::preload(filename);

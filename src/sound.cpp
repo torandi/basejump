@@ -45,7 +45,7 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 
 	FMOD_CREATESOUNDEXINFO info = {0, };
 	info.cbsize = sizeof(info);
-	info.length = source->size();
+	info.length = static_cast<unsigned int>(source->size());
 
 	result_ = system_->createSound((const char*) source->data(), FMOD_OPENMEMORY, &info, &sound_);
 	errcheck("create sound");

@@ -10,14 +10,14 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <ctime>
+#include <memory>
 
 #include "cl.hpp"
 #include "globals.hpp"
 #include "utils.hpp"
 
 ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* texture, bool _auto_spawn)
-	:
-		avg_spawn_rate(max_num_particles/10.f)
+	: avg_spawn_rate(static_cast<float>(max_num_particles)/10.f)
 	, spawn_rate_var(avg_spawn_rate/100.f)
 	, auto_spawn(_auto_spawn)
 	,	max_num_particles_(max_num_particles)
@@ -66,10 +66,9 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 
 	random_ = CL::create_buffer(CL_MEM_READ_ONLY, sizeof(float)*max_num_particles);
 
-	float * rnd = new float[max_num_particles];
-
 	Logging::verbose("  - Generating random numbers\n");
-	for(int i = 0; i<max_num_particles; ++i) {
+	std::unique_ptr<float[]> rnd(new float[max_num_particles]);
+	for ( int i = 0; i < max_num_particles; ++i ) {
 		rnd[i] = frand();
 	}
 
@@ -77,7 +76,7 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 
 	cl_int err = CL::queue().enqueueWriteBuffer(particles_, CL_FALSE, 0, sizeof(particle_t)*max_num_particles, initial_particles, NULL, &lock[0]);
 	CL::check_error(err, "[ParticleSystem] Write particles buffer");
-	err = CL::queue().enqueueWriteBuffer(random_, CL_FALSE, 0, sizeof(float)*max_num_particles, rnd, NULL, &lock[1]);
+	err = CL::queue().enqueueWriteBuffer(random_, CL_FALSE, 0, sizeof(float)*max_num_particles, rnd.get(), NULL, &lock[1]);
 	CL::check_error(err, "[ParticleSystem] Write random data buffer");
 
 	CL::flush();
@@ -86,7 +85,6 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	lock[1].wait();
 
 	delete[] initial_particles;
-	delete[] rnd;
 
 	err = run_kernel_.setArg(0, cl_gl_buffers_[0]);
 	CL::check_error(err, "[ParticleSystem] run: Set arg 0");
@@ -144,7 +142,7 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	config.gravity_influence_var = 0.f;
 
 	config.start_texture = 0;
-	config.num_textures = texture->num_textures();
+	config.num_textures = static_cast<unsigned int>(texture->num_textures());
 	config.max_num_particles = max_num_particles;
 	update_config();
 

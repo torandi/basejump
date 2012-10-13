@@ -82,7 +82,7 @@ Path::Path(const std::vector<glm::vec3> &in_path, bool optimize) {
 float Path::length() const { return path_length; }
 
 const Path::keypoint_t &Path::keypoint(int index) const {
-	if(index < 0) return keypoint(points.size() + index);
+	if(index < 0) return keypoint(static_cast<int>(points.size()) + index);
 	return points[index % points.size()];
 }
 
@@ -108,7 +108,7 @@ const Path::keypoint_t &Path::find_keypoint(float position) const {
 
 float Path::normalize_position(float pos) const {
 	while(pos < 0.f) pos += path_length;
-	return fmod(pos, path_length);
+	return fmodf(pos, path_length);
 }
 
 /**
@@ -119,12 +119,12 @@ glm::vec3 Path::at(float position) const {
 
 	const keypoint_t &kp = find_keypoint(position);
 
-	const keypoint_t &p0 = keypoint(kp.index - 1);
+	const keypoint_t &p0 = keypoint(static_cast<int>(kp.index) - 1);
 	const keypoint_t &p1 = kp;
-	const keypoint_t &p2 = keypoint(kp.index + 1);
-	const keypoint_t &p3 = keypoint(kp.index + 2);
+	const keypoint_t &p2 = keypoint(static_cast<int>(kp.index) + 1);
+	const keypoint_t &p3 = keypoint(static_cast<int>(kp.index) + 2);
 
-	float s = glm::clamp((position - p1.path_point) / distance_to_next(p1.index), 0.f, 1.f);;
+	float s = glm::clamp((position - p1.path_point) / distance_to_next(static_cast<unsigned int>(p1.index)), 0.f, 1.f);;
 
 	return glm::catmullRom(p0.position, p1.position, p2.position, p3.position, s);
 }

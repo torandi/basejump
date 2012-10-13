@@ -30,7 +30,7 @@ Rails::Rails(const Path * _path, float step) : Mesh(), path(_path){
 		generate_indices(p, previous);
 	}
 
-	generate_indices(path->length() + 0.01, previous);
+	generate_indices(path->length() + 0.01f, previous);
 
 	generate_normals();
 	generate_tangents_and_bitangents();
@@ -55,7 +55,7 @@ Rails::~Rails() { }
  *	that was generated
  */
 unsigned int Rails::emit_vertices(float path_position, glm::vec3 &prev) {
-	unsigned int start_index = vertices_.size();
+	unsigned int start_index = static_cast<unsigned int>(vertices_.size());
 
 	const glm::vec3 initial_normal = glm::vec3(0.f, 1.f, 0.f);
 

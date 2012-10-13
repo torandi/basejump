@@ -25,7 +25,7 @@ public:
 		, tunnel("/models/nox2/tunnel.obj", false)
 		, logo("/models/nox.obj", false)
 		, geometry(size, GL_RGB8, RenderTarget::DEPTH_BUFFER)
-		, camera(75.f, size.x/(float)size.y, 0.1f, 100.0f)
+		, camera(75.f, size, 0.1f, 100.0f)
 		, cam_pos1("/src/scene/nox_cam1.txt")
 		, cam_pos2("/src/scene/nox_cam2.txt")
 		, light_pos("/src/scene/nox_extra_light.txt")
@@ -195,14 +195,14 @@ public:
 		//Hologram
 		if( t > 65 && t < 95) {
 			const float s = (t - 65);
-			video_index = s*HOLOGRAM_FRAMERATE;
+			video_index = static_cast<int>(s*HOLOGRAM_FRAMERATE);
 		}
 		if( t > 64 && t < 65) {
 			const float s = (t - 64);
 			video.set_scale(glm::vec3(HOLOGRAM_SCALE, HOLOGRAM_SCALE*s, HOLOGRAM_SCALE));
 			video.set_position(glm::vec3(-29.59,-(HOLOGRAM_SCALE/2.f)*s,3.10));
 		} else if(t > 74.5 && t < 75) {
-			const float s = 1.f - (t - 74.5)*2.f;
+			const float s = 1.f - (t - 74.5f)*2.f;
 			video.set_scale(glm::vec3(HOLOGRAM_SCALE, HOLOGRAM_SCALE*s, HOLOGRAM_SCALE));
 			video.set_position(glm::vec3(-29.59,-(HOLOGRAM_SCALE/2.f)*s,3.10));
 		} else if ( t > 75 && t < 75.5) {
@@ -211,7 +211,7 @@ public:
 			video.set_position(glm::vec3(-29.59,-(HOLOGRAM_SCALE/2.f)*s,3.10));
 
 		} else if(t > 84.5 && t < 85) {
-			const float s = 1.f - (t - 84.5)*2.f;
+			const float s = 1.f - (t - 84.5f)*2.f;
 			video.set_scale(glm::vec3(HOLOGRAM_SCALE, HOLOGRAM_SCALE*s, HOLOGRAM_SCALE));
 			video.set_position(glm::vec3(-29.59,-(HOLOGRAM_SCALE/2.f)*s,3.10));
 		} else if ( t > 85 && t < 85.5) {
