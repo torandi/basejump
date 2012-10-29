@@ -27,7 +27,7 @@ float radians_to_degrees(double rad);
 
 void print_mat4(const glm::mat4 &m);
 
-inline float frand(float lower = 0.0f, float upper = static_cast<float>(RAND_MAX)) {
+inline float frand(float lower = 0.0f, float upper = 1.f) {
 	const float pivot = upper - lower;
 	const float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 	return lower + r * pivot;
