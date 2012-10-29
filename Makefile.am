@@ -23,6 +23,7 @@ libfrob_a_SOURCES = \
 	src/bindable.hpp \
 	src/camera.cpp src/camera.hpp \
 	src/cl.cpp src/cl.hpp \
+	src/config.cpp src/config.hpp \
 	src/color.cpp src/color.hpp \
 	src/data.cpp src/data.hpp \
 	src/engine.cpp src/engine.hpp \
