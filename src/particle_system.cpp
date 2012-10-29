@@ -356,3 +356,27 @@ void ParticleSystem::spawn(int count) {
 	sd.second = count;
 	spawn_list_.push_back(sd);
 }
+
+/*
+ FIX LATER
+void ParticleSystem::read_config(const ConfigEntry * config) {
+	config.birth_color = config->find("birth_color", true)->as_vec4();
+	config.death_color = config->find("death_color", true)->as_vec4();
+	config.motion_rand = glm::vec4(config->find("motion_rand", true)->as_vec3(), 1.f);
+	config.spawn_velocity_var = glm::vec4(config->find("spawn_velocity_var", true)->as_vec3(), 1.f);
+	config.avg_ttl = config->find("avg_ttl", true)->as_float();
+	config.ttl_var = config->find("ttl_var", true)->as_float();
+	config.avg_scale = config->find("avg_scale", true)->as_float();
+	config.scale_var = config->find("scale_var", true)->as_float();
+	config.avg_scale_change = config->find("avg_scale_change", true)->as_float();
+	config.scale_change_var = config->find("scale_change_var", true)->as_float();
+	config.avg_rotation_speed = config->find("avg_rotation_speed", true)->as_float();
+	config.rotation_speed_var = config->find("rotation_speed_var", true)->as_float();
+	config.avg_wind_influence = config->find("avg_wind_influence", true)->as_float();
+	config.wind_influence_var = config->find("wind_influence_var", true)->as_float();
+	config.avg_gravity_influence = config->find("avg_gravity_influence", true)->as_float();
+	config.gravity_influence_var = config->find("gravity_influence_var", true)->as_float();
+	config.start_texture = config->find("start_texture", true)->as_int();
+	config.num_textures = config->find("num_textures", true)->as_int();
+}
+*/
