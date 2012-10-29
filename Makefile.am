@@ -66,21 +66,21 @@ if INPUT_ENABLED
 libfrob_a_SOURCES += src/input.cpp src/input.hpp
 endif
 
-demo_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"demo\"" -DTITLE="\"Experimental demo\""
+demo_CXXFLAGS = ${AM_CXXFLAGS}
 demo_LDADD = libfrob.a ${engine_LIBS}
 demo_SOURCES = src/main.cpp src/testing.cpp
 demo_LDFLAGS = -pthread
 
-nox2_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"nox2\"" -DTITLE="\"NördtroXy II Invitation\""
+nox2_CXXFLAGS = ${AM_CXXFLAGS}
 nox2_LDADD = libfrob.a ${engine_LIBS}
 nox2_LDFLAGS = -pthread
 nox2_SOURCES = src/main.cpp src/nox2.cpp
 
-examples_mrt_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"example_mrt\"" -DTITLE="\"Example: MRT\""
+examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
 examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
 examples_mrt_LDADD = libfrob.a ${engine_LIBS}
 
-examples_blur_CXXFLAGS = ${AM_CXXFLAGS} -DNAME="\"example_blur\"" -DTITLE="\"Example: Blur\""
+examples_blur_CXXFLAGS = ${AM_CXXFLAGS}
 examples_blur_SOURCES = src/main.cpp examples/blur/blur.cpp
 examples_blur_LDADD = libfrob.a ${engine_LIBS}
 

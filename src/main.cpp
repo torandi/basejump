@@ -75,7 +75,7 @@ static void show_fps(int signum){
 	frames = 0;
 }
 
-static void init_window(){
+static void init_window(const char* title){
 	if ( SDL_Init(SDL_INIT_VIDEO) != 0 ){
 		Logging::fatal("SDL_Init failed: %s\n", SDL_GetError());
 	}
@@ -93,7 +93,6 @@ static void init_window(){
 	/* show configuration */
 	Logging::info(PACKAGE_NAME "-" VERSION "\n"
 	        "Configuration:\n"
-	        "  Demo: " NAME " (" TITLE ")\n"
 	        "  Resolution: %dx%d (%s)\n"
 #ifdef ENABLE_INPUT
 	        "  Input is enabled\n"
@@ -103,7 +102,7 @@ static void init_window(){
 	if(vsync) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 	SDL_SetVideoMode(resolution.x, resolution.y, 0, SDL_OPENGL|SDL_DOUBLEBUF|(fullscreen?SDL_FULLSCREEN:0));
 	SDL_EnableKeyRepeat(0, 0);
-	SDL_WM_SetCaption(TITLE, NULL);
+	SDL_WM_SetCaption(title, NULL);
 
 	if ( fullscreen ){
 		SDL_ShowCursor(SDL_DISABLE);
@@ -126,12 +125,12 @@ static void init_window(){
 	Logging::verbose("  - Supports %d texture units\n", max_texture_units);
 }
 
-static void init(){
+static void init(const char* title){
 	Logging::init();
 	Logging::add_destination(verbose_flag ? Logging::VERBOSE : Logging::WARNING, stderr);
 	Logging::add_destination(Logging::VERBOSE, "frob.log");
 	Logging::info("FFS: Frobnicator Fubar System - Engine starting\n");
-	init_window();
+	init_window(title);
 	Data::add_search_path(srcdir);
 	Engine::setup_opengl();
 	Shader::initialize();
@@ -274,7 +273,7 @@ static void __UNUSED__  set_resolution(const char* str){
 
 #ifdef HAVE_GETOPT_H
 void show_usage(){
-	printf(NAME " (" PACKAGE_NAME "-" VERSION ")\n"
+	printf("%s (" PACKAGE_NAME "-" VERSION ")\n"
 	       "usage: %s [OPTIONS]\n"
 	       "\n"
 	       "  -r, --resolution=SIZE   Set window resultion (default: 800x600 in windowed and\n"
@@ -287,7 +286,7 @@ void show_usage(){
 	       "  -q, --quiet             Inverse of --verbose.\n"
 				 "  -l, --no-loading        Don't show loading scene (faster load).\n"
 	       "  -h, --help              This text\n",
-	       program_name, FULLSCREEN ? "true" : "false");
+	       program_name, program_name, FULLSCREEN ? "true" : "false");
 }
 
 static const char* shortopts = "r:s:fwnvqlh";
@@ -393,7 +392,7 @@ int main(int argc, char* argv[]){
 	signal(SIGINT, handle_sigint);
 
 	/* let the magic begin */
-	init();
+	init(program_name);
 	magic_stuff();
 	cleanup();
 
