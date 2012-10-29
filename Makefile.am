@@ -7,7 +7,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = demo nox2
-noinst_PROGRAMS = examples_mrt examples_blur
+noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps
 TESTS = test/utils test/data
 
 if BUILD_EDITOR
@@ -79,6 +79,10 @@ nox2_SOURCES = src/main.cpp src/nox2.cpp
 examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
 examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
 examples_mrt_LDADD = libfrob.a ${engine_LIBS}
+
+examples_shadowmaps_CXXFLAGS = ${AM_CXXFLAGS}
+examples_shadowmaps_SOURCES = src/main.cpp examples/shadowmaps/shadowmaps.cpp
+examples_shadowmaps_LDADD = libfrob.a ${engine_LIBS}
 
 examples_blur_CXXFLAGS = ${AM_CXXFLAGS}
 examples_blur_SOURCES = src/main.cpp examples/blur/blur.cpp
