@@ -110,6 +110,6 @@ float shadow_coefficient(in light_data light, in vec3 position, in vec4 shadowma
 
 		return coef;
 	} else {
-		return 1.f;
+		return light.is_directional; //Directional lights should display areas outside of the shadowmap as lit
 	}
 }
