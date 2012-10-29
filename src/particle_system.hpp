@@ -4,6 +4,7 @@
 #include "platform.hpp"
 #include "movable_object.hpp"
 #include "cl.hpp"
+#include "config.hpp"
 #include <glm/glm.hpp>
 #include <list>
 #include <utility>
@@ -84,6 +85,8 @@ class ParticleSystem : public MovableObject {
 		 * Spawn count elements with current config
 		 */
 		void spawn(int count);
+
+		void read_config(const ConfigEntry * config);
 	private:
 
 		/**
