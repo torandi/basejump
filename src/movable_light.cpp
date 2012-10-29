@@ -95,7 +95,7 @@ void MovableLight::render_shadow_map(const Camera &camera, std::function<void(co
 
 	float near, far;
 	near = camera.near();
-	far = 100.f;
+	far = camera.far() * 0.5f;
 
 	glm::mat4 view_matrix, projection_matrix;
 
