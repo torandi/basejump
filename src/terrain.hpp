@@ -29,6 +29,8 @@ class Terrain : public Mesh {
 	float height_at(int x, int y) const;
 	const glm::vec3 &normal_at(int x, int y) const;
 
+	const glm::ivec2& heightmap_size() const;
+
 	public:
 		float vertical_scale() { return vertical_scale_; };
 
@@ -47,7 +49,6 @@ class Terrain : public Mesh {
 		Terrain(const std::string &file, float horizontal_scale, float vertical_scale, TextureArray* color_, TextureArray* normal_);
 		virtual ~Terrain();
 		virtual void render(const glm::mat4& m = glm::mat4());
-		const glm::ivec2 &size() const;
 		static glm::vec4 get_pixel_color(int x, int y, SDL_Surface * surface, const glm::ivec2 &size);
 
 		float height_at(float x, float y) const;
