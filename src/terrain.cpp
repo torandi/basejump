@@ -40,7 +40,7 @@ Terrain::Terrain(const std::string &file, float horizontal_scale, float vertical
 	data_map_  = TextureBase::load_image(file , &size_);
 	data_texture_ = Texture2D::from_filename(file);
 
-	shader_ = Shader::create_shader("terrain");
+	shader_ = Shader::create_shader("/shader/terrain");
 	material.specular = glm::vec4(0.f);
 
 	generate_terrain();
