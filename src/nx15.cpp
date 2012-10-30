@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 
 static Shader* shader = nullptr;
+static Shader* passthru = nullptr;
 static Shader* tonemap = nullptr;
 static Shader* bright_filter = nullptr;
 static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun;
@@ -54,7 +55,8 @@ namespace Engine {
 	}
 
 	void init(){
-		normal    = Shader::create_shader("/shaders/passthru");
+		normal    = Shader::create_shader("/shaders/normal");
+		passthru    = Shader::create_shader("/shaders/passthru");
 		tonemap   = Shader::create_shader("/shaders/tonemap");
 		bright_filter  = Shader::create_shader("/shaders/bright_filter");
 		shader    = Shader::create_shader("/shaders/terrain");
@@ -185,9 +187,9 @@ namespace Engine {
 		pass[2]->texture_bind(Shader::TEXTURE_BLOOM);
 		ldr->transfer(tonemap, scene);
 
-		logo->texture_bind(Shader::TEXTURE_2D_1);
-		white->texture_bind(Shader::TEXTURE_2D_2);
-		blendmap->texture_bind(Shader::TEXTURE_2D_4);
+		logo->texture_bind(Shader::TEXTURE_BLEND_1);
+		white->texture_bind(Shader::TEXTURE_BLEND_2);
+		blendmap->texture_bind(Shader::TEXTURE_BLEND_S);
 		ldr->draw(blend, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
@@ -250,7 +252,7 @@ namespace Engine {
 		}
 #else
 		const float s = t*0.2f;
-		const float d = 1057.5f;
+		const float d = 7.5f;
 
 		cam.look_at(glm::vec3(0,0,0));
 		cam.set_position(glm::vec3(cos(s)*d, 2.5f, sin(s)*d));
