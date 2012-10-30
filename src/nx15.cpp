@@ -78,6 +78,9 @@ namespace Engine {
 	void cleanup(){
 		delete terrain;
 		delete scene;
+		delete pass[0];
+		delete pass[1];
+		delete pass[2];
 		Shader::cleanup();
 	}
 
