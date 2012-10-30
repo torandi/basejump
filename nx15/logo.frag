@@ -2,11 +2,13 @@
 #include "uniforms.glsl"
 #include "screenspace.glsl"
 
+uniform float q;
+
 in vec2 uv;
 out vec4 ocolor;
 
 void main(){
-	float t = frame.time - 5.0f;
+	float t = q;
 	if ( t < 0.0f ){
 		t = 0.0f;
 	}

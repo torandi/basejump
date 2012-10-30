@@ -23,7 +23,7 @@ static Shader* shader = nullptr;
 static Shader* passthru = nullptr;
 static Shader* tonemap = nullptr;
 static Shader* bright_filter = nullptr;
-static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun, u_t;
+static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun, u_t1, u_t2;
 
 static Sound * music = nullptr;
 
@@ -42,6 +42,7 @@ static Terrain* terrain = nullptr;
 static RenderObject* obj = nullptr;
 static RenderTarget* scene = nullptr;
 static RenderTarget* logo = nullptr;
+static Texture2D* text[4] = {nullptr, };
 static RenderTarget* blendmap = nullptr;
 static RenderTarget* ldr = nullptr;
 static LightsData* lights = nullptr;
@@ -92,6 +93,10 @@ namespace Engine {
 		lights    = new LightsData();
 		obj       = new RenderObject("/nx15/rocket.obj", true, aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_GenUVCoords);
 		crap      = Texture2D::from_filename("/nx15/craptastic.png");
+		text[0]   = Texture2D::from_filename("/nx15/text1.png");
+		text[1]   = Texture2D::from_filename("/nx15/text2.png");
+		text[2]   = Texture2D::from_filename("/nx15/text3.png");
+		text[3]   = Texture2D::from_filename("/nx15/text4.png");
 		white     = Texture2D::from_filename("/textures/white.jpg");
 
 		cam_pos1 = new PointTable("/nx15/cam.txt");
@@ -135,7 +140,8 @@ namespace Engine {
 		u_bright_max[1] = bright_filter->uniform_location("bright_max");
 		u_threshold = bright_filter->uniform_location("threshold");
 		u_sun = blendmix->uniform_location("sun");
-		u_t = blendmix->uniform_location("t");
+		u_t1 = blendmix->uniform_location("t");
+		u_t2 = logoshader->uniform_location("q");
 
 		/* setup logo */
 		quad = new Quad();
@@ -187,7 +193,20 @@ namespace Engine {
 
 		RenderTarget::clear(Color::black);
 		logoshader->bind();
-		crap->texture_bind(Shader::TEXTURE_2D_0);
+
+		float t = global_time.get();
+		if ( t < 40 ){
+			crap->texture_bind(Shader::TEXTURE_2D_0);
+		} else if ( t < 90 ) {
+			text[0]->texture_bind(Shader::TEXTURE_2D_0);
+		} else if ( t < 100 ) {
+			text[1]->texture_bind(Shader::TEXTURE_2D_0);
+		} else if ( t < 110 ) {
+			text[2]->texture_bind(Shader::TEXTURE_2D_0);
+		} else if ( t < 120 ) {
+			text[3]->texture_bind(Shader::TEXTURE_2D_0);
+		}
+
 		quad->render();
 	}
 
@@ -243,9 +262,16 @@ namespace Engine {
 
 		blendmix->bind();
 		if( t < 40.f) {
-			glUniform1f(u_t,t);
-		} else if( t < 120.f) {
-			glUniform1f(u_t,t - 80.0);
+			glUniform1f(u_t1, t);
+		} else {
+			glUniform1f(u_t1, fmod(t - 80.0, 10));
+		}
+
+		logoshader->bind();
+		if( t < 40.f) {
+			glUniform1f(u_t2, t-5.0f);
+		} else {
+			glUniform1f(u_t2, fmod(t - 80, 10)- 5.0f);
 		}
 
 		blendmap->with([](){
@@ -271,7 +297,7 @@ namespace Engine {
 	void render(){
 		float t = global_time.get();
 
-		if ( t < 10.0f ){
+		if ( t < 10.0f || t > 80.0f ){
 			logoshader->bind();
 			logo->with(render_logo);
 		}
