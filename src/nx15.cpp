@@ -13,6 +13,7 @@
 #include "quad.hpp"
 #include "config.hpp"
 #include "particle_system.hpp"
+#include "timetable.hpp"
 #include <glm/glm.hpp>
 
 static Shader* shader = nullptr;
@@ -54,6 +55,9 @@ extern glm::mat4 screen_ortho;   /* defined in main.cpp */
 extern Time global_time;         /* defined in main.cpp */
 extern glm::ivec2 resolution;    /* defined in main.cpp */
 
+PointTable * cam_pos1;
+PointTable * cam_pos2;
+
 static RenderTarget* pass[3] = {nullptr, nullptr, nullptr};
 static Shader* blur[2] = {nullptr, nullptr};
 
@@ -82,6 +86,9 @@ namespace Engine {
 		obj       = new RenderObject("/models/bench.obj", true);
 		crap      = Texture2D::from_filename("/nx15/craptastic.png");
 		white     = Texture2D::from_filename("/textures/white.jpg");
+
+		cam_pos1 = new PointTable("/nx15/cam.txt");
+		cam_pos2 = new PointTable("/nx15/look_at.txt");
 
 		pass[0]  = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
 		pass[1]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
@@ -235,6 +242,9 @@ namespace Engine {
 #endif
 
 	void update(float t, float dt){
+		cam.set_position(cam_pos1->at(t));
+		cam.look_at(cam_pos2->at(t));
+
 		smoke->update(dt);
 
 #ifdef ENABLE_INPUT
