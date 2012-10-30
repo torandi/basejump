@@ -9,8 +9,8 @@
 #include <cfloat>
 #include <glm/gtc/matrix_transform.hpp>
 
-glm::ivec2 MovableLight::shadowmap_resolution = glm::ivec2(4096, 4096);
-float MovableLight::shadowmap_far_factor = 0.5f;
+glm::ivec2 MovableLight::shadowmap_resolution = glm::ivec2(2048, 2048);
+float MovableLight::shadowmap_far_factor = 0.75f;
 
 MovableLight::MovableLight(Light * light)
 	: MovableObject(light->position)
