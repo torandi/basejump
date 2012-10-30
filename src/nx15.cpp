@@ -213,6 +213,11 @@ namespace Engine {
 	static void render_geometry(){
 		terrain->render();
 
+		if ( global_time.get() > 80 ){
+
+			return;
+		}
+
 		normal->bind();
 		Shader::upload_blank_material();
 		Shader::upload_projection_view_matrices(cam.projection_matrix(), cam.view_matrix());
