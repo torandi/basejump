@@ -23,7 +23,7 @@ static float bloom_factor = 0.45f;
 static float bright_max = 1.20f;
 static float bright_threshold = 1.00f;
 
-static Shader* passthru = nullptr;
+static Shader* normal = nullptr;
 static Shader* blend = nullptr;
 static Shader* blendmix = nullptr;
 static Shader* logoshader = nullptr;
@@ -54,7 +54,8 @@ namespace Engine {
 	}
 
 	void init(){
-		tonemap  = Shader::create_shader("/shaders/tonemap");
+		normal    = Shader::create_shader("/shaders/passthru");
+		tonemap   = Shader::create_shader("/shaders/tonemap");
 		bright_filter  = Shader::create_shader("/shaders/bright_filter");
 		shader    = Shader::create_shader("/shaders/terrain");
 		blend     = Shader::create_shader("/shaders/blend");
@@ -68,7 +69,7 @@ namespace Engine {
 		blendmap  = new RenderTarget(resolution, GL_RGBA8, GL_LINEAR);
 		ldr       = new RenderTarget(resolution, GL_RGB8, GL_LINEAR);
 		lights    = new LightsData();
-		obj       = new RenderObject("/nx15/rocket.obj", true);
+		obj       = new RenderObject("/models/bench.obj", true);
 		crap      = Texture2D::from_filename("/nx15/craptastic.png");
 		white     = Texture2D::from_filename("/textures/white.jpg");
 
@@ -79,7 +80,7 @@ namespace Engine {
 		blur[0]  = Shader::create_shader("/shaders/blur_vertical");
 		blur[1]  = Shader::create_shader("/shaders/blur_horizontal");
 
-		terrain->set_position(glm::vec3(-7.5f, -2.0f, -7.5f));
+		terrain->set_position(glm::vec3(-7.5f, -2.0f,  -7.5f));
 		lights->ambient_intensity() = glm::vec3(0.1f);
 		lights->num_lights() = 1;
 		lights->lights[0]->set_position(glm::normalize(glm::vec3(0, -0.5f, -1.0f)));
@@ -126,6 +127,11 @@ namespace Engine {
 
 	static void render_geometry(){
 		terrain->render();
+
+		normal->bind();
+		Shader::upload_blank_material();
+		Shader::upload_projection_view_matrices(cam.projection_matrix(), cam.view_matrix());
+		obj->render();
 	}
 
 	static void render_scene(){
@@ -244,7 +250,7 @@ namespace Engine {
 		}
 #else
 		const float s = t*0.2f;
-		const float d = 7.5f;
+		const float d = 1057.5f;
 
 		cam.look_at(glm::vec3(0,0,0));
 		cam.set_position(glm::vec3(cos(s)*d, 2.5f, sin(s)*d));
