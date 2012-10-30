@@ -23,7 +23,7 @@ static Shader* shader = nullptr;
 static Shader* passthru = nullptr;
 static Shader* tonemap = nullptr;
 static Shader* bright_filter = nullptr;
-static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun;
+static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun, u_t;
 
 static Sound * music = nullptr;
 
@@ -135,6 +135,7 @@ namespace Engine {
 		u_bright_max[1] = bright_filter->uniform_location("bright_max");
 		u_threshold = bright_filter->uniform_location("threshold");
 		u_sun = blendmix->uniform_location("sun");
+		u_t = blendmix->uniform_location("t");
 
 		/* setup logo */
 		quad = new Quad();
@@ -235,9 +236,17 @@ namespace Engine {
 	}
 
 	static void render_blit(){
+		const float t = global_time.get();
 		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 		Shader::upload_model_matrix(glm::mat4());
 		RenderTarget::clear(Color::magenta);
+
+		blendmix->bind();
+		if( t < 40.f) {
+			glUniform1f(u_t,t);
+		} else if( t < 120.f) {
+			glUniform1f(u_t,t - 80.0);
+		}
 
 		blendmap->with([](){
 			RenderTarget::clear(Color::black);
@@ -263,6 +272,7 @@ namespace Engine {
 		float t = global_time.get();
 
 		if ( t < 10.0f ){
+			logoshader->bind();
 			logo->with(render_logo);
 		}
 
