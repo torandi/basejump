@@ -136,7 +136,8 @@ namespace Engine {
 		Shader::upload_resolution(resolution);
 
 		scene->with([](){
-			RenderTarget::clear(Color::magenta);
+			static Color sky = Color::from_hex("a0c8db");
+			RenderTarget::clear(sky);
 			render_geometry();
 		});
 	}
