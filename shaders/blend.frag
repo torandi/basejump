@@ -11,5 +11,5 @@ void main(){
 	ocolor += texture(texture0, uv) * s.r;
 	ocolor += texture(texture1, uv) * s.g;
 	ocolor += texture(texture2, uv) * s.b;
-	ocolor += texture(texture3, uv) * s.a;
+	//ocolor += texture(texture3, uv) * s.a;
 }

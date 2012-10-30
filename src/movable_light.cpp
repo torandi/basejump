@@ -9,8 +9,8 @@
 #include <cfloat>
 #include <glm/gtc/matrix_transform.hpp>
 
-glm::ivec2 MovableLight::shadowmap_resolution = glm::ivec2(4096, 4096);
-float MovableLight::shadowmap_far_factor = 0.5f;
+glm::ivec2 MovableLight::shadowmap_resolution = glm::ivec2(2048, 2048);
+float MovableLight::shadowmap_far_factor = 0.75f;
 
 MovableLight::MovableLight(Light * light)
 	: MovableObject(light->position)
@@ -198,7 +198,7 @@ void MovableLight::render_shadow_map(const Camera &camera, std::function<void(co
 }
 
 MovableLight::shadow_map_t::shadow_map_t(glm::ivec2 size) : resolution(size), fbo(nullptr), matrix(1.f){
-	texture = Texture2D::from_filename("/textures/white.png");
+	texture = Texture2D::from_filename("/textures/white.jpg");
 }
 
 MovableLight::shadow_map_t::~shadow_map_t() {

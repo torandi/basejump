@@ -46,6 +46,7 @@ public:
 
 	static Color rgb(float r, float g, float b){ return Color(r, g, b, 1.0f); }
 	static Color rgba(float r, float g, float b, float a){ return Color(r,g,b,a); }
+	static Color from_hex(const char* str);
 
 	static const Color black;
 	static const Color blue;

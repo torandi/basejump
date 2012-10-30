@@ -49,8 +49,8 @@ void main() {
 
 	for(int light = 0; int(light) < Lgt.num_lights; ++light) {
 		accumLighting += compute_lighting(
-			Lgt.lights[light], originalColor, 
-			pos_tangent_space, normal_map, camera_dir, 
+			Lgt.lights[light], originalColor,
+			pos_tangent_space, normal_map, camera_dir,
 			norm_normal, norm_tangent, norm_bitangent,
 				shininess, Mtl.specular) *
 		shadow_coefficient(Lgt.lights[light], position, shadowmap_coord[light]);
