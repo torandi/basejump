@@ -12,7 +12,15 @@
 #include "globals.hpp"
 
 static Shader* shader = nullptr;
-static Shader* passthru = nullptr;
+static Shader* tonemap = nullptr;
+static Shader* bright_filter = nullptr;
+static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold;
+
+static float exposure = 1.0f;
+static float bloom_factor = 0.45f;
+static float bright_max = 1.20f;
+static float bright_threshold = 1.00f;
+
 static TextureArray* colormap = nullptr;
 static TextureArray* normalmap = nullptr;
 static Terrain* terrain = nullptr;
@@ -24,20 +32,31 @@ extern glm::mat4 screen_ortho;   /* defined in main.cpp */
 extern Time global_time;         /* defined in main.cpp */
 extern glm::ivec2 resolution;    /* defined in main.cpp */
 
+static RenderTarget* pass[3] = {nullptr, nullptr, nullptr};
+static Shader* blur[2] = {nullptr, nullptr};
+
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
 		return nullptr;
 	}
 
 	void init(){
-		passthru  = Shader::create_shader("/shaders/passthru");
+		tonemap  = Shader::create_shader("/shaders/tonemap");
+		bright_filter  = Shader::create_shader("/shaders/bright_filter");
 		shader    = Shader::create_shader("/shaders/terrain");
 		colormap  = TextureArray::from_filename("/nx15/color0.png", "/nx15/color1.png", nullptr);
 		normalmap = TextureArray::from_filename("/nx15/normal0.png", "/nx15/normal1.png", nullptr);
 		terrain   = new Terrain("/nx15/terrain.png", 15.0f, 4.0f, colormap, normalmap);
-		scene     = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER | RenderTarget::DOUBLE_BUFFER, GL_LINEAR);
+		scene     = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER | RenderTarget::DOUBLE_BUFFER, GL_LINEAR);
 		lights    = new LightsData();
 		obj       = new RenderObject("/models/bench.obj", true);
+
+		pass[0]  = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
+		pass[1]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
+		pass[2]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
+
+		blur[0]  = Shader::create_shader("/shaders/blur_vertical");
+		blur[1]  = Shader::create_shader("/shaders/blur_horizontal");
 
 		terrain->set_position(glm::vec3(-7.5f, -2.0f, -7.5f));
 		lights->ambient_intensity() = glm::vec3(0.1f);
@@ -46,7 +65,11 @@ namespace Engine {
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
-		printf("%f\n", lights->lights[0]->shadow_bias);
+		u_exposure = tonemap->uniform_location("exposure");
+		u_bloom_factor = tonemap->uniform_location("bloom_factor");
+		u_bright_max[0] = tonemap->uniform_location("bright_max");
+		u_bright_max[1] = bright_filter->uniform_location("bright_max");
+		u_threshold = bright_filter->uniform_location("threshold");
 	}
 
 	void start(double seek){
@@ -79,21 +102,83 @@ namespace Engine {
 		});
 	}
 
+	static void render_bloom() {
+		bright_filter->bind();
+		glUniform1f(u_threshold, bright_threshold);
+		glUniform1f(u_bright_max[1], bright_max);
+
+		pass[0]->transfer(bright_filter, scene);
+		pass[1]->transfer(blur[0], pass[0]);
+		pass[2]->transfer(blur[1], pass[1]);
+	}
+
 	static void render_blit(){
 		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 		Shader::upload_model_matrix(glm::mat4());
 		RenderTarget::clear(Color::magenta);
-		scene->draw(passthru, glm::vec2(0,0), glm::vec2(resolution));
+
+
+		scene->draw(tonemap, glm::vec2(0,0), glm::vec2(resolution));
+
+		tonemap->bind();
+
+		glUniform1f(u_exposure, exposure);
+		glUniform1f(u_bloom_factor, bloom_factor);
+		glUniform1f(u_bright_max[0], bright_max);
+
+		pass[2]->texture_bind(Shader::TEXTURE_BLOOM);
+
+		scene->draw(tonemap, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
 	void render(){
 		render_scene();
+		render_bloom();
 		render_blit();
+	}
+
+	void static print_values() {
+		printf("Exposure: %f\n, bloom: %f\n, bright: [%f, %f]\n", exposure, bloom_factor, bright_max, bright_threshold);
 	}
 
 	void update(float t, float dt){
 #ifdef ENABLE_INPUT
 		input.update_object(cam, dt);
+		if(input.down(Input::ACTION_0)) {
+			exposure -= 0.1;
+			print_values();
+		}
+		if(input.down(Input::ACTION_1)) {
+			exposure += 0.1;
+			print_values();
+		}
+
+		if(input.down(Input::ACTION_2)) {
+			bloom_factor -= 0.1;
+			print_values();
+		}
+		if(input.down(Input::ACTION_3)) {
+			bloom_factor += 0.1;
+			print_values();
+		}
+
+		if(input.down(Input::ACTION_4)) {
+			bright_max -= 0.1;
+			print_values();
+		}
+		if(input.down(Input::ACTION_5)) {
+			bright_max += 0.1;
+			print_values();
+		}
+
+		if(input.down(Input::ACTION_6)) {
+			bright_threshold -= 0.1;
+			print_values();
+		}
+		if(input.down(Input::ACTION_7)) {
+			bright_threshold += 0.1;
+			print_values();
+		}
 #else
 		const float s = t*0.2f;
 		const float d = 7.5f;
