@@ -280,8 +280,10 @@ namespace Engine {
 #endif
 
 	void update(float t, float dt){
-		cam.set_position(cam_pos1->at(t));
-		cam.look_at(cam_pos2->at(t));
+		if(t < 45.f) {
+			cam.set_position(cam_pos1->at(t));
+			cam.look_at(cam_pos2->at(t));
+		}
 
 		/*stuff->config.spawn_position = glm::vec4(cam.position(), 0.f);
 		stuff->update_config();*/
@@ -328,7 +330,7 @@ namespace Engine {
 #endif
 
 		static const float begin = 43.5f;
-		const float s = (t - begin) / 20.0f;
+		const float s = (t - begin) / 10.0f;
 		if ( s > 0.0  && t <= 60.f ){
 			obj->set_position(obj->position() + glm::vec3(0, s * dt, 0));
 			smoke->config.spawn_position = glm::vec4(obj->position() - glm::vec3(0.f, 7.f, 0.f), 1.f);
@@ -351,7 +353,7 @@ namespace Engine {
 
 		static const float begin2 = 60.0f;
 		const float s2 = (t - begin2) / 20.0f;
-		if ( s2 > 0.0 ){
+		if ( s2 > 0.0 && t <= 80.f){
 			if(s2 < 0.1) {
 					obj->set_position(glm::vec3(9.275319, 1, 14.40433));
 			}
@@ -371,6 +373,11 @@ namespace Engine {
 			const glm::vec3 p = obj->position();
 			cam.set_position(glm::vec3(cos(s3)*d + p.x, 5.5f + s * 0.005f + glm::max(0.f, s-5.f)*20.f, sin(s3)*d + p.z));
 			cam.look_at(glm::vec3(p.x, p.y + 2.0f, p.z));
+		}
+
+		if(t > 80.f) {
+			cam.relative_move(glm::vec3(dt, 0.f, 0.f));
+			cam.look_at(cam.position() - glm::vec3(0.0, 0.f, 1.f));
 		}
 
 	}
