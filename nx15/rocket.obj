@@ -1,6 +1,6 @@
 # Blender v2.62 (sub 0) OBJ File: 'rocket.blend'
 # www.blender.org
-mtllib rocket.mtl
+mtllib /nx15/rocket.mtl
 o Plane.006_Plane.012
 v 2.386334 -31.000000 0.014675
 v 0.986333 -29.000000 0.014676
