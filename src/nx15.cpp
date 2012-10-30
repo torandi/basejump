@@ -52,8 +52,10 @@ static Quad* fsquad = nullptr;
 
 static TextureArray *smoke_textures = nullptr;
 static TextureArray *stuff_textures = nullptr;
+static TextureArray *fire_textures = nullptr;
 static ParticleSystem *smoke = nullptr;
 static ParticleSystem *stuff = nullptr;
+static ParticleSystem *fire = nullptr;
 
 static Camera cam(75, 1.3f, 0.1f, 100.0f);
 extern glm::mat4 screen_ortho;   /* defined in main.cpp */
@@ -111,6 +113,7 @@ namespace Engine {
 
 		stuff_textures = TextureArray::from_filename("/textures/particle.png", nullptr);
 		smoke_textures = TextureArray::from_filename("/nx15/smoke.png", nullptr);
+		fire_textures = TextureArray::from_filename("/textures/fire1.png", "/textures/fire2.png", "/textures/fire3.png", nullptr);
 
 		Config particle_config = Config::parse("/nx15/particles.cfg");
 
@@ -121,6 +124,10 @@ namespace Engine {
 		stuff = new ParticleSystem(10000, stuff_textures);
 		stuff->read_config(particle_config["/particles/stuff"]);
 		stuff->update_config();
+
+		fire = new ParticleSystem(20000, fire_textures);
+		fire->read_config(particle_config["/particles/fire"]);
+		fire->update_config();
 
 		u_exposure = tonemap->uniform_location("exposure");
 		u_bloom_factor = tonemap->uniform_location("bloom_factor");
@@ -148,7 +155,7 @@ namespace Engine {
 
 		static Color sky = Color::from_hex("a0c8db");
 		Shader::fog_t fog = { glm::vec4(sky.to_vec3(), 0.005f) };
-		fog.density = 0.3f;
+		fog.density = 0.1f;
 		Shader::upload_fog(fog);
 	}
 
@@ -211,6 +218,7 @@ namespace Engine {
 			static Color sky = Color::from_hex("a0c8db");
 			RenderTarget::clear(Color::lerp(sky, Color::white, s));
 			render_geometry();
+			fire->render();
 			smoke->render();
 			stuff->render();
 		});
@@ -320,20 +328,49 @@ namespace Engine {
 #endif
 
 		static const float begin = 43.5f;
-		const float s = (t - begin) / 3.0f;
-		if ( s > 0.0 ){
+		const float s = (t - begin) / 20.0f;
+		if ( s > 0.0  && t <= 60.f ){
 			obj->set_position(obj->position() + glm::vec3(0, s * dt, 0));
-			smoke->config.spawn_position = glm::vec4(obj->position() - glm::vec3(0.f, 0.5f, 0.f), 1.f);
+			smoke->config.spawn_position = glm::vec4(obj->position() - glm::vec3(0.f, 7.f, 0.f), 1.f);
 			smoke->update_config();
 			smoke->update(dt);
+
+			fire->config.spawn_position = smoke->config.spawn_position;
+			fire->update_config();
+			fire->update(dt);
 
 
 			const float s2 = s * 0.3;
 			const float d = 4.5f + 0.8f * s;
 
 			const glm::vec3 p = obj->position();
-			cam.set_position(glm::vec3(cos(s2)*d + p.x, 2.5f + s * 0.005f, sin(s2)*d + p.z));
-			cam.look_at(glm::vec3(p.x, p.y - 1.0f - 3.5f * glm::max(s-1, 0.0f), p.z));
+			cam.set_position(glm::vec3(cos(s2)*d + p.x, 2.5f + s * 0.005f + glm::max(0.f, s-5.f)*10.f, sin(s2)*d + p.z));
+			cam.look_at(glm::vec3(p.x, p.y - 1.0f - 20.5f * glm::max(s-1, 0.0f), p.z));
+		}
+
+
+		static const float begin2 = 60.0f;
+		const float s2 = (t - begin2) / 20.0f;
+		if ( s2 > 0.0 ){
+			if(s2 < 0.1) {
+					obj->set_position(glm::vec3(9.275319, 1, 14.40433));
+			}
+			obj->set_position(obj->position() + glm::vec3(0, s2 * dt, 0));
+			smoke->config.spawn_position = glm::vec4(obj->position() - glm::vec3(0.f, 7.f, 0.f), 1.f);
+			smoke->update_config();
+			smoke->update(dt);
+
+			fire->config.spawn_position = smoke->config.spawn_position;
+			fire->update_config();
+			fire->update(dt);
+
+
+			const float s3 = s2 * 0.3;
+			const float d = 4.5f + 0.8f * s2;
+
+			const glm::vec3 p = obj->position();
+			cam.set_position(glm::vec3(cos(s3)*d + p.x, 5.5f + s * 0.005f + glm::max(0.f, s-5.f)*20.f, sin(s3)*d + p.z));
+			cam.look_at(glm::vec3(p.x, p.y + 2.0f, p.z));
 		}
 
 	}
