@@ -61,7 +61,7 @@ namespace Engine {
 		blendmix  = Shader::create_shader("/nx15/blendmix");
 		logoshader= Shader::create_shader("/nx15/logo");
 		colormap  = TextureArray::from_filename("/nx15/color0.png", "/nx15/color1.png", nullptr);
-		normalmap = TextureArray::from_filename("/textures/default_normalmap.jpg", "/textures/default_normalmap.jpg", nullptr);
+		normalmap = TextureArray::from_filename("/nx15/normal0.png", "/nx15/normal1.png", nullptr);
 		terrain   = new Terrain("/nx15/terrain.jpg", 30.0f, 4.0f, colormap, normalmap);
 		scene     = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER | RenderTarget::DOUBLE_BUFFER, GL_LINEAR);
 		logo      = new RenderTarget(resolution, GL_RGB8, GL_LINEAR);
