@@ -319,7 +319,7 @@ namespace Engine {
 		}
 #endif
 
-		static const float begin = 40.0f;
+		static const float begin = 43.5f;
 		const float s = (t - begin) / 3.0f;
 		if ( s > 0.0 ){
 			obj->set_position(obj->position() + glm::vec3(0, s * dt, 0));
