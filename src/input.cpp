@@ -55,6 +55,30 @@ void Input::parse_event(const SDL_Event &event) {
 					//RIGHT
 					sustained_values[MOVE_X] = movement_speed;
 					break;
+				case SDLK_1:
+					sustained_values[ACTION_0] = 1.f;
+					break;
+				case SDLK_2:
+					sustained_values[ACTION_1] = 1.f;
+					break;
+				case SDLK_3:
+					sustained_values[ACTION_2] = 1.f;
+					break;
+				case SDLK_4:
+					sustained_values[ACTION_3] = 1.f;
+					break;
+				case SDLK_5:
+					sustained_values[ACTION_4] = 1.f;
+					break;
+				case SDLK_6:
+					sustained_values[ACTION_5] = 1.f;
+					break;
+				case SDLK_7:
+					sustained_values[ACTION_6] = 1.f;
+					break;
+				case SDLK_8:
+					sustained_values[ACTION_7] = 1.f;
+					break;
 				default:
 					break;
 			}
@@ -80,6 +104,30 @@ void Input::parse_event(const SDL_Event &event) {
 				case SDLK_d:
 					//RIGHT
 					sustained_values[MOVE_X] = 0.f;
+					break;
+				case SDLK_1:
+					sustained_values[ACTION_0] = 0.f;
+					break;
+				case SDLK_2:
+					sustained_values[ACTION_1] = 0.f;
+					break;
+				case SDLK_3:
+					sustained_values[ACTION_2] = 0.f;
+					break;
+				case SDLK_4:
+					sustained_values[ACTION_3] = 0.f;
+					break;
+				case SDLK_5:
+					sustained_values[ACTION_4] = 0.f;
+					break;
+				case SDLK_6:
+					sustained_values[ACTION_5] = 0.f;
+					break;
+				case SDLK_7:
+					sustained_values[ACTION_6] = 0.f;
+					break;
+				case SDLK_8:
+					sustained_values[ACTION_7] = 0.f;
 					break;
 				default:
 					break;
@@ -188,6 +236,10 @@ float Input::get_hat_right_left(int hat) {
 		return -1.f;
 	else
 		return 0.f;
+}
+
+bool Input::down(Input::input_action_t action) {
+	return has_changed(action, 0.1) && current_value(action) > 0.9;
 }
 
 bool Input::has_changed(Input::input_action_t action, float epsilon) const {
