@@ -91,7 +91,7 @@ namespace Engine {
 		blendmap  = new RenderTarget(resolution, GL_RGBA8, GL_LINEAR);
 		ldr       = new RenderTarget(resolution, GL_RGB8, GL_LINEAR);
 		lights    = new LightsData();
-		obj       = new RenderObject("/nx15/rocket.obj", true, aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_GenUVCoords);
+		obj       = new RenderObject("/nx15/rocket.obj", true/*, aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_GenUVCoords*/);
 		crap      = Texture2D::from_filename("/nx15/craptastic.png");
 		text[0]   = Texture2D::from_filename("/nx15/text1.png");
 		text[1]   = Texture2D::from_filename("/nx15/text2.png");
@@ -130,7 +130,7 @@ namespace Engine {
 		stuff->read_config(particle_config["/particles/stuff"]);
 		stuff->update_config();
 
-		fire = new ParticleSystem(20000, fire_textures);
+		fire = new ParticleSystem(10000, fire_textures);
 		fire->read_config(particle_config["/particles/fire"]);
 		fire->update_config();
 
@@ -394,7 +394,7 @@ namespace Engine {
 
 			const glm::vec3 p = obj->position();
 			cam.set_position(glm::vec3(cos(s2)*d + p.x, 2.5f + s * 0.005f + glm::max(0.f, s-5.f)*10.f, sin(s2)*d + p.z));
-			cam.look_at(glm::vec3(p.x, p.y - 1.0f - 20.5f * glm::max(s-1, 0.0f), p.z));
+			cam.look_at(glm::vec3(p.x, p.y - 1.0f - 10.5f * glm::max(s-1, 0.0f), p.z));
 		}
 
 

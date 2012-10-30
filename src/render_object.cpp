@@ -110,12 +110,12 @@ RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int
 	importer.SetIOHandler(new AssimpDataImport());
 
 	scene = importer.ReadFile(model,
-		aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-		aiProcess_JoinIdenticalVertices |
+		aiProcess_Triangulate | /*| aiProcess_GenSmoothNormals |*/
+	/*	aiProcess_JoinIdenticalVertices |
 		aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph  |
 		aiProcess_ImproveCacheLocality | aiProcess_GenUVCoords |
 		aiProcess_ValidateDataStructure | aiProcess_FixInfacingNormals |
-		aiProcess_SortByPType |
+		aiProcess_SortByPType |*/
 		aiProcess_CalcTangentSpace | aiOptions
 		);
 
