@@ -131,6 +131,9 @@ namespace Engine {
 
 		cam.set_position(glm::vec3(7.267048, 2.076503, 14.047379));
 		cam.look_at(glm::vec3(9.275319, 1.763391, 14.40433));
+
+		obj->set_position(glm::vec3(9.275319, 1, 14.40433));
+		obj->set_scale(glm::vec3(8,8,8));
 	}
 
 	void start(double seek){
@@ -284,12 +287,20 @@ namespace Engine {
 			bright_threshold += 0.1;
 			print_values();
 		}
-#else
-		const float s = t*0.2f;
-		const float d = 7.5f;
-
-		//cam.look_at(glm::vec3(0,0,0));
-		//cam.set_position(glm::vec3(cos(s)*d, 2.5f, sin(s)*d));
 #endif
+
+		static const float begin = 5.0f;
+		const float s = (t - begin) / 3.0f;
+		if ( s > 0.0 ){
+			obj->set_position(obj->position() + glm::vec3(0, s * dt, 0));
+
+			const float s2 = s * 0.3;
+			const float d = 4.5f + 0.8f * s;
+
+			const glm::vec3 p = obj->position();
+			cam.set_position(glm::vec3(cos(s2)*d + p.x, 2.5f + s * 0.005f, sin(s2)*d + p.z));
+			cam.look_at(glm::vec3(p.x, p.y - 1.0f - 3.5f * glm::max(s-1, 0.0f), p.z));
+		}
+
 	}
 }
