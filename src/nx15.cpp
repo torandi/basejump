@@ -14,6 +14,8 @@
 #include "config.hpp"
 #include "particle_system.hpp"
 #include "timetable.hpp"
+#include "logging.hpp"
+#include "sound.hpp"
 #include <glm/glm.hpp>
 #include <assimp/postprocess.h>
 
@@ -23,10 +25,12 @@ static Shader* tonemap = nullptr;
 static Shader* bright_filter = nullptr;
 static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun;
 
-static float exposure = 1.0f;
-static float bloom_factor = 0.45f;
+static Sound * music = nullptr;
+
+static float exposure = 1.2f;
+static float bloom_factor = 2.f;
 static float bright_max = 1.20f;
-static float bright_threshold = 1.00f;
+static float bright_threshold = 0.90f;
 
 static Shader* normal = nullptr;
 static Shader* blend = nullptr;
@@ -47,9 +51,9 @@ static Quad* quad = nullptr;
 static Quad* fsquad = nullptr;
 
 static TextureArray *smoke_textures = nullptr;
-static TextureArray *fire_textures = nullptr;
+static TextureArray *stuff_textures = nullptr;
 static ParticleSystem *smoke = nullptr;
-static ParticleSystem *fire = nullptr;
+static ParticleSystem *stuff = nullptr;
 
 static Camera cam(75, 1.3f, 0.1f, 100.0f);
 extern glm::mat4 screen_ortho;   /* defined in main.cpp */
@@ -105,14 +109,18 @@ namespace Engine {
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
-		fire_textures = TextureArray::from_filename("/textures/fire1.png", "/textures/fire2.png", "/textures/fire3.png", nullptr);
+		stuff_textures = TextureArray::from_filename("/textures/particle.png", nullptr);
 		smoke_textures = TextureArray::from_filename("/nx15/smoke.png", nullptr);
 
 		Config particle_config = Config::parse("/nx15/particles.cfg");
 
-		smoke = new ParticleSystem(20000, smoke_textures);
+		smoke = new ParticleSystem(10000, smoke_textures);
 		smoke->read_config(particle_config["/particles/smoke"]);
 		smoke->update_config();
+
+		stuff = new ParticleSystem(10000, stuff_textures);
+		stuff->read_config(particle_config["/particles/stuff"]);
+		stuff->update_config();
 
 		u_exposure = tonemap->uniform_location("exposure");
 		u_bloom_factor = tonemap->uniform_location("bloom_factor");
@@ -135,9 +143,20 @@ namespace Engine {
 
 		obj->set_position(glm::vec3(9.275319, 1, 14.40433));
 		obj->set_scale(glm::vec3(8,8,8));
+
+		music = new Sound("/nx15/crapstyle.ogg");
 	}
 
 	void start(double seek){
+		music->play();
+		if(global_time.sync_to_music(music)) {
+			Logging::verbose("Syncinc to music!\n");
+		} else {
+			Logging::warning("Warning! Syncing disabled!\n");
+		}
+		if(seek > 0.1) {
+			music->seek(seek);
+		}
 	}
 
 	void cleanup(){
@@ -146,6 +165,7 @@ namespace Engine {
 		delete pass[0];
 		delete pass[1];
 		delete pass[2];
+		delete music;
 		Shader::cleanup();
 	}
 
@@ -187,6 +207,7 @@ namespace Engine {
 			RenderTarget::clear(Color::lerp(sky, Color::white, s));
 			render_geometry();
 			smoke->render();
+			stuff->render();
 		});
 	}
 
@@ -250,6 +271,11 @@ namespace Engine {
 		cam.look_at(cam_pos2->at(t));
 
 		smoke->update(dt);
+
+		/*stuff->config.spawn_position = glm::vec4(cam.position(), 0.f);
+		stuff->update_config();*/
+
+		stuff->update(dt);
 
 #ifdef ENABLE_INPUT
 		input.update_object(cam, dt);
