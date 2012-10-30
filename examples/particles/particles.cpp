@@ -44,7 +44,7 @@ namespace Engine {
 		shader_particles   = Shader::create_shader("/shaders/particles");
 
 		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
-		plane->set_position(glm::vec3(-10.f, -0.5f, -10.f)); 
+		plane->set_position(glm::vec3(-10.f, -0.5f, -10.f));
 		plane->set_scale(20.f);
 
 		particle_textures = TextureArray::from_filename("/textures/fog.png", nullptr);
@@ -100,33 +100,20 @@ namespace Engine {
 		});
 	}
 
-	static void render_blur(){
-	}
-
 	static void render_blit(){
 		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 		Shader::upload_model_matrix(glm::mat4());
 		RenderTarget::clear(Color::magenta);
-		//scene->texture_bind(Shader::TEXTURE_2D_1); /* for comparing */
 		scene->draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
 	void render(){
 		render_scene();
-		//render_blur();
 		render_blit();
 	}
 
 	void update(float t, float dt){
-		const float s = t*0.5f;
-		const float d = 0.7f;
-
 		obj->yaw(dt);
-		/*cam.look_at(glm::vec3(0,0,0));
-		cam.set_position(glm::vec3(cos(s)*d, 0.05, sin(s)*d));*/
-
 		particles->update(dt);
-
-		input.update_object(cam, dt);
 	}
 }
