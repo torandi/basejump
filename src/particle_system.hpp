@@ -109,6 +109,8 @@ class ParticleSystem : public MovableObject {
 		cl::Program program_;
 		cl::Kernel run_kernel_, spawn_kernel_;
 
+		Shader * shader_;
+
 		struct __ALIGNED__(16) particle_t {
 				glm::vec4 velocity;
 

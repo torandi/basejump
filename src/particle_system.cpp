@@ -27,6 +27,8 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	run_kernel_  = CL::load_kernel(program_, "run_particles");
 	spawn_kernel_  = CL::load_kernel(program_, "spawn_particles");
 
+	shader_ = Shader::create_shader("/shaders/particles");
+
 	Logging::verbose("Created particle system with %d particles\n", max_num_particles);
 
 	//Empty vec4s:
@@ -288,6 +290,8 @@ void ParticleSystem::update(float dt) {
 }
 
 void ParticleSystem::render(const glm::mat4&  m) {
+
+	shader_->bind();
 
 	Shader::push_vertex_attribs();
 
