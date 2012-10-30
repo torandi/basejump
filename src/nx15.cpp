@@ -11,11 +11,12 @@
 #include "time.hpp"
 #include "globals.hpp"
 #include "quad.hpp"
+#include <glm/glm.hpp>
 
 static Shader* shader = nullptr;
 static Shader* tonemap = nullptr;
 static Shader* bright_filter = nullptr;
-static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold;
+static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun;
 
 static float exposure = 1.0f;
 static float bloom_factor = 0.45f;
@@ -36,6 +37,7 @@ static RenderTarget* blendmap = nullptr;
 static RenderTarget* ldr = nullptr;
 static LightsData* lights = nullptr;
 static Texture2D* crap = nullptr;
+static Texture2D* white = nullptr;
 static Quad* quad = nullptr;
 static Quad* fsquad = nullptr;
 static Camera cam(75, 1.3f, 0.1f, 100.0f);
@@ -68,6 +70,7 @@ namespace Engine {
 		lights    = new LightsData();
 		obj       = new RenderObject("/models/bench.obj", true);
 		crap      = Texture2D::from_filename("/nx15/craptastic.png");
+		white     = Texture2D::from_filename("/textures/white.jpg");
 
 		pass[0]  = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
 		pass[1]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
@@ -79,7 +82,7 @@ namespace Engine {
 		terrain->set_position(glm::vec3(-7.5f, -2.0f, -7.5f));
 		lights->ambient_intensity() = glm::vec3(0.1f);
 		lights->num_lights() = 1;
-		lights->lights[0]->set_position(glm::vec3(0, -1.0f, 0.0f));
+		lights->lights[0]->set_position(glm::normalize(glm::vec3(0, -0.5f, -1.0f)));
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
@@ -88,6 +91,7 @@ namespace Engine {
 		u_bright_max[0] = tonemap->uniform_location("bright_max");
 		u_bright_max[1] = bright_filter->uniform_location("bright_max");
 		u_threshold = bright_filter->uniform_location("threshold");
+		u_sun = blendmix->uniform_location("sun");
 
 		/* setup logo */
 		quad = new Quad();
@@ -160,6 +164,9 @@ namespace Engine {
 		blendmap->with([](){
 			RenderTarget::clear(Color::black);
 			blendmix->bind();
+			const glm::vec3 dir = glm::normalize(cam.position() - cam.look_at());
+			const float dot = glm::dot(dir, lights->lights[0]->position());
+			glUniform1f(u_sun, dot);
 			fsquad->render();
 		});
 
@@ -172,6 +179,7 @@ namespace Engine {
 		ldr->transfer(tonemap, scene);
 
 		logo->texture_bind(Shader::TEXTURE_2D_1);
+		white->texture_bind(Shader::TEXTURE_2D_2);
 		blendmap->texture_bind(Shader::TEXTURE_2D_4);
 		ldr->draw(blend, glm::vec2(0,0), glm::vec2(resolution));
 	}
@@ -189,9 +197,11 @@ namespace Engine {
 		render_blit();
 	}
 
+#ifdef ENABLE_INPUT
 	void static print_values() {
 		printf("Exposure: %f\n, bloom: %f\n, bright: [%f, %f]\n", exposure, bloom_factor, bright_max, bright_threshold);
 	}
+#endif
 
 	void update(float t, float dt){
 #ifdef ENABLE_INPUT
