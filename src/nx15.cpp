@@ -411,8 +411,15 @@ namespace Engine {
 			cam.look_at(glm::vec3(p.x, p.y + 2.0f, p.z));
 		}
 
-		if(t > 80.f) {
-			cam.relative_move(glm::vec3(dt, 0.f, 0.f));
+		if ( t > 120 ){
+			Engine::terminate();
+		}
+
+		if ( t > 100 ){
+			cam.relative_move(glm::vec3(dt * 0.5, 0.f, 0.f));
+			cam.look_at(cam.position() - glm::vec3(0.0, 0.f, 1.f));
+		} else 	if(t > 80.f) {
+			cam.relative_move(glm::vec3(-dt * 0.5, 0.f, 0.f));
 			cam.look_at(cam.position() - glm::vec3(0.0, 0.f, 1.f));
 		}
 
