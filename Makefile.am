@@ -6,7 +6,7 @@ engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${C
 AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src ${engine_CXXFLAGS} ${VENDOR_CFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo nox2 nx15
+bin_PROGRAMS = demo nox2 nx15_demo
 noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_terrain examples_particles
 TESTS = test/utils test/data
 
@@ -76,10 +76,10 @@ nox2_LDADD = libfrob.a ${engine_LIBS}
 nox2_LDFLAGS = -pthread
 nox2_SOURCES = src/main.cpp src/nox2.cpp
 
-nx15_CXXFLAGS = ${AM_CXXFLAGS}
-nx15_LDADD = libfrob.a ${engine_LIBS}
-nx15_LDFLAGS = -pthread
-nx15_SOURCES = src/main.cpp src/nx15.cpp
+nx15_demo_CXXFLAGS = ${AM_CXXFLAGS}
+nx15_demo_LDADD = libfrob.a ${engine_LIBS}
+nx15_demo_LDFLAGS = -pthread
+nx15_demo_SOURCES = src/main.cpp src/nx15.cpp
 
 examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
 examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
