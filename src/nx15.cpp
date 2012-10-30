@@ -9,6 +9,7 @@
 #include "rendertarget.hpp"
 #include "terrain.hpp"
 #include "time.hpp"
+#include "globals.hpp"
 
 static Shader* shader = nullptr;
 static Shader* passthru = nullptr;
@@ -30,20 +31,22 @@ namespace Engine {
 
 	void init(){
 		passthru  = Shader::create_shader("/shaders/passthru");
-		shader    = Shader::create_shader("/shaders/normal");
-		colormap  = TextureArray::from_filename("/color0.png", "/color1.png", nullptr);
-		normalmap = TextureArray::from_filename("/textures/default_normalmap.jpg", "/textures/default_normalmap.jpg", nullptr);
+		shader    = Shader::create_shader("/shaders/terrain");
+		colormap  = TextureArray::from_filename("/nx15/color0.png", "/nx15/color1.png", nullptr);
+		normalmap = TextureArray::from_filename("/nx15/normal0.png", "/nx15/normal1.png", nullptr);
 		terrain   = new Terrain("/nx15/terrain.png", 15.0f, 4.0f, colormap, normalmap);
-		scene     = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER, GL_LINEAR);
+		scene     = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER | RenderTarget::DOUBLE_BUFFER, GL_LINEAR);
 		lights    = new LightsData();
 		obj       = new RenderObject("/models/bench.obj", true);
 
 		terrain->set_position(glm::vec3(-7.5f, -2.0f, -7.5f));
 		lights->ambient_intensity() = glm::vec3(0.1f);
 		lights->num_lights() = 1;
-		lights->lights[0]->set_position(glm::vec3(0, -0.3f, -1.f));
+		lights->lights[0]->set_position(glm::vec3(0, -0.5f, -1.0f));
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
+
+		printf("%f\n", lights->lights[0]->shadow_bias);
 	}
 
 	void start(double seek){
@@ -56,7 +59,6 @@ namespace Engine {
 	}
 
 	static void render_geometry(){
-		RenderTarget::clear(Color::magenta);
 		terrain->render();
 	}
 
@@ -70,9 +72,9 @@ namespace Engine {
 		Shader::upload_lights(*lights);
 		Shader::upload_blank_material();
 		Shader::upload_resolution(resolution);
-		RenderTarget::clear(Color::blue);
 
 		scene->with([](){
+			RenderTarget::clear(Color::magenta);
 			render_geometry();
 		});
 	}
@@ -90,10 +92,14 @@ namespace Engine {
 	}
 
 	void update(float t, float dt){
+#ifdef ENABLE_INPUT
+		input.update_object(cam, dt);
+#else
 		const float s = t*0.2f;
 		const float d = 7.5f;
 
 		cam.look_at(glm::vec3(0,0,0));
 		cam.set_position(glm::vec3(cos(s)*d, 2.5f, sin(s)*d));
+#endif
 	}
 }
