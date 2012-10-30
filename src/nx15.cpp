@@ -10,6 +10,7 @@
 #include "terrain.hpp"
 #include "time.hpp"
 #include "globals.hpp"
+#include "quad.hpp"
 
 static Shader* shader = nullptr;
 static Shader* tonemap = nullptr;
@@ -21,12 +22,22 @@ static float bloom_factor = 0.45f;
 static float bright_max = 1.20f;
 static float bright_threshold = 1.00f;
 
+static Shader* passthru = nullptr;
+static Shader* blend = nullptr;
+static Shader* blendmix = nullptr;
+static Shader* logoshader = nullptr;
 static TextureArray* colormap = nullptr;
 static TextureArray* normalmap = nullptr;
 static Terrain* terrain = nullptr;
 static RenderObject* obj = nullptr;
 static RenderTarget* scene = nullptr;
+static RenderTarget* logo = nullptr;
+static RenderTarget* blendmap = nullptr;
+static RenderTarget* ldr = nullptr;
 static LightsData* lights = nullptr;
+static Texture2D* crap = nullptr;
+static Quad* quad = nullptr;
+static Quad* fsquad = nullptr;
 static Camera cam(75, 1.3f, 0.1f, 100.0f);
 extern glm::mat4 screen_ortho;   /* defined in main.cpp */
 extern Time global_time;         /* defined in main.cpp */
@@ -44,12 +55,19 @@ namespace Engine {
 		tonemap  = Shader::create_shader("/shaders/tonemap");
 		bright_filter  = Shader::create_shader("/shaders/bright_filter");
 		shader    = Shader::create_shader("/shaders/terrain");
+		blend     = Shader::create_shader("/shaders/blend");
+		blendmix  = Shader::create_shader("/nx15/blendmix");
+		logoshader= Shader::create_shader("/nx15/logo");
 		colormap  = TextureArray::from_filename("/nx15/color0.png", "/nx15/color1.png", nullptr);
 		normalmap = TextureArray::from_filename("/nx15/normal0.png", "/nx15/normal1.png", nullptr);
 		terrain   = new Terrain("/nx15/terrain.png", 15.0f, 4.0f, colormap, normalmap);
 		scene     = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER | RenderTarget::DOUBLE_BUFFER, GL_LINEAR);
+		logo      = new RenderTarget(resolution, GL_RGB8, GL_LINEAR);
+		blendmap  = new RenderTarget(resolution, GL_RGBA8, GL_LINEAR);
+		ldr       = new RenderTarget(resolution, GL_RGB8, GL_LINEAR);
 		lights    = new LightsData();
 		obj       = new RenderObject("/models/bench.obj", true);
+		crap      = Texture2D::from_filename("/nx15/craptastic.png");
 
 		pass[0]  = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
 		pass[1]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
@@ -70,6 +88,15 @@ namespace Engine {
 		u_bright_max[0] = tonemap->uniform_location("bright_max");
 		u_bright_max[1] = bright_filter->uniform_location("bright_max");
 		u_threshold = bright_filter->uniform_location("threshold");
+
+		/* setup logo */
+		quad = new Quad();
+		quad->set_scale(glm::vec3(resolution.x, resolution.x / 2, 1));
+		quad->set_position(glm::vec3(0.0, (resolution.y - resolution.x / 2) / 2 , 0.0f));
+
+		/* fullscreen quad */
+		fsquad = new Quad();
+		fsquad->set_scale(glm::vec3(resolution.x, resolution.y, 1));
 	}
 
 	void start(double seek){
@@ -82,6 +109,15 @@ namespace Engine {
 		delete pass[1];
 		delete pass[2];
 		Shader::cleanup();
+	}
+
+	static void render_logo(){
+		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
+
+		RenderTarget::clear(Color::black);
+		logoshader->bind();
+		crap->texture_bind(Shader::TEXTURE_2D_0);
+		quad->render();
 	}
 
 	static void render_geometry(){
@@ -120,21 +156,33 @@ namespace Engine {
 		Shader::upload_model_matrix(glm::mat4());
 		RenderTarget::clear(Color::magenta);
 
-
-		scene->draw(tonemap, glm::vec2(0,0), glm::vec2(resolution));
+		blendmap->with([](){
+			RenderTarget::clear(Color::black);
+			blendmix->bind();
+			fsquad->render();
+		});
 
 		tonemap->bind();
-
 		glUniform1f(u_exposure, exposure);
 		glUniform1f(u_bloom_factor, bloom_factor);
 		glUniform1f(u_bright_max[0], bright_max);
 
 		pass[2]->texture_bind(Shader::TEXTURE_BLOOM);
+		ldr->transfer(tonemap, scene);
 
-		scene->draw(tonemap, glm::vec2(0,0), glm::vec2(resolution));
+		logo->texture_bind(Shader::TEXTURE_2D_1);
+		blendmap->texture_bind(Shader::TEXTURE_2D_4);
+		ldr->draw(blend, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
 	void render(){
+		float t = global_time.get();
+
+		if ( t < 10.0f ){
+			logo->with(render_logo);
+		}
+
+		render_logo();
 		render_scene();
 		render_bloom();
 		render_blit();
