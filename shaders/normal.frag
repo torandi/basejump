@@ -58,5 +58,5 @@ void main() {
 
 	ocolor = calculate_fog(accumLighting);
 
-	ocolor.a *= texture(texture3, texcoord).r;
+	ocolor.a = 1.f;
 }
