@@ -103,7 +103,7 @@ namespace Engine {
 		blur[1]  = Shader::create_shader("/shaders/blur_horizontal");
 
 		terrain->set_position(glm::vec3(-7.5f, -2.0f,  -7.5f));
-		lights->ambient_intensity() = glm::vec3(0.1f);
+		lights->ambient_intensity() = glm::vec3(0.2f);
 		lights->num_lights() = 1;
 		lights->lights[0]->set_position(glm::normalize(glm::vec3(0, -0.5f, -1.0f)));
 		lights->lights[0]->intensity = glm::vec3(0.8f);
@@ -145,6 +145,11 @@ namespace Engine {
 		obj->set_scale(glm::vec3(8,8,8));
 
 		music = new Sound("/nx15/crapstyle.ogg");
+
+		static Color sky = Color::from_hex("a0c8db");
+		Shader::fog_t fog = { glm::vec4(sky.to_vec3(), 0.005f) };
+		fog.density = 0.3f;
+		Shader::upload_fog(fog);
 	}
 
 	void start(double seek){
@@ -270,8 +275,6 @@ namespace Engine {
 		cam.set_position(cam_pos1->at(t));
 		cam.look_at(cam_pos2->at(t));
 
-		smoke->update(dt);
-
 		/*stuff->config.spawn_position = glm::vec4(cam.position(), 0.f);
 		stuff->update_config();*/
 
@@ -316,10 +319,14 @@ namespace Engine {
 		}
 #endif
 
-		static const float begin = 5.0f;
+		static const float begin = 40.0f;
 		const float s = (t - begin) / 3.0f;
 		if ( s > 0.0 ){
 			obj->set_position(obj->position() + glm::vec3(0, s * dt, 0));
+			smoke->config.spawn_position = glm::vec4(obj->position() - glm::vec3(0.f, 0.5f, 0.f), 1.f);
+			smoke->update_config();
+			smoke->update(dt);
+
 
 			const float s2 = s * 0.3;
 			const float d = 4.5f + 0.8f * s;
