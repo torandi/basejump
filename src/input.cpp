@@ -26,8 +26,6 @@ Input::Input(){
 }
 
 Input::~Input() {
-	if(SDL_JoystickOpened(0) && joy)
-		SDL_JoystickClose(joy);
 }
 
 void Input::parse_event(const SDL_Event &event) {
