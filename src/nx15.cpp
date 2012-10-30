@@ -288,8 +288,8 @@ namespace Engine {
 		const float s = t*0.2f;
 		const float d = 7.5f;
 
-		cam.look_at(glm::vec3(0,0,0));
-		cam.set_position(glm::vec3(cos(s)*d, 2.5f, sin(s)*d));
+		//cam.look_at(glm::vec3(0,0,0));
+		//cam.set_position(glm::vec3(cos(s)*d, 2.5f, sin(s)*d));
 #endif
 	}
 }
