@@ -41,7 +41,7 @@ Terrain::Terrain(const std::string &file, float width, float vertical_scale,Text
 	data_texture_ = Texture2D::from_filename(file);
 	horizontal_scale_ = width / static_cast<float>(size_.x);
 
-	shader_ = Shader::create_shader("/shader/terrain");
+	shader_ = Shader::create_shader("/shaders/terrain");
 	material.specular = glm::vec4(0.f);
 
 	generate_terrain();
