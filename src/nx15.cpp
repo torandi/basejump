@@ -59,8 +59,8 @@ namespace Engine {
 		blendmix  = Shader::create_shader("/nx15/blendmix");
 		logoshader= Shader::create_shader("/nx15/logo");
 		colormap  = TextureArray::from_filename("/nx15/color0.png", "/nx15/color1.png", nullptr);
-		normalmap = TextureArray::from_filename("/nx15/normal0.png", "/nx15/normal1.png", nullptr);
-		terrain   = new Terrain("/nx15/terrain.png", 15.0f, 4.0f, colormap, normalmap);
+		normalmap = TextureArray::from_filename("/textures/default_normalmap.jpg", "/textures/default_normalmap.jpg", nullptr);
+		terrain   = new Terrain("/nx15/terrain.jpg", 30.0f, 4.0f, colormap, normalmap);
 		scene     = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER | RenderTarget::DOUBLE_BUFFER, GL_LINEAR);
 		logo      = new RenderTarget(resolution, GL_RGB8, GL_LINEAR);
 		blendmap  = new RenderTarget(resolution, GL_RGBA8, GL_LINEAR);
@@ -79,7 +79,7 @@ namespace Engine {
 		terrain->set_position(glm::vec3(-7.5f, -2.0f, -7.5f));
 		lights->ambient_intensity() = glm::vec3(0.1f);
 		lights->num_lights() = 1;
-		lights->lights[0]->set_position(glm::vec3(0, -0.5f, -1.0f));
+		lights->lights[0]->set_position(glm::vec3(0, -1.0f, 0.0f));
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
