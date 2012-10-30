@@ -140,8 +140,12 @@ namespace Engine {
 		Shader::upload_resolution(resolution);
 
 		scene->with([](){
+			const glm::vec3 dir = glm::normalize(cam.position() - cam.look_at());
+			const float dot = glm::dot(dir, lights->lights[0]->position());
+			const float s = glm::clamp(dot*fabsf(dot), 0.0f, 1.0f);
+
 			static Color sky = Color::from_hex("a0c8db");
-			RenderTarget::clear(sky);
+			RenderTarget::clear(Color::lerp(sky, Color::white, s));
 			render_geometry();
 		});
 	}
@@ -164,9 +168,6 @@ namespace Engine {
 		blendmap->with([](){
 			RenderTarget::clear(Color::black);
 			blendmix->bind();
-			const glm::vec3 dir = glm::normalize(cam.position() - cam.look_at());
-			const float dot = glm::dot(dir, lights->lights[0]->position());
-			glUniform1f(u_sun, dot);
 			fsquad->render();
 		});
 
