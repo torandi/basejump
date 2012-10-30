@@ -15,6 +15,7 @@
 #include "particle_system.hpp"
 #include "timetable.hpp"
 #include <glm/glm.hpp>
+#include <assimp/postprocess.h>
 
 static Shader* shader = nullptr;
 static Shader* passthru = nullptr;
@@ -83,7 +84,7 @@ namespace Engine {
 		blendmap  = new RenderTarget(resolution, GL_RGBA8, GL_LINEAR);
 		ldr       = new RenderTarget(resolution, GL_RGB8, GL_LINEAR);
 		lights    = new LightsData();
-		obj       = new RenderObject("/nx15/rocket.obj", true);
+		obj       = new RenderObject("/nx15/rocket.obj", true, aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_GenUVCoords);
 		crap      = Texture2D::from_filename("/nx15/craptastic.png");
 		white     = Texture2D::from_filename("/textures/white.jpg");
 
