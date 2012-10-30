@@ -2,35 +2,21 @@
 #include "config.h"
 #endif
 
+#include "data.hpp"
 #include "engine.hpp"
-#include "globals.hpp"
-#include "logging.hpp"
-#include "quad.hpp"
-#include "render_object.hpp"
+#include "lights_data.hpp"
 #include "rendertarget.hpp"
-#include "utils.hpp"
-#include "scene.hpp"
-#include "shader.hpp"
+#include "terrain.hpp"
 #include "time.hpp"
-#include "cl.hpp"
-#include "texture.hpp"
-#include "timetable.hpp"
 
-#include <cstdio>
-#include <cstdlib>
-#include <signal.h>
-#include <SDL/SDL.h>
-#include <GL/glew.h>
-#include <map>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include "light.hpp"
-#include "sound.hpp"
-
+static Shader* shader = nullptr;
 static Shader* passthru = nullptr;
+static TextureArray* colormap = nullptr;
+static TextureArray* normalmap = nullptr;
+static Terrain* terrain = nullptr;
+static RenderTarget* scene = nullptr;
+static LightsData* lights = nullptr;
+static Camera cam(75, 1.3f, 0.1f, 100.0f);
 extern glm::mat4 screen_ortho;   /* defined in main.cpp */
 extern Time global_time;         /* defined in main.cpp */
 extern glm::ivec2 resolution;    /* defined in main.cpp */
@@ -41,37 +27,46 @@ namespace Engine {
 	}
 
 	void init(){
-		passthru = Shader::create_shader("/shaders/passthru");
+		passthru  = Shader::create_shader("/shaders/passthru");
+		shader    = Shader::create_shader("/shaders/normal");
+		colormap  = TextureArray::from_filename("/color0.png", "/color1.png", nullptr);
+		normalmap = TextureArray::from_filename("/textures/default_normalmap.jpg", "/textures/default_normalmap.jpg", nullptr);
+		terrain   = new Terrain("/nx15/terrain.png", 15.0f, 4.0f, colormap, normalmap);
+		scene     = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER, GL_LINEAR);
+		lights    = new LightsData();
+
+		terrain->set_position(glm::vec3(-7.5f, -2.0f, -7.5f));
+		lights->ambient_intensity() = glm::vec3(0.1f);
+		lights->num_lights() = 1;
+		lights->lights[0]->set_position(glm::vec3(0, -0.5f, -1.f));
+		lights->lights[0]->intensity = glm::vec3(0.8f);
+		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 	}
 
 	void start(double seek){
-		// sound->play();
-		// if(global_time.sync_to_music(sound)) {
-		// 	Logging::verbose("Syncinc to music!\n");
-		// } else {
-		// 	Logging::warning("Warning! Syncing disabled!\n");
-		// }
-		// if(seek > 0.1) {
-		// 	sound->seek(seek);
-		// }
 	}
 
 	void cleanup(){
-
-	}
-
-	static void render_display(){
-		RenderTarget::clear(Color::magenta);
-		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
+		delete terrain;
+		delete scene;
+		Shader::cleanup();
 	}
 
 	void render(){
-		render_display();
+		Shader::upload_projection_view_matrices(cam.projection_matrix(), cam.view_matrix());
+		Shader::upload_model_matrix(glm::mat4());
+		Shader::upload_lights(*lights);
+		Shader::upload_blank_material();
+		Shader::upload_resolution(resolution);
+		RenderTarget::clear(Color::blue);
+		terrain->render();
 	}
 
 	void update(float t, float dt){
-		if(t >= 120) {
-			Engine::terminate();
-		}
+		const float s = t*0.5f;
+		const float d = 7.5f;
+
+		cam.look_at(glm::vec3(0,0,0));
+		cam.set_position(glm::vec3(cos(s)*d, 2.5f, sin(s)*d));
 	}
 }
