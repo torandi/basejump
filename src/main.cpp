@@ -17,6 +17,8 @@
 #include "texture.hpp"
 #include "timetable.hpp"
 #include "quad.hpp"
+#include "config.hpp"
+#include "sound.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -139,6 +141,11 @@ static void init(const char* title){
 	Shader::fog_t fog = { glm::vec4(0.584f, 0.698f, 0.698f, 1.f), 0.005f };
 	Shader::upload_fog(fog);
 
+	Config config = Config::parse("/graphics.cfg");
+
+	MovableLight::shadowmap_resolution = glm::ivec2(config["/shadowmap/resolution"]->as_vec2());
+	MovableLight::shadowmap_far_factor = config["/shadowmap/far_factor"]->as_float();
+
 	Loading::init(resolution);
 
 	static const char* resources[] = {
@@ -229,6 +236,7 @@ static void render(){
 
 static void update(float dt){
 	float t = global_time.get();
+	Sound::update_system();
 	Shader::upload_frameinfo(t);
 	Engine::update(t, dt);
 }

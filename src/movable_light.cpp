@@ -9,10 +9,13 @@
 #include <cfloat>
 #include <glm/gtc/matrix_transform.hpp>
 
+glm::ivec2 MovableLight::shadowmap_resolution = glm::ivec2(4096, 4096);
+float MovableLight::shadowmap_far_factor = 0.5f;
+
 MovableLight::MovableLight(Light * light)
 	: MovableObject(light->position)
 	, data(light)
-	, shadow_map(glm::ivec2(2*2048, 2*2048))
+	, shadow_map(shadowmap_resolution)
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
@@ -26,7 +29,7 @@ MovableLight::MovableLight(Light * light)
 
 MovableLight::MovableLight() :
 	  data(new Light())
-	, shadow_map(glm::ivec2(2*2048, 2*2048))
+	, shadow_map(shadowmap_resolution)
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
@@ -39,7 +42,7 @@ MovableLight::MovableLight() :
 MovableLight::MovableLight(const MovableLight &ml)
 	: MovableObject(ml.position())
 	, data(ml.data)
-	, shadow_map(glm::ivec2(2*2048, 2*2048))
+	, shadow_map(shadowmap_resolution)
 	, constant_attenuation(data->constant_attenuation)
 	, linear_attenuation(data->linear_attenuation)
 	, quadratic_attenuation(data->quadratic_attenuation)
@@ -55,7 +58,7 @@ void MovableLight::update() {
 	data->position = position_;
 	data->is_directional = (type == DIRECTIONAL_LIGHT);
 	data->matrix = shadow_map.matrix;
-	data->shadowmap_scale = glm::vec2(1.f / static_cast<float>(shadow_map.resolution.x), 1.f / static_cast<float>(shadow_map.resolution.y));
+	data->shadowmap_scale = glm::vec2(1.f / shadow_map.resolution.x, 1.f / shadow_map.resolution.y);
 	if(shadow_map.fbo != NULL) {
 		shadow_map.fbo->depth_bind((Shader::TextureUnit) (Shader::TEXTURE_SHADOWMAP_0 + data->shadowmap_index));
 	}
@@ -95,7 +98,7 @@ void MovableLight::render_shadow_map(const Camera &camera, std::function<void(co
 
 	float near, far;
 	near = camera.near();
-	far = camera.far() * 0.5f;
+	far = camera.far() * shadowmap_far_factor;
 
 	glm::mat4 view_matrix, projection_matrix;
 

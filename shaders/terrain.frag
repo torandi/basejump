@@ -50,16 +50,16 @@ void main() {
 
 	float shininess = 18.f;
 	vec4 accumLighting = vec4(0.f); originalColor * vec4(Lgt.ambient_intensity,1.f);
-	
+
 	for(int light = 0; light < Lgt.num_lights; ++light) {
 			accumLighting += compute_lighting(
-				Lgt.lights[light], originalColor, 
-				pos_tangent_space, normal_map, camera_dir, 
+				Lgt.lights[light], originalColor,
+				pos_tangent_space, normal_map, camera_dir,
 				norm_normal, norm_tangent, norm_bitangent,
 					Mtl.shininess, Mtl.specular) *
 			shadow_coefficient(Lgt.lights[light], position, shadowmap_coord[light]);
 	}
 
-	ocolor = calculate_fog(clamp(accumLighting,0.0, 1.0));
+	ocolor = calculate_fog(accumLighting);
 	ocolor.a = 1.f;
 }

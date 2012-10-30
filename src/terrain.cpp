@@ -23,8 +23,8 @@ Terrain::~Terrain() {
 	free_surface();
 }
 
-Terrain::Terrain(const std::string &file, float horizontal_scale, float vertical_scale,TextureArray * color_, TextureArray * normal_) :
-		horizontal_scale_(horizontal_scale),
+Terrain::Terrain(const std::string &file, float width, float vertical_scale,TextureArray * color_, TextureArray * normal_) :
+		horizontal_scale_(0.0f),
 		vertical_scale_(vertical_scale),
 		map_(nullptr) {
 	textures_[0] = color_;
@@ -39,8 +39,9 @@ Terrain::Terrain(const std::string &file, float horizontal_scale, float vertical
 
 	data_map_  = TextureBase::load_image(file , &size_);
 	data_texture_ = Texture2D::from_filename(file);
+	horizontal_scale_ = width / static_cast<float>(size_.x);
 
-	shader_ = Shader::create_shader("/shader/terrain");
+	shader_ = Shader::create_shader("/shaders/terrain");
 	material.specular = glm::vec4(0.f);
 
 	generate_terrain();
@@ -53,7 +54,7 @@ void Terrain::free_surface() {
 	}
 }
 
-const glm::ivec2 &Terrain::size() const {
+const glm::ivec2 &Terrain::heightmap_size() const {
 	return size_;
 }
 

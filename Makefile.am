@@ -6,8 +6,8 @@ engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${C
 AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src ${engine_CXXFLAGS} ${VENDOR_CFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo nox2 nx15
-noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps
+bin_PROGRAMS = demo nox2 nx15_demo
+noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_terrain examples_particles
 TESTS = test/utils test/data
 
 if BUILD_EDITOR
@@ -76,10 +76,10 @@ nox2_LDADD = libfrob.a ${engine_LIBS}
 nox2_LDFLAGS = -pthread
 nox2_SOURCES = src/main.cpp src/nox2.cpp
 
-nx15_CXXFLAGS = ${AM_CXXFLAGS}
-nx15_LDADD = libfrob.a ${engine_LIBS}
-nx15_LDFLAGS = -pthread
-nx15_SOURCES = src/main.cpp src/nx15.cpp
+nx15_demo_CXXFLAGS = ${AM_CXXFLAGS}
+nx15_demo_LDADD = libfrob.a ${engine_LIBS}
+nx15_demo_LDFLAGS = -pthread
+nx15_demo_SOURCES = src/main.cpp src/nx15.cpp
 
 examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
 examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
@@ -89,9 +89,17 @@ examples_shadowmaps_CXXFLAGS = ${AM_CXXFLAGS}
 examples_shadowmaps_SOURCES = src/main.cpp examples/shadowmaps/shadowmaps.cpp
 examples_shadowmaps_LDADD = libfrob.a ${engine_LIBS}
 
+examples_particles_CXXFLAGS = ${AM_CXXFLAGS}
+examples_particles_SOURCES = src/main.cpp examples/particles/particles.cpp
+examples_particles_LDADD = libfrob.a ${engine_LIBS}
+
 examples_blur_CXXFLAGS = ${AM_CXXFLAGS}
 examples_blur_SOURCES = src/main.cpp examples/blur/blur.cpp
 examples_blur_LDADD = libfrob.a ${engine_LIBS}
+
+examples_terrain_CXXFLAGS = ${AM_CXXFLAGS}
+examples_terrain_SOURCES = src/main.cpp examples/terrain/terrain.cpp
+examples_terrain_LDADD = libfrob.a ${engine_LIBS}
 
 editor_CXXFLAGS = ${AM_CXXFLAGS} $(gtk3_CFLAGS)
 editor_LDFLAGS = -Wl,--export-dynamic -pthread
