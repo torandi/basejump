@@ -11,6 +11,8 @@
 #include "time.hpp"
 #include "globals.hpp"
 #include "quad.hpp"
+#include "config.hpp"
+#include "particle_system.hpp"
 #include <glm/glm.hpp>
 
 static Shader* shader = nullptr;
@@ -41,6 +43,12 @@ static Texture2D* crap = nullptr;
 static Texture2D* white = nullptr;
 static Quad* quad = nullptr;
 static Quad* fsquad = nullptr;
+
+static TextureArray *smoke_textures = nullptr;
+static TextureArray *fire_textures = nullptr;
+static ParticleSystem *smoke = nullptr;
+static ParticleSystem *fire = nullptr;
+
 static Camera cam(75, 1.3f, 0.1f, 100.0f);
 extern glm::mat4 screen_ortho;   /* defined in main.cpp */
 extern Time global_time;         /* defined in main.cpp */
@@ -89,6 +97,15 @@ namespace Engine {
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
+		fire_textures = TextureArray::from_filename("/textures/fire1.png", "/textures/fire2.png", "/textures/fire3.png", nullptr);
+		smoke_textures = TextureArray::from_filename("/nx15/smoke.png", nullptr);
+
+		Config particle_config = Config::parse("/nx15/particles.cfg");
+
+		smoke = new ParticleSystem(20000, smoke_textures);
+		smoke->read_config(particle_config["/particles/smoke"]);
+		smoke->update_config();
+
 		u_exposure = tonemap->uniform_location("exposure");
 		u_bloom_factor = tonemap->uniform_location("bloom_factor");
 		u_bright_max[0] = tonemap->uniform_location("bright_max");
@@ -104,6 +121,9 @@ namespace Engine {
 		/* fullscreen quad */
 		fsquad = new Quad();
 		fsquad->set_scale(glm::vec3(resolution.x, resolution.y, 1));
+
+		cam.set_position(glm::vec3(7.267048, 2.076503, 14.047379));
+		cam.look_at(glm::vec3(9.275319, 1.763391, 14.40433));
 	}
 
 	void start(double seek){
@@ -155,6 +175,7 @@ namespace Engine {
 			static Color sky = Color::from_hex("a0c8db");
 			RenderTarget::clear(Color::lerp(sky, Color::white, s));
 			render_geometry();
+			smoke->render();
 		});
 	}
 
@@ -209,10 +230,13 @@ namespace Engine {
 #ifdef ENABLE_INPUT
 	void static print_values() {
 		printf("Exposure: %f\n, bloom: %f\n, bright: [%f, %f]\n", exposure, bloom_factor, bright_max, bright_threshold);
+		printf("Position: %f, %f, %f\n", cam.position().x, cam.position().y, cam.position().z) ;
 	}
 #endif
 
 	void update(float t, float dt){
+		smoke->update(dt);
+
 #ifdef ENABLE_INPUT
 		input.update_object(cam, dt);
 		if(input.down(Input::ACTION_0)) {
