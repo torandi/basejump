@@ -211,16 +211,11 @@ namespace Engine {
 	}
 
 	static void render_geometry(){
-		terrain->render();
+		terrain->render_geometry();
 
 		if ( global_time.get() > 80 ){
-
 			return;
 		}
-
-		normal->bind();
-		Shader::upload_blank_material();
-		Shader::upload_projection_view_matrices(cam.projection_matrix(), cam.view_matrix());
 		obj->render();
 	}
 
@@ -242,7 +237,18 @@ namespace Engine {
 
 			static Color sky = Color::from_hex("a0c8db");
 			RenderTarget::clear(Color::lerp(sky, Color::white, s));
-			render_geometry();
+
+			terrain->render();
+
+			if ( global_time.get() > 80 ){
+
+				return;
+			}
+
+			normal->bind();
+			obj->render();
+	
+
 			fire->render();
 			smoke->render();
 			stuff->render();
