@@ -70,6 +70,7 @@
     <ClInclude Include="..\src\camera.hpp" />
     <ClInclude Include="..\src\cl.hpp" />
     <ClInclude Include="..\src\color.hpp" />
+    <ClInclude Include="..\src\config.hpp" />
     <ClInclude Include="..\src\data.hpp" />
     <ClInclude Include="..\src\engine.hpp" />
     <ClInclude Include="..\src\forward.hpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="..\src\movable_light.hpp" />
     <ClInclude Include="..\src\movable_object.hpp" />
     <ClInclude Include="..\src\particle_system.hpp" />
+    <ClInclude Include="..\src\path.hpp" />
     <ClInclude Include="..\src\platform.hpp" />
     <ClInclude Include="..\src\quad.hpp" />
     <ClInclude Include="..\src\rendertarget.hpp" />
@@ -106,6 +108,7 @@
     <ClCompile Include="..\src\camera.cpp" />
     <ClCompile Include="..\src\cl.cpp" />
     <ClCompile Include="..\src\color.cpp" />
+    <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\data.cpp" />
     <ClCompile Include="..\src\engine.cpp" />
     <ClCompile Include="..\src\globals.cpp" />
@@ -120,6 +123,7 @@
     <ClCompile Include="..\src\movable_light.cpp" />
     <ClCompile Include="..\src\movable_object.cpp" />
     <ClCompile Include="..\src\particle_system.cpp" />
+    <ClCompile Include="..\src\path.cpp" />
     <ClCompile Include="..\src\quad.cpp" />
     <ClCompile Include="..\src\rendertarget.cpp" />
     <ClCompile Include="..\src\render_object.cpp" />
