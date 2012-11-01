@@ -47,6 +47,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Configuration)\nx15\</OutDir>
     <IntDir>$(SolutionDir)$(Configuration)\nx15\</IntDir>
+    <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -78,7 +79,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
