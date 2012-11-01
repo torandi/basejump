@@ -2,6 +2,10 @@
 #error This header should only be included when compiling under MSVC.
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+
 /* missing definition of ssize_t (signed version of size_t) */
 #ifdef  _WIN64
 typedef unsigned __int64 ssize_t;
@@ -44,3 +48,10 @@ typedef unsigned int useconds_t;
 static inline int isblank(char c) { return (c == ' ' || c == '\t'); };
 static inline double round(double x){ return x >= 0.0  ? floor(x + 0.5)   : ceil(x - 0.5);   }
 static inline float  roundf(float x){ return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f); }
+
+static int vasprintf(char **strp, const char *fmt, va_list ap) {
+	int len = _vscprintf(fmt, ap);
+	*strp = (char*) malloc(len + 1); /* Include terminating null ptr */
+	vsprintf(*strp, fmt, ap);
+	return len;
+}
