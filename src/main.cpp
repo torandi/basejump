@@ -323,7 +323,7 @@ static void parse_argv(int argc, char* argv[]){
 			set_resolution(optarg);
 
 		case 'f': /* --fullscreen */
-			fullscreen = false;
+			fullscreen = true;
 			break;
 
 		case 'l':
