@@ -32,9 +32,16 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	Logging::verbose("Created particle system with %d particles\n", max_num_particles);
 
 	//Empty vec4s:
-	vertex_t * empty = new vertex_t[max_num_particles];
 
-	for(int i=0;i<max_num_particles; ++i) {
+	int buf_size = max_num_particles;
+
+#ifdef ATI_OPENCL_FULHACK
+	if(max_num_particles < 50000) buf_size = 50000;
+#endif
+
+	vertex_t * empty = new vertex_t[buf_size];
+
+	for(int i=0;i<buf_size; ++i) {
 		empty[i].position = glm::vec4(0.f);
 		empty[i].color = glm::vec4(0.f);
 		empty[i].scale = 0.f;
@@ -46,7 +53,8 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	checkForGLErrors("[ParticleSystem] Generate GL buffer");
 
 	glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t)*max_num_particles, empty, GL_DYNAMIC_DRAW);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t)*buf_size, empty, GL_DYNAMIC_DRAW);
 
 	checkForGLErrors("[ParticleSystem] Buffer vertices");
 
