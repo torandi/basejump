@@ -156,7 +156,7 @@ static void init(const char* title){
 		"shader:/shaders/passthru",
 	};
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), Loading::progress);
-	Engine::autoload_scenes();
+	//Engine::autoload_scenes();
 	CL::init();
 	srand((unsigned int)time(0));
 
