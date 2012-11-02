@@ -26,7 +26,7 @@ namespace Engine {
 	}
 
 	void init(){
-		Data::add_search_path(srcdir "/examples/shafts");
+		Data::add_search_path(srcdir "/examples/shadowmaps");
 
 		lights = new LightsData();
 
@@ -61,25 +61,26 @@ namespace Engine {
 	}
 
 	static void render_geometry() {
-		RenderTarget::clear(Color::green);
-		shader->bind();
 		obj->render();
-		Shader::upload_blank_material();
-		plane->render();
+		plane->render_geometry();
 	}
 
 	static void render_scene(){
+		Shader::upload_model_matrix(glm::mat4());
 		lights->lights[0]->render_shadow_map(cam, [](const glm::mat4 &m) -> void  {
 				render_geometry();
 		});
 
 		Shader::upload_projection_view_matrices(cam.projection_matrix(), cam.view_matrix());
-		Shader::upload_model_matrix(glm::mat4());
 		Shader::upload_lights(*lights);
 		Shader::upload_blank_material();
 
 		scene->with([](){
-				render_geometry();
+				RenderTarget::clear(Color::green);
+				shader->bind();
+				obj->render();
+				Shader::upload_blank_material();
+				plane->render();
 		});
 	}
 
@@ -96,14 +97,7 @@ namespace Engine {
 	}
 
 	void update(float t, float dt){
-		//obj->yaw(dt);
-
-#ifdef ENABLE_INPUT
-		input.update_object(cam, dt);
-
-		if(input.has_changed(Input::ACTION_0, 0.1) && input.current_value(Input::ACTION_0) > 0.9) {
-			printf("%f, %f, %f\n", cam.position().x, cam.position().y, cam.position().z);
-		}
-#endif
+		cam.relative_move(glm::vec3(dt, 0.f, 0.f));
+		cam.look_at(glm::vec3(0,0,0));
 	}
 }
