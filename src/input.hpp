@@ -31,6 +31,10 @@ class Input {
 			ACTION_1,
 			ACTION_2,
 			ACTION_3,
+			ACTION_4,
+			ACTION_5,
+			ACTION_6,
+			ACTION_7,
 			START,
 			NUM_ACTIONS
 		};
@@ -46,6 +50,7 @@ class Input {
 
 		bool button_down(int btn);
 
+		bool down(Input::input_action_t action);
 		bool has_changed(input_action_t action, float epsilon) const;
 
 		float normalized_trigger_value(int axis);

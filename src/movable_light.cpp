@@ -23,7 +23,7 @@ MovableLight::MovableLight(Light * light)
 	, intensity(data->intensity)
 	, type(MovableLight::DIRECTIONAL_LIGHT)
 	{
-		shadowmap_shader = Shader::create_shader("/shaders/passthru");
+		shadowmap_shader = Shader::create_shader("/shaders/shadowmap");
 		update();
 	}
 
@@ -36,7 +36,7 @@ MovableLight::MovableLight() :
 	, shadow_bias(data->shadow_bias)
 	, intensity(data->intensity)
 	{
-		shadowmap_shader = Shader::create_shader("/shaders/passthru");
+		shadowmap_shader = Shader::create_shader("/shaders/shadowmap");
 	}
 
 MovableLight::MovableLight(const MovableLight &ml)
@@ -49,7 +49,7 @@ MovableLight::MovableLight(const MovableLight &ml)
 	, shadow_bias(data->shadow_bias)
 	, intensity(data->intensity)
 	{
-		shadowmap_shader = Shader::create_shader("/shaders/passthru");
+		shadowmap_shader = Shader::create_shader("/shaders/shadowmap");
 	}
 
 MovableLight::~MovableLight() { }
@@ -198,7 +198,7 @@ void MovableLight::render_shadow_map(const Camera &camera, std::function<void(co
 }
 
 MovableLight::shadow_map_t::shadow_map_t(glm::ivec2 size) : resolution(size), fbo(nullptr), matrix(1.f){
-	texture = Texture2D::from_filename("/textures/white.png");
+	texture = Texture2D::from_filename("/textures/white.jpg");
 }
 
 MovableLight::shadow_map_t::~shadow_map_t() {

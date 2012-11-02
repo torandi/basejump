@@ -10,12 +10,11 @@ public:
 
 	/**
 	 * Upload material attributes and bind texture units */
-	void bind();
+	void bind() const;
 
 	TextureBase* texture;
 	TextureBase* normal_map;
 	TextureBase* specular_map;
-	TextureBase* alpha_map;
 };
 
 #endif /* MATERIAL_H */

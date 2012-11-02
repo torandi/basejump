@@ -9,6 +9,7 @@
 #include "utils.hpp"
 #include "lights_data.hpp"
 #include "data.hpp"
+#include "material.hpp"
 
 #include <sstream>
 #include <stdexcept>
@@ -426,14 +427,8 @@ void Shader::upload_material(const Shader::material_t &material) {
 }
 
 void Shader::upload_blank_material() {
-	material_t m;
-	m.shininess = 0;
-	m.specular = glm::vec4(0,0,0,0);
-	m.diffuse = glm::vec4(1.f,1.f,1.f,1.f);
-	m.ambient = glm::vec4(1.f,1.f,1.f,1.f);
-	m.emission = glm::vec4(0,0,0,0);
-
-	upload_material(m);
+	static const Material blank_material;
+	blank_material.bind();
 }
 
 void Shader::upload_camera(const Camera &camera) {

@@ -27,12 +27,21 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	run_kernel_  = CL::load_kernel(program_, "run_particles");
 	spawn_kernel_  = CL::load_kernel(program_, "spawn_particles");
 
+	shader_ = Shader::create_shader("/shaders/particles");
+
 	Logging::verbose("Created particle system with %d particles\n", max_num_particles);
 
 	//Empty vec4s:
-	vertex_t * empty = new vertex_t[max_num_particles];
 
-	for(int i=0;i<max_num_particles; ++i) {
+	int buf_size = max_num_particles;
+
+#ifdef ATI_OPENCL_FULHACK
+	if(max_num_particles < 50000) buf_size = 50000;
+#endif
+
+	vertex_t * empty = new vertex_t[buf_size];
+
+	for(int i=0;i<buf_size; ++i) {
 		empty[i].position = glm::vec4(0.f);
 		empty[i].color = glm::vec4(0.f);
 		empty[i].scale = 0.f;
@@ -44,7 +53,8 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	checkForGLErrors("[ParticleSystem] Generate GL buffer");
 
 	glBindBuffer(GL_ARRAY_BUFFER, gl_buffer_);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t)*max_num_particles, empty, GL_DYNAMIC_DRAW);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t)*buf_size, empty, GL_DYNAMIC_DRAW);
 
 	checkForGLErrors("[ParticleSystem] Buffer vertices");
 
@@ -289,6 +299,8 @@ void ParticleSystem::update(float dt) {
 
 void ParticleSystem::render(const glm::mat4&  m) {
 
+	shader_->bind();
+
 	Shader::push_vertex_attribs();
 
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
@@ -363,6 +375,7 @@ void ParticleSystem::read_config(const ConfigEntry * cfg) {
 	config.birth_color = cfg->find("birth_color", true)->as_vec4();
 	config.death_color = cfg->find("death_color", true)->as_vec4();
 	config.motion_rand = glm::vec4(cfg->find("motion_rand", true)->as_vec3(), 1.f);
+	config.avg_spawn_velocity = glm::vec4(cfg->find("avg_spawn_velocity", true)->as_vec3(), 0.f);
 	config.spawn_velocity_var = glm::vec4(cfg->find("spawn_velocity_var", true)->as_vec3(), 1.f);
 
 	config.wind_velocity = glm::vec4(cfg->find("wind_velocity", true)->as_vec3(), 1.f);
