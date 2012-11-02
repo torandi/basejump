@@ -199,12 +199,6 @@ void RenderObject::pre_render() {
 			mtl_data.specular_map = load_texture(p);
 		}
 
-		if(mtl->GetTextureCount(aiTextureType_OPACITY) > 0 &&
-		   mtl->GetTexture(aiTextureType_OPACITY, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-			const std::string p(path.data);
-			mtl_data.alpha_map = load_texture(p);
-		}
-
 		aiString name;
 		if(AI_SUCCESS == mtl->Get(AI_MATKEY_NAME, name))
 			Logging::verbose("Loaded material %d %s\n", i, name.data);

@@ -169,10 +169,6 @@ Texture2D* Texture2D::default_specularmap(){
 	return from_filename("/textures/white.jpg");
 }
 
-Texture2D* Texture2D::default_alphamap(){
-	return from_filename("/textures/white.jpg");
-}
-
 Texture2D::Texture2D(const std::string& filename, bool mipmap)
 	: TextureBase()
 	, _texture(0) {
