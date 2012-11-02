@@ -23,14 +23,13 @@ static Shader* shader = nullptr;
 static Shader* passthru = nullptr;
 static Shader* tonemap = nullptr;
 static Shader* bright_filter = nullptr;
-static GLuint u_exposure, u_bloom_factor, u_bright_max[2], u_threshold, u_sun, u_t1, u_t2;
+static GLuint u_exposure[2], u_bloom_factor, u_bright_max[2], u_sun, u_t1, u_t2;
 
 static Sound * music = nullptr;
 
-static float exposure = 1.2f;
-static float bloom_factor = 2.f;
-static float bright_max = 1.20f;
-static float bright_threshold = 0.90f;
+static float exposure = 1.5f;
+static float bloom_factor = 0.8f;
+static float bright_max = 0.8f;
 
 static Shader* normal = nullptr;
 static Shader* blend = nullptr;
@@ -66,7 +65,7 @@ extern glm::ivec2 resolution;    /* defined in main.cpp */
 PointTable * cam_pos1;
 PointTable * cam_pos2;
 
-static RenderTarget* pass[3] = {nullptr, nullptr, nullptr};
+static RenderTarget* pass[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
 static Shader* blur[2] = {nullptr, nullptr};
 
 namespace Engine {
@@ -105,6 +104,8 @@ namespace Engine {
 		pass[0]  = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
 		pass[1]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
 		pass[2]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
+		pass[3]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
+		pass[4]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
 
 		blur[0]  = Shader::create_shader("/shaders/blur_vertical");
 		blur[1]  = Shader::create_shader("/shaders/blur_horizontal");
@@ -134,11 +135,11 @@ namespace Engine {
 		fire->read_config(particle_config["/particles/fire"]);
 		fire->update_config();
 
-		u_exposure = tonemap->uniform_location("exposure");
+		u_exposure[0] = tonemap->uniform_location("exposure");
 		u_bloom_factor = tonemap->uniform_location("bloom_factor");
 		u_bright_max[0] = tonemap->uniform_location("bright_max");
 		u_bright_max[1] = bright_filter->uniform_location("bright_max");
-		u_threshold = bright_filter->uniform_location("threshold");
+		u_exposure[1] = bright_filter->uniform_location("exposure");
 		u_sun = blendmix->uniform_location("sun");
 		u_t1 = blendmix->uniform_location("t");
 		u_t2 = logoshader->uniform_location("q");
@@ -184,6 +185,8 @@ namespace Engine {
 		delete pass[0];
 		delete pass[1];
 		delete pass[2];
+		delete pass[3];
+		delete pass[4];
 		delete music;
 		Shader::cleanup();
 	}
@@ -257,12 +260,18 @@ namespace Engine {
 
 	static void render_bloom() {
 		bright_filter->bind();
-		glUniform1f(u_threshold, bright_threshold);
+		glUniform1f(u_exposure[1], exposure);
 		glUniform1f(u_bright_max[1], bright_max);
+
+		pass[0]->with([]() {
+			RenderTarget::clear(Color::black);
+		});
 
 		pass[0]->transfer(bright_filter, scene);
 		pass[1]->transfer(blur[0], pass[0]);
 		pass[2]->transfer(blur[1], pass[1]);
+		pass[3]->transfer(blur[0], pass[2]);
+		pass[4]->transfer(blur[1], pass[3]);
 	}
 
 	static void render_blit(){
@@ -292,7 +301,7 @@ namespace Engine {
 		});
 
 		tonemap->bind();
-		glUniform1f(u_exposure, exposure);
+		glUniform1f(u_exposure[0], exposure);
 		glUniform1f(u_bloom_factor, bloom_factor);
 		glUniform1f(u_bright_max[0], bright_max);
 
@@ -303,6 +312,7 @@ namespace Engine {
 		white->texture_bind(Shader::TEXTURE_BLEND_2);
 		blendmap->texture_bind(Shader::TEXTURE_BLEND_S);
 		ldr->draw(blend, glm::vec2(0,0), glm::vec2(resolution));
+		//pass[2]->draw(passthru, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
 	void render(){
@@ -321,7 +331,7 @@ namespace Engine {
 
 #ifdef ENABLE_INPUT
 	void static print_values() {
-		printf("Exposure: %f\n, bloom: %f\n, bright: [%f, %f]\n", exposure, bloom_factor, bright_max, bright_threshold);
+		printf("Exposure: %f\n, bloom: %f\n, bright_max: %f\n", exposure, bloom_factor, bright_max);
 		printf("Position: %f, %f, %f\n", cam.position().x, cam.position().y, cam.position().z) ;
 	}
 #endif
@@ -363,15 +373,6 @@ namespace Engine {
 		}
 		if(input.down(Input::ACTION_5)) {
 			bright_max += 0.1;
-			print_values();
-		}
-
-		if(input.down(Input::ACTION_6)) {
-			bright_threshold -= 0.1;
-			print_values();
-		}
-		if(input.down(Input::ACTION_7)) {
-			bright_threshold += 0.1;
 			print_values();
 		}
 #endif
