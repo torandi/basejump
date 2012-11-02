@@ -53,6 +53,7 @@ libfrob_a_SOURCES = \
 	src/utils.cpp src/utils.hpp \
 	src/quad.cpp src/quad.hpp \
 	src/techniques/blur.cpp src/techniques/blur.hpp \
+	src/techniques/hdr.cpp src/techniques/hdr.hpp \
 	src/techniques/temporalblur.cpp src/techniques/temporalblur.hpp \
 	src/scene/nox.cpp \
 	src/scene/particles.cpp \
