@@ -27,9 +27,9 @@ static GLuint u_exposure[2], u_bloom_factor, u_bright_max[2], u_sun, u_t1, u_t2;
 
 static Sound * music = nullptr;
 
-static float exposure = 1.5f;
-static float bloom_factor = 0.8f;
-static float bright_max = 0.8f;
+static float exposure = 1.7f;
+static float bloom_factor = 1.0f;
+static float bright_max = 1.6f;
 
 static Shader* normal = nullptr;
 static Shader* blend = nullptr;
@@ -65,7 +65,7 @@ extern glm::ivec2 resolution;    /* defined in main.cpp */
 PointTable * cam_pos1;
 PointTable * cam_pos2;
 
-static RenderTarget* pass[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+static RenderTarget* pass[3] = {nullptr, nullptr, nullptr};
 static Shader* blur[2] = {nullptr, nullptr};
 
 namespace Engine {
@@ -104,8 +104,6 @@ namespace Engine {
 		pass[0]  = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
 		pass[1]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
 		pass[2]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
-		pass[3]  = new RenderTarget(resolution/2, GL_RGB8, 0, GL_LINEAR);
-		pass[4]  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
 
 		blur[0]  = Shader::create_shader("/shaders/blur_vertical");
 		blur[1]  = Shader::create_shader("/shaders/blur_horizontal");
@@ -185,8 +183,6 @@ namespace Engine {
 		delete pass[0];
 		delete pass[1];
 		delete pass[2];
-		delete pass[3];
-		delete pass[4];
 		delete music;
 		Shader::cleanup();
 	}
@@ -239,7 +235,7 @@ namespace Engine {
 			const float s = glm::clamp(dot*fabsf(dot), 0.0f, 1.0f);
 
 			static Color sky = Color::from_hex("a0c8db");
-			RenderTarget::clear(Color::lerp(sky, Color::white, s));
+			RenderTarget::clear(Color::lerp(sky, Color(glm::vec3(2.f)), s));
 
 			terrain->render();
 
@@ -270,8 +266,6 @@ namespace Engine {
 		pass[0]->transfer(bright_filter, scene);
 		pass[1]->transfer(blur[0], pass[0]);
 		pass[2]->transfer(blur[1], pass[1]);
-		pass[3]->transfer(blur[0], pass[2]);
-		pass[4]->transfer(blur[1], pass[3]);
 	}
 
 	static void render_blit(){
