@@ -43,7 +43,7 @@ namespace Engine {
 		lights->ambient_intensity() = glm::vec3(0.1f);
 		lights->num_lights() = 1;
 		lights->lights[0]->set_position(glm::vec3(0, -0.5f, -1.f));
-		lights->lights[0]->intensity = glm::vec3(0.8f);
+		lights->lights[0]->intensity = glm::vec3(1.0f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
 		cam.set_position(glm::vec3(1.401389, 1.000616, 0.532484));
