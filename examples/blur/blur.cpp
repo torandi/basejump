@@ -8,15 +8,15 @@
 #include "render_object.hpp"
 #include "rendertarget.hpp"
 #include "techniques/blur.hpp"
+#include "techniques/temporalblur.hpp"
 #include "utils.hpp"
 
 static RenderObject* obj = nullptr;
 static RenderTarget* scene = nullptr;
-static RenderTarget* pass = nullptr;
 static Technique::Blur * blur = nullptr;
+static Technique::TemporalBlur * temporal_blur = nullptr;
 static Shader* shader = nullptr;
 static Shader* split = nullptr;
-static Shader* blur_temporal = nullptr;
 static Camera cam(75, 1.3f, 0.1f, 10);
 extern glm::mat4 screen_ortho; /* defined in main.cpp */
 extern glm::ivec2 resolution; /* defined in main.cpp */
@@ -31,15 +31,11 @@ namespace Engine {
 
 		obj      = new RenderObject("/models/nox.obj", true);
 		scene    = new RenderTarget(resolution, GL_RGB8, 0, GL_LINEAR);
-		pass  = new RenderTarget(resolution/4, GL_RGB8, 0, GL_LINEAR);
 		shader   = Shader::create_shader("/shaders/normal");
 		split    = Shader::create_shader("/shaders/split");
-		blur_temporal  = Shader::create_shader("/shaders/blur_temporal");
 
 		blur = new Technique::Blur(resolution);
-
-		blur_temporal->bind();
-		glUniform1f(blur_temporal->uniform_location("factor"), 0.5f);
+		temporal_blur = new Technique::TemporalBlur(resolution);
 	}
 
 	void start(double seek) {
@@ -47,10 +43,10 @@ namespace Engine {
 	}
 
 	void cleanup(){
-		delete pass;
 		delete scene;
 		delete obj;
 		delete blur;
+		delete temporal_blur;
 		Shader::cleanup();
 	}
 
@@ -65,11 +61,9 @@ namespace Engine {
 	}
 
 	static void render_blur(){
-
 		blur->render(scene);
 
-		pass->texture_bind(Shader::TEXTURE_2D_1); /* for temporal blur */
-		pass->transfer(blur_temporal, blur);
+		temporal_blur->render(blur);
 	}
 
 	static void render_blit(){
@@ -77,7 +71,7 @@ namespace Engine {
 		Shader::upload_model_matrix(glm::mat4());
 		RenderTarget::clear(Color::magenta);
 		scene->texture_bind(Shader::TEXTURE_2D_1); /* for comparing */
-		pass->draw(split, glm::vec2(0,0), glm::vec2(resolution));
+		temporal_blur->draw(split, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
 	void render(){
