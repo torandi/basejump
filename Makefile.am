@@ -7,7 +7,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = demo nox2
-noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain
+noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain examples_hdr
 TESTS = test/utils test/data
 
 if BUILD_EDITOR
@@ -98,6 +98,10 @@ examples_blur_LDADD = libfrob.a ${engine_LIBS}
 examples_terrain_CXXFLAGS = ${AM_CXXFLAGS}
 examples_terrain_SOURCES = src/main.cpp examples/terrain/terrain.cpp
 examples_terrain_LDADD = libfrob.a ${engine_LIBS}
+
+examples_hdr_CXXFLAGS = ${AM_CXXFLAGS}
+examples_hdr_SOURCES = src/main.cpp examples/hdr/hdr.cpp
+examples_hdr_LDADD = libfrob.a ${engine_LIBS}
 
 editor_CXXFLAGS = ${AM_CXXFLAGS} $(gtk3_CFLAGS)
 editor_LDFLAGS = -Wl,--export-dynamic -pthread
