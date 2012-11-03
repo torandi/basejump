@@ -19,6 +19,7 @@ static RenderTarget* scene = nullptr;
 static Shader* shader = nullptr;
 static Shader* shader_passthru = nullptr;
 static Shader* shader_noshading = nullptr;
+static Shader* shader_debug = nullptr;
 static Camera cam(75, 1.3f, 0.1f, 10);
 extern glm::mat4 screen_ortho; /* defined in main.cpp */
 extern glm::ivec2 resolution; /* defined in main.cpp */
@@ -43,6 +44,7 @@ namespace Engine {
 		shader   = Shader::create_shader("/shaders/normal");
 		shader_passthru   = Shader::create_shader("/shaders/passthru");
 		shader_noshading   = Shader::create_shader("/shaders/noshading");
+		shader_debug   = Shader::create_shader("/shaders/debug");
 		sphere->materials[0].diffuse =  glm::vec4(10.f);
 
 
@@ -63,7 +65,7 @@ namespace Engine {
 		sphere->add_position_callback(lights->lights[0]);
 		sphere->set_position(glm::vec3(0.f, 2.f, 0.f));
 
-		cam.set_position(glm::vec3(1.0, 0.3, 1.f));
+		cam.set_position(glm::vec3(1.0, 0.0, 1.f));
 		cam.look_at(glm::vec3(0,0,0));
 	}
 
@@ -81,12 +83,12 @@ namespace Engine {
 	static void render_scene(){
 		Shader::upload_model_matrix(glm::mat4());
 
-		Shader::upload_camera(cam);
 		Shader::upload_lights(*lights);
 
 		scene->with([](){
 				RenderTarget::clear(Color::black);
 				shader->bind();
+				Shader::upload_camera(cam);
 				obj->render();
 				//plane->render();
 				shader_noshading->bind();
