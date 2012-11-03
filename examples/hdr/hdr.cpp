@@ -48,7 +48,7 @@ namespace Engine {
 		sphere->materials[0].diffuse =  glm::vec4(10.f);
 
 
-		hdr = new Technique::HDR(resolution, 2.1, 2.2, 1.8f);
+		hdr = new Technique::HDR(resolution, 2.4, 1.6, 1.8f);
 
 		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
 		plane->set_position(glm::vec3(-10.f, 0.0f, -10.f)); 
@@ -56,7 +56,7 @@ namespace Engine {
 		
 		obj->set_position(glm::vec3(0.f, 0.f, 0.f));
 
-		lights->ambient_intensity() = glm::vec3(0.5f);
+		lights->ambient_intensity() = glm::vec3(0.1f);
 		lights->num_lights() = 1;
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::POINT_LIGHT;
