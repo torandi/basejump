@@ -10,6 +10,8 @@
 #include "lights_data.hpp"
 #include "quad.hpp"
 
+#include "techniques/hdr.hpp"
+
 static RenderObject* obj = nullptr;
 static Quad* plane = nullptr;
 static RenderTarget* scene = nullptr;
@@ -18,6 +20,7 @@ static Shader* shader_passthru = nullptr;
 static Camera cam(75, 1.3f, 0.1f, 10);
 extern glm::mat4 screen_ortho; /* defined in main.cpp */
 extern glm::ivec2 resolution; /* defined in main.cpp */
+static Technique::HDR * hdr;
 static LightsData * lights = nullptr;
 
 namespace Engine {
@@ -33,6 +36,8 @@ namespace Engine {
 		scene    = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER, GL_LINEAR);
 		shader   = Shader::create_shader("/shaders/normal");
 		shader_passthru   = Shader::create_shader("/shaders/passthru");
+
+		hdr = new Technique::HDR(resolution, /* exposure = */ 2.4, /* bright_max = */ 1.6, /* bloom_amount = */ 1.0f);
 
 		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
 		plane->set_position(glm::vec3(-10.f, 0.0f, -10.f)); 
@@ -55,6 +60,7 @@ namespace Engine {
 	void cleanup(){
 		delete scene;
 		delete obj;
+		delete hdr;
 		Shader::cleanup();
 	}
 
@@ -85,8 +91,11 @@ namespace Engine {
 	static void render_blit(){
 		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 		Shader::upload_model_matrix(glm::mat4());
+
+		hdr->render(scene);
+
 		RenderTarget::clear(Color::magenta);
-		scene->draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));
+		hdr->draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));
 	}
 
 	void render(){
