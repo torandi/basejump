@@ -208,4 +208,9 @@ MovableLight::shadow_map_t::~shadow_map_t() {
 void MovableLight::shadow_map_t::create_fbo() {
 	fbo = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER);
 	texture = fbo;
+
+	//Bind depth and set GL_LINEAR
+	fbo->depth_bind(Shader::TEXTURE_SHADOWMAP_0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }

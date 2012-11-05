@@ -69,18 +69,18 @@ vec4 compute_lighting(
 	+ (1 - light.is_directional) * compute_point_light(light_pos, light, originalColor, position, normal, camera_dir, shininess, specular_color);
 }
 
-float offset_lookup(in light_data light, in sampler2D map, in vec3 loc, in vec2 offset) {
-	return texture(map, loc.xy + offset * light.shadowmap_scale).r + light.shadow_bias >=  loc.z ? 1.f : 0.f;
+float offset_lookup(in light_data light, in sampler2DShadow map, in vec4 loc, in vec2 offset) {
+	return textureProj(map, vec4(loc.xy + offset * light.shadowmap_scale, loc.zw), light.shadow_bias);
 }
 
-float shadowmap_coef(in light_data light, in sampler2D shadowmap, in vec3 tex_coords) {
+float shadowmap_coef(in light_data light, in sampler2DShadow shadowmap, in vec4 shadowmap_coord) {
 	float bias = light.shadow_bias;
 	float sum = 0;
 	float x, y;
 
 	for (y = -1.5; y <= 1.5; y += 1.0) {
 	  for (x = -1.5; x <= 1.5; x += 1.0) {
-			sum += offset_lookup(light, shadowmap, tex_coords, vec2(x, y));
+			sum += offset_lookup(light, shadowmap, shadowmap_coord, vec2(x, y));
 		}
 	}
 	return sum/16.f;
@@ -88,24 +88,23 @@ float shadowmap_coef(in light_data light, in sampler2D shadowmap, in vec3 tex_co
 
 float shadow_coefficient(in light_data light, in vec3 position, in vec4 shadowmap_coord) {
 	if(light.is_directional < 0.5) return 1.f; //Hack for disabling shadow maps for point lights
-	vec3 tex_coords = shadowmap_coord.xyz / shadowmap_coord.w;
-	if( tex_coords.x > 0.f && tex_coords.x < 1.f
-		&& tex_coords.y > 0.f && tex_coords.y < 1.f
-		&& tex_coords.z > 0.f && tex_coords.z < 1.f) {
+	if( shadowmap_coord.x > 0.f && shadowmap_coord.x < shadowmap_coord.w
+		&& shadowmap_coord.y > 0.f && shadowmap_coord.y < shadowmap_coord.w
+		&& shadowmap_coord.z > 0.f && shadowmap_coord.z < shadowmap_coord.w) {
 
 		float coef;
 		switch(light.shadowmap_index) {
 			case 0:
-				coef = shadowmap_coef(light, shadowmap0, tex_coords);
+				coef = shadowmap_coef(light, shadowmap0, shadowmap_coord);
 				break;
 			case 1:
-				coef = shadowmap_coef(light, shadowmap1, tex_coords);
+				coef = shadowmap_coef(light, shadowmap1, shadowmap_coord);
 				break;
 			case 2:
-				coef = shadowmap_coef(light, shadowmap2, tex_coords);
+				coef = shadowmap_coef(light, shadowmap2, shadowmap_coord);
 				break;
 			case 3:
-				coef = shadowmap_coef(light, shadowmap3, tex_coords);
+				coef = shadowmap_coef(light, shadowmap3, shadowmap_coord);
 				break;
 		}
 
