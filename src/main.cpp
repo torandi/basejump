@@ -10,7 +10,6 @@
 #include "render_object.hpp"
 #include "rendertarget.hpp"
 #include "utils.hpp"
-#include "scene.hpp"
 #include "shader.hpp"
 #include "time.hpp"
 #include "cl.hpp"
@@ -19,6 +18,7 @@
 #include "quad.hpp"
 #include "config.hpp"
 #include "sound.hpp"
+#include "movable_light.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -156,7 +156,6 @@ static void init(const char* title){
 		"shader:/shaders/passthru",
 	};
 	Engine::preload(std::vector<std::string>(resources, resources + sizeof(resources)/sizeof(char*)), Loading::progress);
-	//Engine::autoload_scenes();
 	CL::init();
 	srand((unsigned int)time(0));
 

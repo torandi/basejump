@@ -26,11 +26,6 @@ namespace Engine {
 	void setup_opengl();
 
 	/**
-	 * Register all scene types.
-	 */
-	void autoload_scenes();
-
-	/**
 	 * Preload resources.
 	 *
 	 * @param names List of resources with "type:" prefix, e.g. "texture:foo.jpg".
@@ -44,10 +39,6 @@ namespace Engine {
 	 */
 	RenderTarget* rendertarget_by_name(const std::string& name);
 
-	/**
-	 * Load timetable from file. Uses rendertaget_by_name to locate scenes.
-	 */
-	void load_timetable(const std::string& filename);
 };
 
 #endif /* ENGINE_H */
