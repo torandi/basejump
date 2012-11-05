@@ -40,7 +40,7 @@ public:
 	 * @see Flags
 	 */
 	explicit RenderTarget(const glm::ivec2& size, GLenum format, int flags = 0, GLenum filter = GL_NEAREST) throw();
-	~RenderTarget();
+	virtual ~RenderTarget();
 
 	/**
 	 * Enable MRT support for this rendertarget.

@@ -87,6 +87,7 @@ float shadowmap_coef(in light_data light, in sampler2D shadowmap, in vec3 tex_co
 }
 
 float shadow_coefficient(in light_data light, in vec3 position, in vec4 shadowmap_coord) {
+	if(light.is_directional < 0.5) return 1.f; //Hack for disabling shadow maps for point lights
 	vec3 tex_coords = shadowmap_coord.xyz / shadowmap_coord.w;
 	if( tex_coords.x > 0.f && tex_coords.x < 1.f
 		&& tex_coords.y > 0.f && tex_coords.y < 1.f

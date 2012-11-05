@@ -41,7 +41,8 @@ void main() {
 	originalColor*=Mtl.diffuse;
 
 	//Normal map
-	vec3 normal_map = normalize(texture(texture1, texcoord).xyz * 2.0 - 1.0);
+	vec3 tex_color = texture(texture1, texcoord).xyz;
+	vec3 normal_map = normalize(tex_color* 2.0 - 1.0);
 
 	float shininess = Mtl.shininess * normalize(texture(texture2, texcoord)).length();
 
