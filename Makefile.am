@@ -6,7 +6,7 @@ engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${C
 AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src ${engine_CXXFLAGS} ${VENDOR_CFLAGS}
 
 noinst_LIBRARIES = libfrob.a
-bin_PROGRAMS = demo
+bin_PROGRAMS = basejump
 noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain examples_hdr
 TESTS = test/utils test/data
 
@@ -60,10 +60,10 @@ if INPUT_ENABLED
 libfrob_a_SOURCES += src/input.cpp src/input.hpp
 endif
 
-demo_CXXFLAGS = ${AM_CXXFLAGS}
-demo_LDADD = libfrob.a ${engine_LIBS}
-demo_SOURCES = src/main.cpp src/testing.cpp
-demo_LDFLAGS = -pthread
+basejump_CXXFLAGS = ${AM_CXXFLAGS}
+basejump_LDADD = libfrob.a ${engine_LIBS}
+basejump_SOURCES = src/main.cpp src/basejump.cpp
+basejump_LDFLAGS = -pthread
 
 examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
 examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
