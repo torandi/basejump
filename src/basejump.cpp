@@ -103,8 +103,40 @@ namespace Engine {
 		render_blit();
 	}
 
+	static void print_values() {
+		printf("Exposure: %f\n, bloom: %f\n, bright_max: %f\n", hdr->exposure(), hdr->bloom_factor(), hdr->bright_max());
+	}
+
 	void update(float t, float dt){
-		cam.relative_move(glm::vec3(dt, 0.f, 0.f));
-		cam.look_at(glm::vec3(0,0,0));
+#ifdef ENABLE_INPUT
+		input.update_object(cam, dt);
+		if(input.down(Input::ACTION_0)) {
+			hdr->set_exposure(hdr->exposure() - 0.1);
+			print_values();
+		}
+		if(input.down(Input::ACTION_1)) {
+			hdr->set_exposure(hdr->exposure() + 0.1);
+			print_values();
+		}
+
+		if(input.down(Input::ACTION_2)) {
+			hdr->set_bright_max(hdr->bright_max() - 0.1);
+			print_values();
+		}
+		if(input.down(Input::ACTION_3)) {
+			hdr->set_bright_max(hdr->bright_max() + 0.1);
+			print_values();
+		}
+
+		if(input.down(Input::ACTION_4)) {
+			hdr->set_bloom_factor(hdr->bloom_factor() - 0.1);
+			print_values();
+		}
+		if(input.down(Input::ACTION_5)) {
+			hdr->set_bloom_factor(hdr->bloom_factor() + 0.1);
+			print_values();
+		}
+
+#endif
 	}
 }
