@@ -38,7 +38,6 @@ namespace Engine {
 		shader   = Shader::create_shader("/shaders/normal");
 		shader_passthru   = Shader::create_shader("/shaders/passthru");
 
-		scene_aabb = plane->aabb() + obj->aabb();
 
 		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
 		plane->set_position(glm::vec3(-10.f, 0.0f, -10.f)); 
@@ -50,8 +49,11 @@ namespace Engine {
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
+
 		cam.set_position(glm::vec3(1.401389, 1.000616, 0.532484));
 		cam.look_at(glm::vec3(0,0,0));
+
+		scene_aabb = plane->aabb() + obj->aabb();
 	}
 
 	void start(double seek) {
