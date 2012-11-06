@@ -55,6 +55,7 @@ class Mesh : public MovableObject {
 		bool aabb_dirty_;
 
 		virtual void calculate_aabb();
+		virtual void matrix_becomes_dirty();
 
 	private:
 		GLenum buffers_[2]; //0:vertex buffer, 1: index buffer

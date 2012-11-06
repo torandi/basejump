@@ -218,6 +218,9 @@ const AABB &Mesh::aabb() {
 }
 
 const bool &Mesh::aabb_dirty() {
-	if(rotation_matrix_dirty_ || translation_matrix_dirty_ || scale_matrix_dirty_) aabb_dirty_ = true;
 	return aabb_dirty_;
+}
+
+void Mesh::matrix_becomes_dirty() {
+	aabb_dirty_ = true;
 }

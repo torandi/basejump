@@ -16,6 +16,11 @@ class MovableObject : public Bindable {
 		glm::fquat orientation_;
 		glm::vec3 scale_;
 
+		/*
+		 * Provided for inheriting classes
+		 * Called when the matrix becomes dirty
+		 */
+		virtual void matrix_becomes_dirty();
 
 		glm::vec3 orient_vector(const glm::vec3 &vec) const;
 
