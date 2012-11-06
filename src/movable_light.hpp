@@ -14,7 +14,6 @@ class MovableLight : public MovableObject {
 		Shader * shadowmap_shader;
 
 		void compute_near_and_far(float &near, float &far, const glm::vec3 &min, const glm::vec3 &max, const std::vector<glm::vec3> &points);
-
 	public:
 
 		static glm::ivec2 shadowmap_resolution;
@@ -59,6 +58,7 @@ class MovableLight : public MovableObject {
 		light_type_t type;
 
 		void render_shadow_map(const Camera &camera, const AABB &scene_aabb, std::function<void(const glm::mat4& m)> render_geometry);
+
 };
 
 #endif
