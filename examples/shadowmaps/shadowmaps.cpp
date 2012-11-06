@@ -103,8 +103,13 @@ namespace Engine {
 	}
 
 	void update(float t, float dt){
+
+#ifdef ENABLE_INPUT
+		input.update_object(cam, dt);
+#else
 		cam.relative_move(glm::vec3(dt, 0.f, 0.f));
 		cam.look_at(glm::vec3(0,0,0));
+#endif
 
 		if(plane->aabb_dirty() || obj->aabb_dirty())
 			scene_aabb = plane->aabb() + obj->aabb();
