@@ -126,13 +126,14 @@ void MovableLight::recalculate_matrices() {
 			projection_matrix = glm::perspective(90.f, 1.f, 0.1f, 100.f);
 			break;
 	}
+
+	matrices_dirty_ = false;
 }
 
 void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aabb, std::function<void(const glm::mat4& m)> render_geometry) {
 	if(shadow_map.fbo == nullptr) shadow_map.create_fbo();
 
 	if(matrices_dirty_) recalculate_matrices();
-	//recalculate_matrices();
 
 	float near, far;
 	near = camera.near();
