@@ -70,7 +70,7 @@ vec4 compute_lighting(
 }
 
 float offset_lookup(in light_data light, in sampler2DShadow map, in vec3 loc, in vec2 offset) {
-	return texture(map, vec3(loc.xy + offset * light.shadowmap_scale, loc.z), /*light.shadow_bias*/ 10000.f);
+	return texture(map, vec3(loc.xy + offset * light.shadowmap_scale, loc.z - light.shadow_bias));
 }
 
 float shadowmap_coef(in light_data light, in sampler2DShadow shadowmap, in vec3 tex_coord) {
