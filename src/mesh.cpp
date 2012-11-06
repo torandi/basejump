@@ -161,12 +161,12 @@ void Mesh::generate_vbos() {
 
 	num_faces_ = indices_.size();
 
-	aabb_.min = vertices_[0].position;
-	aabb_.max = vertices_[0].position;
+	raw_aabb_.min = vertices_[0].position;
+	raw_aabb_.max = vertices_[0].position;
 
 	/* Calculate aabb */
 	for(const vertex_t &v : vertices_) {
-		aabb_.add_point(v.position);
+		raw_aabb_.add_point(v.position);
 	}
 
 	vbos_generated_ = true;
