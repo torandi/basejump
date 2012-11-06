@@ -9,6 +9,7 @@
 #include "rendertarget.hpp"
 #include "lights_data.hpp"
 #include "quad.hpp"
+#include "aabb.hpp"
 
 #include "techniques/hdr.hpp"
 
@@ -22,6 +23,8 @@ extern glm::mat4 screen_ortho; /* defined in main.cpp */
 extern glm::ivec2 resolution; /* defined in main.cpp */
 static Technique::HDR * hdr;
 static LightsData * lights = nullptr;
+
+static AABB scene_aabb;
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
@@ -51,6 +54,8 @@ namespace Engine {
 
 		cam.set_position(glm::vec3(1.401389, 1.000616, 0.532484));
 		cam.look_at(glm::vec3(0,0,0));
+
+		scene_aabb = plane->aabb() + obj->aabb();
 	}
 
 	void start(double seek) {
@@ -71,7 +76,7 @@ namespace Engine {
 
 	static void render_scene(){
 		Shader::upload_model_matrix(glm::mat4());
-		lights->lights[0]->render_shadow_map(cam, [](const glm::mat4 &m) -> void  {
+		lights->lights[0]->render_shadow_map(cam, scene_aabb, [](const glm::mat4 &m) -> void  {
 				render_geometry();
 		});
 
