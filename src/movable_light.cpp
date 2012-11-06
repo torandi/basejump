@@ -3,6 +3,11 @@
 #endif
 
 #include "movable_light.hpp"
+#include "light.hpp"
+#include "texture.hpp"
+#include "camera.hpp"
+#include "rendertarget.hpp"
+#include "camera.hpp"
 #include "globals.hpp"
 #include "logging.hpp"
 
@@ -93,7 +98,7 @@ glm::vec3 MovableLight::calculateFrustrumData(const Camera &cam, float near, flo
 	return cam.position() + far * 0.5f  * lz;
 }
 
-void MovableLight::render_shadow_map(const Camera &camera, std::function<void(const glm::mat4& m)> render_geometry) {
+void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aabb, std::function<void(const glm::mat4& m)> render_geometry) {
 	if(shadow_map.fbo == nullptr) shadow_map.create_fbo();
 
 	float near, far;

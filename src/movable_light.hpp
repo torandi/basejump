@@ -6,11 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "movable_object.hpp"
-#include "light.hpp"
-#include "texture.hpp"
-#include "camera.hpp"
-#include "rendertarget.hpp"
-#include "camera.hpp"
+#include "aabb.hpp"
 
 class MovableLight : public MovableObject {
 	private:
@@ -60,7 +56,7 @@ class MovableLight : public MovableObject {
 		glm::vec3 &intensity;
 		light_type_t type;
 
-		void render_shadow_map(const Camera &camera, std::function<void(const glm::mat4& m)> render_geometry);
+		void render_shadow_map(const Camera &camera, const AABB &scene_aabb, std::function<void(const glm::mat4& m)> render_geometry);
 };
 
 #endif
