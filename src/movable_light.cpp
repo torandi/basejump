@@ -146,18 +146,13 @@ void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aab
 				glm::vec3 eye = frustrum_center - lightv[0];
 				view_matrix = glm::lookAt(eye, frustrum_center, lightv[2]);
 
-				for(int i=0; i < 3; ++i) {
-					min_v[i] -= 1.f;
-					max_v[i] += 1.f;
-				}
-
 				float left, right, bottom, top, far_dist;
 
 				left = min_v[1];
 				right = max_v[1];
 				bottom = min_v[2];
 				top = max_v[2];
-				far_dist = max_v[0] - min_v[0];
+				far_dist = max_v[0] - min_v[0] + 2.f;
 
 				float halfw, halfh;
 				halfw = (right - left)/2.f;
