@@ -143,14 +143,14 @@ void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aab
 						if(l > max_v[i]) max_v[i] = l;
 					}
 				}
-				float center[3];
+				glm::vec3 eye = frustrum_center - lightv[0];
+				view_matrix = glm::lookAt(eye, frustrum_center, lightv[2]);
+
 				for(int i=0; i < 3; ++i) {
-					center[i] = glm::dot(frustrum_center, lightv[i]);
-					min_v[i] -= 5.f;
-					max_v[i] += 5.f;
+					min_v[i] -= 1.f;
+					max_v[i] += 1.f;
 				}
 
-				glm::vec3 eye = frustrum_center + lightv[0] * (min_v[0] - center[0]);
 				float left, right, bottom, top, far_dist;
 
 				left = min_v[1];
@@ -163,7 +163,6 @@ void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aab
 				halfw = (right - left)/2.f;
 				halfh = (top - bottom)/2.f;
 
-				view_matrix = glm::lookAt(eye, frustrum_center, lightv[2]);
 				projection_matrix = glm::ortho(-halfw, halfw, halfh, -halfh, 0.f, far_dist);
 
 				/*glm::vec4 test4 = projection_matrix * view_matrix * glm::vec4(frustrum_center, 1.f);
