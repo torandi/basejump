@@ -2,6 +2,7 @@
 #define RENDER_OBJECT_H
 
 #include "movable_object.hpp"
+#include "aabb.hpp"
 
 #include <string>
 #include <assimp/types.h>
@@ -29,6 +30,11 @@ class RenderObject : public MovableObject {
 
 	void recursive_render(const aiNode* node, const glm::mat4 &matrix);
 
+	AABB aabb_, raw_aabb_; /* raw_aabb is aabb unmodified by model matrix */
+	bool aabb_dirty_;
+
+	virtual void calculate_aabb();
+
 public:
 	const aiScene* scene;
 	glm::vec3 scene_min, scene_max, scene_center;
@@ -55,6 +61,9 @@ public:
 	void render(const glm::mat4& m = glm::mat4());
 
 	const glm::mat4 matrix() const;
+
+	const AABB &aabb();
+	const bool &aabb_dirty();
 
 
 };

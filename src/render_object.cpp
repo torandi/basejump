@@ -103,6 +103,7 @@ RenderObject::~RenderObject() { }
 RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int aiOptions)
 	: MovableObject()
 	, normalization_matrix_(1.0f)
+	, aabb_dirty_(true)
 	, scene(nullptr)
 	, name(model)
 	, scale(1.0f) {
@@ -135,6 +136,7 @@ RenderObject::RenderObject(std::string model, bool normalize_scale, unsigned int
 	get_bounding_box(&s_min, &s_max);
 	scene_min = glm::make_vec3((float*)&s_min);
 	scene_max = glm::make_vec3((float*)&s_max);
+	raw_aabb_ = AABB(scene_min, scene_max);
 	scene_center  = (scene_min+scene_max)/2.0f;
 
 	//Calculate normalization matrix
@@ -412,4 +414,20 @@ void RenderObject::get_bounding_box (aiVector3D* min, aiVector3D* max) {
 	min->x = min->y = min->z =  1e10f;
 	max->x = max->y = max->z = -1e10f;
 	get_bounding_box_for_node(scene->mRootNode,min,max,&trafo);
+}
+
+void RenderObject::calculate_aabb() {
+	aabb_ = raw_aabb_ * matrix();
+	aabb_dirty_ = false;
+}
+
+const AABB &RenderObject::aabb() {
+	if(aabb_dirty()) calculate_aabb();
+
+	return aabb_;
+}
+
+const bool &RenderObject::aabb_dirty() {
+	if(rotation_matrix_dirty_ || translation_matrix_dirty_ || scale_matrix_dirty_) aabb_dirty_ = true;
+	return aabb_dirty_;
 }

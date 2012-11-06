@@ -20,6 +20,7 @@ check_PROGRAMS = ${TESTS}
 endif
 
 libfrob_a_SOURCES = \
+	src/aabb.cpp src/aabb.hpp \
 	src/bindable.hpp \
 	src/camera.cpp src/camera.hpp \
 	src/cl.cpp src/cl.hpp \

@@ -1,3 +1,4 @@
+struct AABB;
 class Camera;
 class Color;
 class Data;
