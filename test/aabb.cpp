@@ -15,6 +15,9 @@ class Test: public CppUnit::TestFixture {
 	CPPUNIT_TEST(test_addition_change_min);
 	CPPUNIT_TEST(test_addition_change_max);
 	CPPUNIT_TEST(test_corner_calculation);
+	CPPUNIT_TEST(test_add_point_new_min);
+	CPPUNIT_TEST(test_add_point_new_max);
+	CPPUNIT_TEST(test_add_point_no_change);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -47,6 +50,30 @@ public:
 		CPPUNIT_ASSERT_VEC3_EQUAL_MESSAGE("c5", glm::vec3(-1.f, 1.f, 1.f), corners[5], 0.01f);
 		CPPUNIT_ASSERT_VEC3_EQUAL_MESSAGE("c6", glm::vec3(1.f, 1.f, 1.f), corners[6], 0.01f);
 		CPPUNIT_ASSERT_VEC3_EQUAL_MESSAGE("c7", glm::vec3(1.f, 1.f, -1.f), corners[7], 0.01f);
+	}
+
+	void test_add_point_new_min() {
+		AABB aabb(glm::vec3(0.f), glm::vec3(1.f));
+		glm::vec3 p(-1.f);
+		aabb.add_point(p);
+		CPPUNIT_ASSERT_VEC3_EQUAL(glm::vec3(-1.f), aabb.min, 0.01f);
+		CPPUNIT_ASSERT_VEC3_EQUAL(glm::vec3(1.f), aabb.max, 0.01f);
+	}
+
+	void test_add_point_new_max() {
+		AABB aabb(glm::vec3(0.f), glm::vec3(1.f));
+		glm::vec3 p(2.f);
+		aabb.add_point(p);
+		CPPUNIT_ASSERT_VEC3_EQUAL(glm::vec3(0.f), aabb.min, 0.01f);
+		CPPUNIT_ASSERT_VEC3_EQUAL(glm::vec3(2.f), aabb.max, 0.01f);
+	}
+
+	void test_add_point_no_change() {
+		AABB aabb(glm::vec3(0.f), glm::vec3(1.f));
+		glm::vec3 p(0.5f);
+		aabb.add_point(p);
+		CPPUNIT_ASSERT_VEC3_EQUAL(glm::vec3(0.f), aabb.min, 0.01f);
+		CPPUNIT_ASSERT_VEC3_EQUAL(glm::vec3(1.f), aabb.max, 0.01f);
 	}
 
 };
