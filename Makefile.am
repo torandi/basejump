@@ -8,7 +8,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = demo nox2
 noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain examples_hdr
-TESTS = test/utils test/data
+TESTS = test/utils test/data test/aabb
 
 if BUILD_EDITOR
 bin_PROGRAMS += editor
@@ -123,6 +123,9 @@ test_data_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 test_utils_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
 test_utils_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
+
+test_aabb_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
+test_aabb_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 .PHONY: .autoload.tmp
 BUILT_SOURCES = autoload.h autoload.cpp
