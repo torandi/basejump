@@ -6,17 +6,12 @@
 #include <glm/glm.hpp>
 
 #include "movable_object.hpp"
-#include "light.hpp"
-#include "texture.hpp"
-#include "camera.hpp"
-#include "rendertarget.hpp"
-#include "camera.hpp"
+#include "aabb.hpp"
 
 class MovableLight : public MovableObject {
 	private:
 		Light * data;
 		Shader * shadowmap_shader;
-
 	public:
 
 		static glm::ivec2 shadowmap_resolution;
@@ -24,9 +19,8 @@ class MovableLight : public MovableObject {
 
 		/**
 		 * points shall be [8], filled with corners
-		 * @return frustrum center
 		 */
-		glm::vec3 calculateFrustrumData(const Camera &cam, float near, float far, glm::vec3 * points) const;
+		void calculateFrustrumData(const Camera &cam, float near, float far, glm::vec3 * points) const;
 
 		enum light_type_t {
 			DIRECTIONAL_LIGHT, //position is direction instead
@@ -60,7 +54,17 @@ class MovableLight : public MovableObject {
 		glm::vec3 &intensity;
 		light_type_t type;
 
-		void render_shadow_map(const Camera &camera, std::function<void(const glm::mat4& m)> render_geometry);
+		void render_shadow_map(const Camera &camera, const AABB &scene_aabb, std::function<void(const glm::mat4& m)> render_geometry);
+
+	private:
+		/* matrices for shadowmap calculations */
+		glm::mat4 view_matrix, projection_matrix;
+		bool matrices_dirty_;
+
+		void recalculate_matrices();
+		void compute_near_and_far(float &near, float &far, const glm::vec3 &min, const glm::vec3 &max, const std::vector<glm::vec3> &points);
+	protected:
+		virtual void matrix_becomes_dirty();
 };
 
 #endif

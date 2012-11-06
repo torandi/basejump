@@ -9,6 +9,7 @@
 #include "logging.hpp"
 #include "shader.hpp"
 #include "utils.hpp"
+#include "aabb.hpp"
 
 #include <GL/glew.h>
 
@@ -22,6 +23,7 @@ Mesh::Mesh() : MovableObject(), vbos_generated_(false), has_tangents_(false){ }
 Mesh::Mesh(const std::vector<vertex_t> &vertices, const std::vector<unsigned int> &indices) :
 	MovableObject()
 	, vertices_(vertices), indices_(indices)
+	, aabb_dirty_(true)
 	,	vbos_generated_(false),has_tangents_(false)
 {
 	assert((indices.size()%3)==0);
@@ -159,6 +161,14 @@ void Mesh::generate_vbos() {
 
 	num_faces_ = indices_.size();
 
+	raw_aabb_.min = vertices_[0].position;
+	raw_aabb_.max = vertices_[0].position;
+
+	/* Calculate aabb */
+	for(const vertex_t &v : vertices_) {
+		raw_aabb_.add_point(v.position);
+	}
+
 	vbos_generated_ = true;
 }
 
@@ -194,4 +204,23 @@ void Mesh::render_geometry(const glm::mat4& m) {
 
 	Shader::pop_vertex_attribs();
 	checkForGLErrors("Mesh::render(): Teardown ");
+}
+
+void Mesh::calculate_aabb() {
+	aabb_ = raw_aabb_ * matrix();
+	aabb_dirty_ = false;
+}
+
+const AABB &Mesh::aabb() {
+	if(aabb_dirty()) calculate_aabb();
+
+	return aabb_;
+}
+
+const bool &Mesh::aabb_dirty() {
+	return aabb_dirty_;
+}
+
+void Mesh::matrix_becomes_dirty() {
+	aabb_dirty_ = true;
 }

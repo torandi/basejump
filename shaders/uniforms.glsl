@@ -20,10 +20,10 @@ layout(binding=12) uniform samplerCube texture_cube0;
 layout(binding=13) uniform samplerCube texture_cube1;
 layout(binding=14) uniform samplerCube texture_cube2;
 layout(binding=15) uniform samplerCube texture_cube3;
-layout(binding=16) uniform sampler2D shadowmap0;
-layout(binding=17) uniform sampler2D shadowmap1;
-layout(binding=18) uniform sampler2D shadowmap2;
-layout(binding=19) uniform sampler2D shadowmap3;
+layout(binding=16) uniform sampler2DShadow shadowmap0;
+layout(binding=17) uniform sampler2DShadow shadowmap1;
+layout(binding=18) uniform sampler2DShadow shadowmap2;
+layout(binding=19) uniform sampler2DShadow shadowmap3;
 
 
 layout(std140) uniform projectionViewMatrices {

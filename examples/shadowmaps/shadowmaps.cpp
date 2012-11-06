@@ -20,6 +20,8 @@ extern glm::mat4 screen_ortho; /* defined in main.cpp */
 extern glm::ivec2 resolution; /* defined in main.cpp */
 static LightsData * lights = nullptr;
 
+static AABB scene_aabb;
+
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
 		return nullptr;
@@ -36,6 +38,7 @@ namespace Engine {
 		shader   = Shader::create_shader("/shaders/normal");
 		shader_passthru   = Shader::create_shader("/shaders/passthru");
 
+
 		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
 		plane->set_position(glm::vec3(-10.f, 0.0f, -10.f)); 
 		plane->set_scale(20.f);
@@ -46,8 +49,11 @@ namespace Engine {
 		lights->lights[0]->intensity = glm::vec3(0.8f);
 		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
 
+
 		cam.set_position(glm::vec3(1.401389, 1.000616, 0.532484));
 		cam.look_at(glm::vec3(0,0,0));
+
+		scene_aabb = plane->aabb() + obj->aabb();
 	}
 
 	void start(double seek) {
@@ -67,7 +73,7 @@ namespace Engine {
 
 	static void render_scene(){
 		Shader::upload_model_matrix(glm::mat4());
-		lights->lights[0]->render_shadow_map(cam, [](const glm::mat4 &m) -> void  {
+		lights->lights[0]->render_shadow_map(cam, scene_aabb, [](const glm::mat4 &m) -> void  {
 				render_geometry();
 		});
 
@@ -97,7 +103,15 @@ namespace Engine {
 	}
 
 	void update(float t, float dt){
+
+#ifdef ENABLE_INPUT
+		input.update_object(cam, dt);
+#else
 		cam.relative_move(glm::vec3(dt, 0.f, 0.f));
 		cam.look_at(glm::vec3(0,0,0));
+#endif
+
+		if(plane->aabb_dirty() || obj->aabb_dirty())
+			scene_aabb = plane->aabb() + obj->aabb();
 	}
 }

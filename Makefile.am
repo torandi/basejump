@@ -8,7 +8,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = basejump
 noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain examples_hdr
-TESTS = test/utils test/data
+TESTS = test/utils test/data test/aabb
 
 if BUILD_EDITOR
 bin_PROGRAMS += editor
@@ -20,6 +20,7 @@ check_PROGRAMS = ${TESTS}
 endif
 
 libfrob_a_SOURCES = \
+	src/aabb.cpp src/aabb.hpp \
 	src/bindable.hpp \
 	src/camera.cpp src/camera.hpp \
 	src/cl.cpp src/cl.hpp \
@@ -108,6 +109,9 @@ test_data_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 test_utils_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
 test_utils_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
+
+test_aabb_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
+test_aabb_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 release: all
 	@test "x${prefix}" = "x/" || (echo "Error: --prefix must be / when creating release (currently ${prefix})"; exit 1)

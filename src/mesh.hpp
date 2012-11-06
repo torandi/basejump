@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#include "aabb.hpp"
 #include "movable_object.hpp"
 
 class Mesh : public MovableObject {
@@ -43,9 +44,19 @@ class Mesh : public MovableObject {
 		virtual void render_geometry(const glm::mat4& m = glm::mat4());
 		unsigned long num_faces() { return num_faces_; };
 
+		const AABB &aabb();
+		const bool &aabb_dirty();
+
 	protected:
 		std::vector<vertex_t> vertices_;
 		std::vector<unsigned int> indices_;
+
+		AABB aabb_, raw_aabb_; /* raw_aabb is aabb unmodified by model matrix */
+		bool aabb_dirty_;
+
+		virtual void calculate_aabb();
+		virtual void matrix_becomes_dirty();
+
 	private:
 		GLenum buffers_[2]; //0:vertex buffer, 1: index buffer
 		bool vbos_generated_, has_normals_, has_tangents_;

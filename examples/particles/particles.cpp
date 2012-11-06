@@ -26,6 +26,8 @@ static LightsData * lights = nullptr;
 static ParticleSystem * particles = nullptr;
 static TextureArray * particle_textures = nullptr;
 
+static AABB scene_aabb;
+
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
 		return nullptr;
@@ -42,6 +44,8 @@ namespace Engine {
 		shader   = Shader::create_shader("/shaders/normal");
 		shader_passthru   = Shader::create_shader("/shaders/passthru");
 		shader_particles   = Shader::create_shader("/shaders/particles");
+
+		scene_aabb = plane->aabb() + obj->aabb();
 
 		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
 		plane->set_position(glm::vec3(-10.f, -0.5f, -10.f));
@@ -84,7 +88,7 @@ namespace Engine {
 	}
 
 	static void render_scene(){
-		lights->lights[0]->render_shadow_map(cam, [](const glm::mat4 &m) -> void  {
+		lights->lights[0]->render_shadow_map(cam, scene_aabb, [](const glm::mat4 &m) -> void  {
 				render_geometry();
 		});
 

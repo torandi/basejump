@@ -55,6 +55,8 @@ void MovableObject::relative_move(const glm::vec3 &move) {
 	translation_matrix_dirty_ = true;
 	position_+= orient_vector(move);
 	position_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::absolute_rotate(const glm::vec3 &axis, const float &angle) {
@@ -65,12 +67,16 @@ void MovableObject::absolute_rotate(const glm::vec3 &axis, const float &angle) {
 	orientation_ = offset * orientation_ ;
 	orientation_ = glm::normalize(orientation_);
 	orientation_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::absolute_move(const glm::vec3 &move) {
 	translation_matrix_dirty_ = true;
 	position_ += move;
 	position_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::relative_rotate(const glm::vec3 &axis, const float &angle) {
@@ -81,6 +87,8 @@ void MovableObject::relative_rotate(const glm::vec3 &axis, const float &angle) {
    orientation_ = orientation_  * offset;
    orientation_ = glm::normalize(orientation_);
 	orientation_changed();
+
+	matrix_becomes_dirty();
 }
 
 const glm::vec3 &MovableObject::scale() const { return scale_; }
@@ -94,18 +102,24 @@ void MovableObject::set_scale(const glm::vec3 &scale) {
 	scale_ = scale;
 	scale_matrix_dirty_ = true;
 	scale_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::set_position(const glm::vec3 &pos) {
 	position_ = pos;
 	translation_matrix_dirty_ = true;
 	position_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::set_rotation(const glm::vec3 &axis, const float angle) {
 	rotation_matrix_dirty_ = true;
 	orientation_ = glm::rotate(glm::fquat(1.f, 0.f, 0.f, 0.f), angle, axis);
 	orientation_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::roll(const float angle) {
@@ -140,18 +154,24 @@ void MovableObject::callback_position(const glm::vec3 &position) {
 	position_ = position;
 	translation_matrix_dirty_ = true;
 	position_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::callback_rotation(const glm::fquat &rotation) {
 	orientation_ = rotation;
 	rotation_matrix_dirty_ = true;
 	orientation_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::callback_scale(const glm::vec3 &scale) {
 	scale_ = scale;
 	scale_matrix_dirty_ = true;
 	scale_changed();
+
+	matrix_becomes_dirty();
 }
 
 void MovableObject::orientation_changed() {
@@ -183,3 +203,5 @@ void MovableObject::add_scale_callback(Bindable * obj, const glm::vec3 factor) {
 void MovableObject::add_rotation_callback(Bindable * obj) {
 	rotation_callbacks.push_back(obj);
 }
+
+void MovableObject::matrix_becomes_dirty() { }
