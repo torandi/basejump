@@ -77,7 +77,7 @@ namespace Engine {
 				render_geometry();
 		});
 
-		Shader::upload_projection_view_matrices(cam.projection_matrix(), cam.view_matrix());
+		Shader::upload_camera(cam);
 		Shader::upload_lights(*lights);
 		Shader::upload_blank_material();
 
