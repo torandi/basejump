@@ -40,7 +40,7 @@ namespace Engine {
 		obj      = new RenderObject("/models/teapot.obj", true);
 		sphere   = new RenderObject("/models/sphere.nff", true);
 		plane    = new Quad();
-		scene    = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER, GL_LINEAR);
+		scene    = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER, GL_LINEAR);
 		shader   = Shader::create_shader("/shaders/normal");
 		shader_passthru   = Shader::create_shader("/shaders/passthru");
 		shader_noshading   = Shader::create_shader("/shaders/noshading");
@@ -48,7 +48,7 @@ namespace Engine {
 		sphere->materials[0].diffuse =  glm::vec4(10.f);
 
 
-		hdr = new Technique::HDR(resolution, 2.4, 1.6, 1.8f);
+		hdr = new Technique::HDR(resolution, 5.4, 1.4, 1.8f);
 
 		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
 		plane->set_position(glm::vec3(-10.f, 0.0f, -10.f)); 
@@ -65,7 +65,7 @@ namespace Engine {
 		sphere->add_position_callback(lights->lights[0]);
 		sphere->set_position(glm::vec3(0.f, 2.f, 0.f));
 
-		cam.set_position(glm::vec3(1.0, 0.0, 1.f));
+		cam.set_position(glm::vec3(0.5, 0.0, 1.f));
 		cam.look_at(glm::vec3(0,0,0));
 	}
 
