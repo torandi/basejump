@@ -57,9 +57,7 @@ libfrob_a_SOURCES = \
 	src/techniques/temporalblur.cpp src/techniques/temporalblur.hpp \
 	vendor/src/nanosvg.cpp vendor/include/nanosvg.h
 
-if INPUT_ENABLED
 libfrob_a_SOURCES += src/input.cpp src/input.hpp
-endif
 
 basejump_CXXFLAGS = ${AM_CXXFLAGS}
 basejump_LDADD = libfrob.a ${engine_LIBS}
