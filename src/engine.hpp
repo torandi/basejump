@@ -5,6 +5,11 @@
 #include <vector>
 #include <functional>
 
+#include <glm/glm.hpp>
+
+extern glm::mat4 screen_ortho; /* defined in main.cpp */
+extern glm::ivec2 resolution; /* defined in main.cpp */
+
 namespace Engine {
 
 	void init();

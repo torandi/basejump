@@ -2,146 +2,40 @@
 #include "config.h"
 #endif
 
-#include "data.hpp"
 #include "engine.hpp"
-#include "globals.hpp"
-#include "render_object.hpp"
-#include "rendertarget.hpp"
-#include "lights_data.hpp"
-#include "quad.hpp"
-#include "aabb.hpp"
+#include "config.hpp"
+#include "game.hpp"
 
-#include "techniques/hdr.hpp"
-
-static RenderObject* obj = nullptr;
-static Quad* plane = nullptr;
-static RenderTarget* scene = nullptr;
-static Shader* shader = nullptr;
-static Shader* shader_passthru = nullptr;
-static Camera cam(75, 1.3f, 0.1f, 10);
-extern glm::mat4 screen_ortho; /* defined in main.cpp */
-extern glm::ivec2 resolution; /* defined in main.cpp */
-static Technique::HDR * hdr;
-static LightsData * lights = nullptr;
-
-static AABB scene_aabb;
+Game * game;
 
 namespace Engine {
+	/* Not used in basejump */
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
 		return nullptr;
 	}
 
 	void init(){
-		lights = new LightsData();
-
-		obj      = new RenderObject("/models/bench.obj", true);
-		plane    = new Quad();
-		scene    = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER, GL_LINEAR);
-		shader   = Shader::create_shader("/shaders/normal");
-		shader_passthru   = Shader::create_shader("/shaders/passthru");
-
-		hdr = new Technique::HDR(resolution, /* exposure = */ 2.4, /* bright_max = */ 1.6, /* bloom_amount = */ 1.0f);
-
-		plane->set_rotation(glm::vec3(1.f, 0.f, 0.f), 90.f);
-		plane->set_position(glm::vec3(-10.f, 0.0f, -10.f)); 
-		plane->set_scale(20.f);
-
-		lights->ambient_intensity() = glm::vec3(0.1f);
-		lights->num_lights() = 1;
-		lights->lights[0]->set_position(glm::vec3(0, -0.5f, -1.f));
-		lights->lights[0]->intensity = glm::vec3(0.8f);
-		lights->lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
-
-		cam.set_position(glm::vec3(1.401389, 1.000616, 0.532484));
-		cam.look_at(glm::vec3(0,0,0));
-
-		scene_aabb = plane->aabb() + obj->aabb();
+		Config config = Config::parse("/graphics.cfg");
+		/* TODO: Maybee have a level selection screen */
+		game = new Game("default", 
+				config["/camera/near"]->as_float(),
+				config["/camera/far"]->as_float(),
+				config["/camera/fov"]->as_float()
+			);
 	}
 
-	void start(double seek) {
-
-	}
+	void start(double seek) { }
 
 	void cleanup(){
-		delete scene;
-		delete obj;
-		delete hdr;
+		delete game;
 		Shader::cleanup();
 	}
 
-	static void render_geometry() {
-		obj->render();
-		plane->render_geometry();
-	}
-
-	static void render_scene(){
-		Shader::upload_model_matrix(glm::mat4());
-		lights->lights[0]->render_shadow_map(cam, scene_aabb, [](const glm::mat4 &m) -> void  {
-				render_geometry();
-		});
-
-		Shader::upload_projection_view_matrices(cam.projection_matrix(), cam.view_matrix());
-		Shader::upload_lights(*lights);
-		Shader::upload_blank_material();
-
-		scene->with([](){
-				RenderTarget::clear(Color::green);
-				shader->bind();
-				obj->render();
-				Shader::upload_blank_material();
-				plane->render();
-		});
-	}
-
-	static void render_blit(){
-		Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
-		Shader::upload_model_matrix(glm::mat4());
-
-		hdr->render(scene);
-
-		RenderTarget::clear(Color::magenta);
-		hdr->draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));
-	}
-
 	void render(){
-		render_scene();
-		render_blit();
-	}
-
-	static void print_values() {
-		printf("Exposure: %f\n, bloom: %f\n, bright_max: %f\n", hdr->exposure(), hdr->bloom_factor(), hdr->bright_max());
+		game->render();
 	}
 
 	void update(float t, float dt){
-#ifdef ENABLE_INPUT
-		input.update_object(cam, dt);
-		if(input.down(Input::ACTION_0)) {
-			hdr->set_exposure(hdr->exposure() - 0.1);
-			print_values();
-		}
-		if(input.down(Input::ACTION_1)) {
-			hdr->set_exposure(hdr->exposure() + 0.1);
-			print_values();
-		}
-
-		if(input.down(Input::ACTION_2)) {
-			hdr->set_bright_max(hdr->bright_max() - 0.1);
-			print_values();
-		}
-		if(input.down(Input::ACTION_3)) {
-			hdr->set_bright_max(hdr->bright_max() + 0.1);
-			print_values();
-		}
-
-		if(input.down(Input::ACTION_4)) {
-			hdr->set_bloom_factor(hdr->bloom_factor() - 0.1);
-			print_values();
-		}
-		if(input.down(Input::ACTION_5)) {
-			hdr->set_bloom_factor(hdr->bloom_factor() + 0.1);
-			print_values();
-		}
-
-#endif
+		game->update(t, dt);
 	}
 }

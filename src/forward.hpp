@@ -14,6 +14,7 @@ class RenderTarget;
 class Scene;
 class Shader;
 class Sound;
+class Terrain;
 class TextureBase;
 class Texture2D;
 class Texture3D;

@@ -61,7 +61,8 @@ libfrob_a_SOURCES += src/input.cpp src/input.hpp
 
 basejump_CXXFLAGS = ${AM_CXXFLAGS}
 basejump_LDADD = libfrob.a ${engine_LIBS}
-basejump_SOURCES = src/main.cpp src/basejump.cpp
+basejump_SOURCES = src/main.cpp src/basejump.cpp \
+									 src/game.cpp src/game.hpp
 basejump_LDFLAGS = -pthread
 
 examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
