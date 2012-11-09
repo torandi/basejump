@@ -93,7 +93,7 @@ void init(){
 	cl_device_id devices[32];
 	size_t deviceSize = 0;
 	err = clGetGLContextInfoKHR(properties,
-	                            CL_DEVICES_FOR_GL_CONTEXT_KHR,
+	                            CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
 	                            32 * sizeof(cl_device_id),
 	                            devices,
 	                            &deviceSize);
@@ -108,7 +108,7 @@ void init(){
 	cl_device_type _type;
 	std::string type;
 
-	Logging::verbose("  - Available devices:\n");
+	Logging::verbose("  - Current GL device:\n");
 
 	for(unsigned int i=0; i< (deviceSize / sizeof(cl_device_id)); ++i) {
 		cl::Device device(devices[i]);
