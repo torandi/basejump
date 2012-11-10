@@ -191,6 +191,7 @@ void Mesh::render_geometry(const glm::mat4& m) {
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, normal));
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, tangent));
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, bitangent));
+	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, color));
 
 	checkForGLErrors("Mesh::render(): Set vertex attribs");
 
