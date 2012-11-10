@@ -6,7 +6,7 @@
 #define AXIS_MAX 32767.f
 #define DEAD_ZONE 0.2f
 
-float Input::movement_speed = 1.f;
+float Input::movement_speed = 5.f;
 float Input::rotation_speed = 1.f;
 
 Input::Input(){
@@ -161,7 +161,7 @@ void Input::parse_event(const SDL_Event &event) {
 		temporary_values[MOVE_Y] = get_hat_up_down(0)*movement_speed;
 		temporary_values[MOVE_Z] = -normalized_axis_value(1)*movement_speed;
 		temporary_values[ROTATE_X] = -normalized_axis_value(4)*rotation_speed;
-		temporary_values[ROTATE_Y] = -(normalized_trigger_value(5) - normalized_trigger_value(2))*2.f*rotation_speed;
+		temporary_values[ROTATE_Y] = -(normalized_trigger_value(5) - normalized_trigger_value(2))*rotation_speed;
 		temporary_values[ROTATE_Z] = normalized_axis_value(3)*rotation_speed;
 	}
 }
