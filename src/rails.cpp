@@ -5,6 +5,7 @@
 #include "rails.hpp"
 #include "terrain.hpp"
 #include "globals.hpp"
+#include "shader.hpp"
 
 #include <cstdio>
 #include <glm/gtx/string_cast.hpp>
@@ -46,7 +47,7 @@ Rails::~Rails() { }
  * |   |     |   |
  *	0   3     7   4
  *
- * uv coordinates are (offset = position / uv_offset)
+ * uv coordinates are (offset = pos / uv_offset)
  * (1/3,offset) - (2/3,offset)
  *   |           |
  * (0,offset)   (1,offset)
@@ -54,17 +55,17 @@ Rails::~Rails() { }
  *	This method returns the index of the first vertex in the slice
  *	that was generated
  */
-unsigned int Rails::emit_vertices(float path_position, glm::vec3 &prev) {
+unsigned int Rails::emit_vertices(float path_pos, glm::vec3 &prev) {
 	unsigned int start_index = static_cast<unsigned int>(vertices_.size());
 
 	const glm::vec3 initial_normal = glm::vec3(0.f, 1.f, 0.f);
 
-	const glm::vec3 pos = path->at(path_position);
+	const glm::vec3 pos = path->at(path_pos);
 	const glm::vec3 direction = glm::normalize(pos - prev);
 	const glm::vec3 side = glm::normalize(glm::cross(direction, initial_normal)); //points right
 	const glm::vec3 normal = glm::normalize(glm::cross(side, direction));
 /*
-	fprintf(verbose, "%f (%s - %s): %s %s %s\n", path_position
+	fprintf(verbose, "%f (%s - %s): %s %s %s\n", path_pos
 							, glm::to_string(prev).c_str()
 							, glm::to_string(pos).c_str()
 							, glm::to_string(direction).c_str()
@@ -74,51 +75,51 @@ unsigned int Rails::emit_vertices(float path_position, glm::vec3 &prev) {
 	const glm::vec3 right = pos + (side * separation/2.f);
 	const glm::vec3 left = pos - (side * separation/2.f);
 
-	vertex_t v;
+	Shader::vertex_t v;
 
-	float uv_y = path_position / uv_offset;
+	float uv_y = path_pos / uv_offset;
 
 
 	//0
-	v.position = left - side * width;
-	v.tex_coord = glm::vec2(0.f, uv_y);
+	v.pos = left - side * width;
+	v.uv = glm::vec2(0.f, uv_y);
 	vertices_.push_back(v);
 
 	//1
-	v.position = left - side * width + normal * height;
-	v.tex_coord = glm::vec2(1.f/3.f, uv_y);
+	v.pos = left - side * width + normal * height;
+	v.uv = glm::vec2(1.f/3.f, uv_y);
 	vertices_.push_back(v);
 
 	//2
-	v.position = left + normal * height;
-	v.tex_coord = glm::vec2(2.f/3.f, uv_y);
+	v.pos = left + normal * height;
+	v.uv = glm::vec2(2.f/3.f, uv_y);
 	vertices_.push_back(v);
 
 	//3
-	v.position = left;
-	v.tex_coord = glm::vec2(1.f, uv_y);
+	v.pos = left;
+	v.uv = glm::vec2(1.f, uv_y);
 	vertices_.push_back(v);
 
 	//--- Second rail
 
 	//4
-	v.position = right;
-	v.tex_coord = glm::vec2(1.f, uv_y);
+	v.pos = right;
+	v.uv = glm::vec2(1.f, uv_y);
 	vertices_.push_back(v);
 
 	//5
-	v.position = right + normal * height;
-	v.tex_coord = glm::vec2(2.f/3.f, uv_y);
+	v.pos = right + normal * height;
+	v.uv = glm::vec2(2.f/3.f, uv_y);
 	vertices_.push_back(v);
 
 	//6
-	v.position = right + side * width + normal * height;
-	v.tex_coord = glm::vec2(1.f/3.f, uv_y);
+	v.pos = right + side * width + normal * height;
+	v.uv = glm::vec2(1.f/3.f, uv_y);
 	vertices_.push_back(v);
 
 	//7
-	v.position = right + side * width;
-	v.tex_coord = glm::vec2(0.f, uv_y);
+	v.pos = right + side * width;
+	v.uv = glm::vec2(0.f, uv_y);
 	vertices_.push_back(v);
 
 	prev = pos;

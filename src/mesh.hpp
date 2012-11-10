@@ -6,22 +6,14 @@
 #include <vector>
 
 #include "aabb.hpp"
+#include "shader.hpp"
 #include "movable_object.hpp"
 
 class Mesh : public MovableObject {
 	public:
 
-
-		struct vertex_t {
-			glm::vec3 position;
-			glm::vec2 tex_coord;
-			glm::vec3 normal;
-			glm::vec3 tangent;
-			glm::vec3 bitangent;
-		};
-
 		Mesh();
-		Mesh(const std::vector<vertex_t> &vertices, const std::vector<unsigned int> &indices);
+		Mesh(const std::vector<Shader::vertex_t> &vertices, const std::vector<unsigned int> &indices);
 		virtual ~Mesh();
 
 		// Call these methods to activate these features.
@@ -30,7 +22,7 @@ class Mesh : public MovableObject {
 		void activate_normals();
 		void activate_tangents_and_bitangents();
 
-		void set_vertices(const std::vector<vertex_t> &vertices);
+		void set_vertices(const std::vector<Shader::vertex_t> &vertices);
 		void set_indices(const std::vector<unsigned int> &indices);
 
 		//Loads vertex data from array of floats (x, y, z, u, v)
@@ -48,7 +40,7 @@ class Mesh : public MovableObject {
 		const bool &aabb_dirty();
 
 	protected:
-		std::vector<vertex_t> vertices_;
+		std::vector<Shader::vertex_t> vertices_;
 		std::vector<unsigned int> indices_;
 
 		AABB aabb_, raw_aabb_; /* raw_aabb is aabb unmodified by model matrix */
