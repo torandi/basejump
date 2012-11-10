@@ -15,16 +15,19 @@ class Terrain : public Mesh {
 	float horizontal_scale_;
 	float vertical_scale_;
 	SDL_Surface * data_map_;
-	Texture2D * data_texture_;
+	float uv_scale_;
 	Shader * shader_;
 	glm::ivec2 size_;
 	float * map_;
+
+	float texture_selection_[2];
+	GLuint u_texture_selection_[2];
 
 	void generate_terrain();
 
 	float height_from_color(const glm::vec4 &color) const ;
 
-	TextureArray * textures_[2];
+	TextureArray * diffuse_textures_, *normal_textures_;
 
 	float height_at(int x, int y) const;
 	const glm::vec3 &normal_at(int x, int y) const;
@@ -37,16 +40,13 @@ class Terrain : public Mesh {
 		/**
 		 * Create a new terrain-mesh.
 		 *
-		 * @param file Filename with heightmap where
+		 * @param file Filename with config.
+		 *	heighmap is:
 		 *              - red is height
-		 *              - green is blend between texture
+		 *              - green is forced mix in of second texture
 		 *              - blue is reserved for future use
-		 * @param horizontal_scale width of terrain (depth is calculated from heightmap dimensions)
-		 * @param vertical_scale height of terrain.
-		 * @param color colormap as a TextureArray with two texture units.
-		 * @param normal normalmap as TextureArray with two texture units.
 		 */
-		Terrain(const std::string &file, float horizontal_scale, float vertical_scale, TextureArray* color_, TextureArray* normal_);
+		Terrain(const std::string &file);
 		virtual ~Terrain();
 		virtual void render(const glm::mat4& m = glm::mat4());
 		static glm::vec4 get_pixel_color(int x, int y, SDL_Surface * surface, const glm::ivec2 &size);

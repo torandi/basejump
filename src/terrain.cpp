@@ -8,6 +8,7 @@
 #include "mesh.hpp"
 #include "texture.hpp"
 #include "utils.hpp"
+#include "config.hpp"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -17,34 +18,65 @@
 
 #define RENDER_DEBUG 0
 
+#if RENDER_DEBUG
+	static Shader * debug_shader;
+#endif
+
 Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
 	free_surface();
 }
 
-Terrain::Terrain(const std::string &file, float width, float vertical_scale,TextureArray * color_, TextureArray * normal_) :
-		horizontal_scale_(0.0f),
-		vertical_scale_(vertical_scale),
-		map_(nullptr) {
-	textures_[0] = color_;
-	textures_[1] = normal_;
+Terrain::Terrain(const std::string &file) {
+	Config config = Config::parse(file);
 
-	for(TextureArray * ta : textures_) {
-		ta->texture_bind(Shader::TEXTURE_ARRAY_0);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		ta->texture_unbind();
-	}
+	data_map_  = TextureBase::load_image(config["/heightmap"]->as_string() , &size_);
+	horizontal_scale_ = config["/horizontal_size"]->as_float() / static_cast<float>(size_.x);
+	vertical_scale_ = config["/vertical_size"]->as_float();;
+	uv_scale_ = config["/uv_repeat"]->as_float();
+	const std::vector<ConfigEntry*> texture_selection = config["/texture_selection"]->as_list();
+	texture_selection_[0] = glm::radians(texture_selection[0]->as_float());
+	texture_selection_[1] = glm::radians(texture_selection[1]->as_float()) - texture_selection_[0];
+	printf("Normal selection: %f, %f\n", texture_selection_[0], texture_selection_[1]);
+	/* 
+	 * second value is given as end, but algorithm handleslength (delta)
+	 * Also: internal check is done with dot (cos of the angle), so store in cos
+	*/
 
-	data_map_  = TextureBase::load_image(file , &size_);
-	data_texture_ = Texture2D::from_filename(file);
-	horizontal_scale_ = width / static_cast<float>(size_.x);
+	diffuse_textures_ = TextureArray::from_filename(
+			config["/default_texture/flat/diffuse"]->as_string().c_str(),
+			config["/default_texture/steep/diffuse"]->as_string().c_str(),
+			config["/override_texture/diffuse"]->as_string().c_str(),
+			nullptr
+		);
+
+	normal_textures_ = TextureArray::from_filename(
+			config["/default_texture/flat/normal"]->as_string().c_str(),
+			config["/default_texture/steep/normal"]->as_string().c_str(),
+			config["/override_texture/normal"]->as_string().c_str(),
+			nullptr
+		);
+
+
+	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	normal_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	normal_textures_->texture_unbind();
 
 	shader_ = Shader::create_shader("/shaders/terrain");
+	u_texture_selection_[0] = shader_->uniform_location("texture_fade_start");
+	u_texture_selection_[1] = shader_->uniform_location("texture_fade_length");
 	material.specular = glm::vec4(0.f);
 
 	generate_terrain();
+
+#if RENDER_DEBUG
+	debug_shader = Shader::create_shader("/shaders/debug");
+#endif
 }
 
 void Terrain::free_surface() {
@@ -75,7 +107,7 @@ void Terrain::generate_terrain() {
 			glm::vec4 color = get_pixel_color(x, y, data_map_, size_);
 			float h = height_from_color(color);
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
-			v.uv = glm::vec2(static_cast<float>(x) / static_cast<float>(size_.x), 1.f - static_cast<float>(y) / static_cast<float>(size_.y));
+			v.uv = glm::vec2(static_cast<float>(x) / static_cast<float>(size_.x), 1.f - static_cast<float>(y) / static_cast<float>(size_.y)) * uv_scale_;
 			vertices_[i] = v;
 			map_[i] =  h*vertical_scale_;
 		}
@@ -113,16 +145,16 @@ float Terrain::height_at(int x, int y) const {
 
 float Terrain::height_at(float x_, float y_) const {
 	if(x_ > static_cast<float>(size_.x) * horizontal_scale_|| x_ < 0 || y_ > static_cast<float>(size_.y)*horizontal_scale_ || y_ < 0)
-		return 0;
+		return 0.f;
 	int x = (int) (x_/horizontal_scale_);
 	int y = (int) (y_/horizontal_scale_);
-	float dx = (x_/horizontal_scale_) - x;
-	float dy = (y_/horizontal_scale_) - y;
+	float dx = (x_/horizontal_scale_) - (float)x;
+	float dy = (y_/horizontal_scale_) - (float)y;
 	float height=0;
-	height += (1.0-dx) * (1.0-dy) * height_at(x,y);
-	height += dx * (1.0-dy) * height_at(y,x+1);
-	height += (1.0-dx) * dy * height_at(y+1,x);
-	height += dx * dy * height_at(y+1, x+1);
+	height += (1.f-dx) * (1.f-dy) * height_at((float)x,(float)y);
+	height += dx * (1.f-dy) * height_at((float)y,(float)(x+1));
+	height += (1.f-dx) * dy * height_at((float)(y+1),(float)x);
+	height += dx * dy * height_at((float)(y+1), (float)(x+1));
 	return height;
 }
 
@@ -131,17 +163,17 @@ const glm::vec3 &Terrain::normal_at(int x, int y) const {
 }
 
 glm::vec3 Terrain::normal_at(float x_, float y_) const {
-	if(x_ > size_.x * horizontal_scale_|| x_ < 0 || y_ > size_.y*horizontal_scale_ || y_ < 0)
-		return glm::vec3(0, 1, 0);
+	if(x_ > static_cast<float>(size_.x) * horizontal_scale_|| x_ < 0 || y_ > static_cast<float>(size_.y)*horizontal_scale_ || y_ < 0)
+		return glm::vec3(0.f, 1.f, 0.f);
 	int x = (int) (x_/horizontal_scale_);
 	int y = (int) (y_/horizontal_scale_);
-	float dx = (x_/horizontal_scale_) - x;
-	float dy = (y_/horizontal_scale_) - y;
+	float dx = (x_/horizontal_scale_) - (float)x;
+	float dy = (y_/horizontal_scale_) - (float)y;
 	glm::vec3 normal(0.f);
-	normal += (1.f-dx) * (1.f-dy) * normal_at(x,y);
-	normal += dx * (1.f-dy) * normal_at(y,x+1);
-	normal += (1.f-dx) * dy * normal_at(y+1,x);
-	normal += dx * dy * normal_at(y+1, x+1);
+	normal += (1.f-dx) * (1.f-dy) * normal_at((float)x,(float)y);
+	normal += dx * (1.f-dy) * normal_at((float)y,(float)(x+1));
+	normal += (1.f-dx) * dy * normal_at((float)(y+1),(float)x);
+	normal += dx * dy * normal_at((float)(y+1), (float)(x+1));
 	return normal;
 }
 
@@ -159,21 +191,22 @@ glm::vec4 Terrain::get_pixel_color(int x, int y, SDL_Surface * surface, const gl
 void Terrain::render(const glm::mat4& m) {
 
 	shader_->bind();
+	glUniform1f(u_texture_selection_[0], texture_selection_[0]);
+	glUniform1f(u_texture_selection_[1], texture_selection_[1]);
 
 	Shader::upload_model_matrix(matrix() * m);
 
 	Shader::upload_material(material);
 
-	data_texture_->texture_bind(Shader::TEXTURE_2D_0);
-	textures_[0]->texture_bind(Shader::TEXTURE_ARRAY_0);
-	textures_[1]->texture_bind(Shader::TEXTURE_ARRAY_1);
+	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
+	normal_textures_->texture_bind(Shader::TEXTURE_ARRAY_1);
 
 	Mesh::render();
 
 #if RENDER_DEBUG
 	//Render debug:
 	glLineWidth(2.0f);
-	shaders[SHADER_DEBUG]->bind();
+	debug_shader->bind();
 
 	Mesh::render();
 #endif

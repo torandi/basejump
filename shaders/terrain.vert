@@ -13,6 +13,7 @@ out vec3 normal;
 out vec3 tangent;
 out vec3 bitangent;
 out vec2 texcoord;
+out float texture_override;
 out vec4 shadowmap_coord[maxNumberOfLights];
 
 void main() {
@@ -23,6 +24,7 @@ void main() {
 	normal = (normalMatrix * in_normal).xyz;
 	tangent = (normalMatrix * in_tangent).xyz;
 	bitangent = (normalMatrix * in_bitangent).xyz;
+	texture_override = in_color.r;
 
 	for(int i=0; i < Lgt.num_lights; ++i) {
 		shadowmap_coord[i] = Lgt.lights[i].matrix * w_pos;
