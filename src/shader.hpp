@@ -22,7 +22,7 @@ class LightsData;
  * Typical usage:
  *   Shader* shader = Shader::create_shader("foobar");
  *   ...
- *   Shader::upload_projection_view_matrices(..);
+ *   Shader::upload_camera(..) or  Shader::upload_projection_view_matrices(..);
  *   Shader::upload_model_matrix(..);
  *   ...
  *   shader->bind();

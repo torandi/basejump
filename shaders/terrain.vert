@@ -6,6 +6,7 @@ layout (location = 1) in vec2 in_texcoord;
 layout (location = 2) in vec4 in_normal;
 layout (location = 3) in vec4 in_tangent;
 layout (location = 4) in vec4 in_bitangent;
+layout (location = 5) in vec4 in_color;
 
 out vec3 position;
 out vec3 normal;

@@ -67,15 +67,15 @@ void Terrain::generate_terrain() {
 	                 "  - World size: %dx%d\n"
 	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
 
-	vertices_ = std::vector<vertex_t>(numVertices);
+	vertices_ = std::vector<Shader::Shader::vertex_t>(numVertices);
 	for(int y=0; y<size_.y; ++y) {
 		for(int x=0; x<size_.x; ++x) {
-			vertex_t v;
+			Shader::Shader::vertex_t v;
 			int i = y * size_.x + x;
 			glm::vec4 color = get_pixel_color(x, y, data_map_, size_);
 			float h = height_from_color(color);
-			v.position = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
-			v.tex_coord = glm::vec2(static_cast<float>(x) / static_cast<float>(size_.x), 1.f - static_cast<float>(y) / static_cast<float>(size_.y));
+			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
+			v.uv = glm::vec2(static_cast<float>(x) / static_cast<float>(size_.x), 1.f - static_cast<float>(y) / static_cast<float>(size_.y));
 			vertices_[i] = v;
 			map_[i] =  h*vertical_scale_;
 		}

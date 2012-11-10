@@ -20,7 +20,7 @@
 
 Mesh::Mesh() : MovableObject(), vbos_generated_(false), has_tangents_(false){ }
 
-Mesh::Mesh(const std::vector<vertex_t> &vertices, const std::vector<unsigned int> &indices) :
+Mesh::Mesh(const std::vector<Shader::vertex_t> &vertices, const std::vector<unsigned int> &indices) :
 	MovableObject()
 	, vertices_(vertices), indices_(indices)
 	, aabb_dirty_(true)
@@ -34,7 +34,7 @@ Mesh::~Mesh() {
 		glDeleteBuffers(2, buffers_);
 }
 
-void Mesh::set_vertices(const std::vector<vertex_t> &vertices) {
+void Mesh::set_vertices(const std::vector<Shader::vertex_t> &vertices) {
    verify_immutable("set_vertices");
    vertices_ = vertices;
 }
@@ -47,15 +47,15 @@ void Mesh::set_indices(const std::vector<unsigned int> &indices) {
 void Mesh::set_vertices(const float vertices[][5], const size_t num_vertices) {
    verify_immutable("set_vertices");
    vertices_.clear();
-   vertex_t v;
+   Shader::vertex_t v;
 
    v.normal = glm::vec3();
    v.tangent = glm::vec3();
    v.bitangent = glm::vec3();
 
    for(unsigned int i=0; i < num_vertices; ++i) {
-      v.position = glm::vec3(vertices[i][0], vertices[i][1], vertices[i][2]);
-      v.tex_coord = glm::vec2(vertices[i][3], vertices[i][4]);
+      v.pos = glm::vec3(vertices[i][0], vertices[i][1], vertices[i][2]);
+      v.uv = glm::vec2(vertices[i][3], vertices[i][4]);
       vertices_.push_back(v);
    }
 }
@@ -69,9 +69,9 @@ void Mesh::generate_normals() {
 
 	for(unsigned int i=0; i<indices_.size(); i+=3) {
 		unsigned int tri[3] = {indices_[i], indices_[i+1], indices_[i+2]};
-		vertex_t * face[3] = {&vertices_[tri[0]], &vertices_[tri[1]], &vertices_[tri[2]]};
-		glm::vec3 v1 = face[1]->position-face[0]->position;
-		glm::vec3 v2 = face[2]->position-face[0]->position;
+		Shader::vertex_t * face[3] = {&vertices_[tri[0]], &vertices_[tri[1]], &vertices_[tri[2]]};
+		glm::vec3 v1 = face[1]->pos-face[0]->pos;
+		glm::vec3 v2 = face[2]->pos-face[0]->pos;
 		glm::vec3 normal = glm::cross(v1, v2);
 		for(int f=0; f<3;++f) {
 			face[f]->normal += normal;
@@ -95,7 +95,7 @@ void Mesh::ortonormalize_tangent_space() {
 		Logging::fatal("Mesh::ortonormalize_tangent_space() called with normals or tangents inactive\n");
 	}
 
-	for(std::vector<vertex_t>::iterator it=vertices_.begin(); it!=vertices_.end(); ++it) {
+	for(std::vector<Shader::vertex_t>::iterator it=vertices_.begin(); it!=vertices_.end(); ++it) {
 		it->normal = glm::normalize(it->normal);
 		//Make sure tangent is ortogonal to normal (and normalized)
 		it->tangent = glm::normalize(it->tangent - it->normal*glm::dot(it->normal, it->tangent));
@@ -118,11 +118,11 @@ void Mesh::generate_tangents_and_bitangents() {
 
 	for(unsigned int i=0; i<indices_.size(); i+=3) {
 		unsigned int tri[3] = {indices_[i], indices_[i+1], indices_[i+2]};
-		vertex_t * face[3] = {&vertices_[tri[0]], &vertices_[tri[1]], &vertices_[tri[2]]};
-		glm::vec3 v1 = face[1]->position-face[0]->position;
-		glm::vec3 v2 = face[2]->position-face[0]->position;
-		glm::vec2 uv1 = face[1]->tex_coord-face[0]->tex_coord;
-		glm::vec2 uv2 = face[2]->tex_coord-face[0]->tex_coord;
+		Shader::vertex_t * face[3] = {&vertices_[tri[0]], &vertices_[tri[1]], &vertices_[tri[2]]};
+		glm::vec3 v1 = face[1]->pos-face[0]->pos;
+		glm::vec3 v2 = face[2]->pos-face[0]->pos;
+		glm::vec2 uv1 = face[1]->uv-face[0]->uv;
+		glm::vec2 uv2 = face[2]->uv-face[0]->uv;
 
 		float r=1.f / (uv1.x * uv2.y - uv1.y * uv2.x);
 		glm::vec3 tangent = (v1 * uv2.y - v2 * uv1.y)*r;
@@ -150,7 +150,7 @@ void Mesh::generate_vbos() {
 	checkForGLErrors("Mesh::generate_vbos(): gen buffers");
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers_[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t)*vertices_.size(), &vertices_.front(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Shader::vertex_t)*vertices_.size(), &vertices_.front(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	checkForGLErrors("Mesh::generate_vbos(): fill array buffer");
 
@@ -161,12 +161,12 @@ void Mesh::generate_vbos() {
 
 	num_faces_ = indices_.size();
 
-	raw_aabb_.min = vertices_[0].position;
-	raw_aabb_.max = vertices_[0].position;
+	raw_aabb_.min = vertices_[0].pos;
+	raw_aabb_.max = vertices_[0].pos;
 
 	/* Calculate aabb */
-	for(const vertex_t &v : vertices_) {
-		raw_aabb_.add_point(v.position);
+	for(const Shader::vertex_t &v : vertices_) {
+		raw_aabb_.add_point(v.pos);
 	}
 
 	vbos_generated_ = true;
@@ -184,14 +184,13 @@ void Mesh::render_geometry(const glm::mat4& m) {
 
 	checkForGLErrors("Mesh::render(): Bind buffers");
 
-	/* Disable most attribs from Shader::vertex_x */
-	Shader::push_vertex_attribs(5);
+	Shader::push_vertex_attribs(6);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const GLvoid*) offsetof(vertex_t, position));
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const GLvoid*) offsetof(vertex_t, tex_coord));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const GLvoid*) offsetof(vertex_t, normal));
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const GLvoid*) offsetof(vertex_t, tangent));
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const GLvoid*) offsetof(vertex_t, bitangent));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, pos));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, uv));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, normal));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, tangent));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, bitangent));
 
 	checkForGLErrors("Mesh::render(): Set vertex attribs");
 
