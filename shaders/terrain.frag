@@ -3,6 +3,8 @@
 
 uniform float texture_fade_start;
 uniform float texture_fade_length;
+uniform float  material_shininess[3];
+uniform vec4 material_specular[3];
 
 in vec3 position;
 in vec3 normal;
@@ -38,6 +40,7 @@ void main() {
 
 	vec4 color1, color2;
 	float color_mix, angle;
+
 	angle = acos(abs(dot(norm_normal, vec3(0.0, 1.0, 0.0))));
 	color_mix = clamp( ( angle - texture_fade_start ) / texture_fade_length, 0.0, 1.0);
 	color1 = texture2DArray(texture_array0, vec3(texcoord, 0));
@@ -48,9 +51,11 @@ void main() {
 	color2 = texture2DArray(texture_array1, vec3(texcoord, 1));
 	vec3 normal_map = mix(color1, color2, color_mix).xyz;
 
+	float shininess = mix(material_shininess[0], material_shininess[1], color_mix);
+	vec4 specular = mix(material_specular[0], material_specular[1], color_mix);
+
 	normal_map = normalize(normal_map * 2.0 - 1.0);
 
-	float shininess = 18.f;
 	vec4 accumLighting = originalColor * vec4(Lgt.ambient_intensity,1.f);
 
 	for(int light = 0; light < Lgt.num_lights; ++light) {
@@ -58,7 +63,7 @@ void main() {
 				Lgt.lights[light], originalColor,
 				pos_tangent_space, normal_map, camera_dir,
 				norm_normal, norm_tangent, norm_bitangent,
-					Mtl.shininess, Mtl.specular) * 1.f;
+					shininess, specular) * 1.f;
 			//shadow_coefficient(Lgt.lights[light], position, shadowmap_coord[light]);
 	}
 

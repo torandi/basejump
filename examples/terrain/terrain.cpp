@@ -35,7 +35,7 @@ namespace Engine {
 		lights = new LightsData();
 
 		terrain->set_position(glm::vec3(-7.5f, -2.0f, -7.5f));
-		lights->ambient_intensity() = glm::vec3(0.5f);
+		lights->ambient_intensity() = glm::vec3(0.2f);
 		lights->num_lights() = 1;
 		lights->lights[0]->set_position(glm::vec3(0, -1.0f, -0.5f));
 		lights->lights[0]->intensity = glm::vec3(1.0f);

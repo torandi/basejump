@@ -9,6 +9,7 @@
 #include "texture.hpp"
 #include "utils.hpp"
 #include "config.hpp"
+#include "color.hpp"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -45,19 +46,26 @@ Terrain::Terrain(const std::string &file) {
 	*/
 
 	diffuse_textures_ = TextureArray::from_filename(
-			config["/default_texture/flat/diffuse"]->as_string().c_str(),
-			config["/default_texture/steep/diffuse"]->as_string().c_str(),
-			config["/override_texture/diffuse"]->as_string().c_str(),
+			config["/materials/flat/diffuse"]->as_string().c_str(),
+			config["/materials/steep/diffuse"]->as_string().c_str(),
+			config["/materials/override/diffuse"]->as_string().c_str(),
 			nullptr
 		);
 
 	normal_textures_ = TextureArray::from_filename(
-			config["/default_texture/flat/normal"]->as_string().c_str(),
-			config["/default_texture/steep/normal"]->as_string().c_str(),
-			config["/override_texture/normal"]->as_string().c_str(),
+			config["/materials/flat/normal"]->as_string().c_str(),
+			config["/materials/steep/normal"]->as_string().c_str(),
+			config["/materials/override/normal"]->as_string().c_str(),
 			nullptr
 		);
 
+	material_shininess_[0] = config["/materials/flat/shininess"]->as_float();
+	material_shininess_[1] = config["/materials/steep/shininess"]->as_float();
+	material_shininess_[2] = config["/materials/override/shininess"]->as_float();
+
+	material_specular_[0] = config["/materials/flat/specular"]->as_color().to_vec4();
+	material_specular_[1] = config["/materials/steep/specular"]->as_color().to_vec4();
+	material_specular_[2] = config["/materials/override/specular"]->as_color().to_vec4();
 
 	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -70,7 +78,9 @@ Terrain::Terrain(const std::string &file) {
 	shader_ = Shader::create_shader("/shaders/terrain");
 	u_texture_selection_[0] = shader_->uniform_location("texture_fade_start");
 	u_texture_selection_[1] = shader_->uniform_location("texture_fade_length");
-	material.specular = glm::vec4(0.f);
+
+	u_material_shininess_ = shader_->uniform_location("material_shininess");
+	u_material_specular_ = shader_->uniform_location("material_specular");
 
 	generate_terrain();
 
@@ -193,10 +203,10 @@ void Terrain::render(const glm::mat4& m) {
 	shader_->bind();
 	glUniform1f(u_texture_selection_[0], texture_selection_[0]);
 	glUniform1f(u_texture_selection_[1], texture_selection_[1]);
+	glUniform1fv(u_material_shininess_, 3, material_shininess_);
+	glUniform4fv(u_material_specular_, 3, (float*)material_specular_);
 
 	Shader::upload_model_matrix(matrix() * m);
-
-	Shader::upload_material(material);
 
 	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
 	normal_textures_->texture_bind(Shader::TEXTURE_ARRAY_1);

@@ -23,6 +23,11 @@ class Terrain : public Mesh {
 	float texture_selection_[2];
 	GLuint u_texture_selection_[2];
 
+	glm::vec4 material_specular_[3];
+	float material_shininess_[3];
+	GLuint u_material_specular_;
+	GLuint u_material_shininess_;
+
 	void generate_terrain();
 
 	float height_from_color(const glm::vec4 &color) const ;
@@ -53,8 +58,6 @@ class Terrain : public Mesh {
 
 		float height_at(float x, float y) const;
 		glm::vec3 normal_at(float x, float y) const;
-
-		Material material;
 
 		/*
 		 * Once this has been called get_pixel_color can not be called
