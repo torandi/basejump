@@ -100,7 +100,7 @@ void Mesh::add_indices(const std::vector<unsigned int> &indices) {
 			if(child->data == nullptr) child->data = (void*) new SubMesh(*this);
 
 			SubMesh * m = ((SubMesh*) child->data );
-			m->indices.insert(m->indices.end(), it, it + 4);
+			m->indices.insert(m->indices.end(), it, it + 3);
 		}
 	 }
 }
@@ -135,12 +135,13 @@ void Mesh::generate_normals() {
 
 void SubMesh::generate_normals() {
 	if(indices.size() == 0) Logging::fatal("SubMesh::generate_normals() called with indices empty\n");
+	if(indices.size() % 3 != 0) Logging::fatal("SubMesh::generate_normals() called with indices not a factor of 3\n");
 
 	for(unsigned int i=0; i<indices.size(); i+=3) {
 		unsigned int tri[3] = {indices[i], indices[i+1], indices[i+2]};
 		Shader::vertex_t * face[3] = {&parent.vertices_[tri[0]], &parent.vertices_[tri[1]], &parent.vertices_[tri[2]]};
-		glm::vec3 v1 = face[1]->pos-face[0]->pos;
-		glm::vec3 v2 = face[2]->pos-face[0]->pos;
+		glm::vec3 v1 = face[1]->pos - face[0]->pos;
+		glm::vec3 v2 = face[2]->pos - face[0]->pos;
 		glm::vec3 normal = glm::cross(v1, v2);
 		for(int f=0; f<3;++f) {
 			face[f]->normal += normal;
@@ -301,7 +302,7 @@ void SubMesh::render_geometry() {
 
 	checkForGLErrors("SubMesh::render(): Bind buffers");
 
-	//Shader::push_vertex_attribs(6);
+	Shader::push_vertex_attribs(6);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, pos));
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, uv));
@@ -319,7 +320,7 @@ void SubMesh::render_geometry() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	//Shader::pop_vertex_attribs();
+	Shader::pop_vertex_attribs();
 	checkForGLErrors("SubMesh::render(): Teardown ");
 }
 
