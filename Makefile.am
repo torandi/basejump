@@ -8,7 +8,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = basejump
 noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain examples_hdr
-TESTS = test/utils test/data test/aabb
+TESTS = test/utils test/data test/aabb test/quadtree
 
 if BUILD_EDITOR
 bin_PROGRAMS += editor
@@ -112,6 +112,9 @@ test_utils_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 test_aabb_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
 test_aabb_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
+
+test_quadtree_CXXFLAGS = ${AM_CXXFLAGS} $(CPPUNIT_CFLAGS)
+test_quadtree_LDADD = libfrob.a ${engine_LIBS} $(CPPUNIT_LIBS)
 
 release: all
 	@test "x${prefix}" = "x/" || (echo "Error: --prefix must be / when creating release (currently ${prefix})"; exit 1)
