@@ -29,7 +29,7 @@ Terrain::~Terrain() {
 	free_surface();
 }
 
-Terrain::Terrain(const std::string &file) {
+Terrain::Terrain(const std::string &file) : Mesh(20.f) {
 	Config config = Config::parse(file);
 
 	data_map_  = TextureBase::load_image(config["/heightmap"]->as_string() , &size_);

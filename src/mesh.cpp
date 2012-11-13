@@ -94,11 +94,7 @@ void Mesh::add_indices(const std::vector<unsigned int> &indices) {
 				child = submesh_tree->child(center_2d);
 				if(child == nullptr) {
 					//The point was outside the quad tree, enlarge!
-					AABB_2D new_aabb = submesh_tree->aabb;
-					new_aabb.max = new_aabb.max + submesh_tree->aabb.size();
-					QuadTree * cur = submesh_tree;
-					submesh_tree = new QuadTree(new_aabb, cur->level() + 1);
-					submesh_tree->add_child(cur);
+					submesh_tree = submesh_tree->grow();
 				}
 			}
 			if(child->data == nullptr) child->data = (void*) new SubMesh(*this);

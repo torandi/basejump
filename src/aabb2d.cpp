@@ -66,8 +66,8 @@ const std::vector<glm::vec2> &AABB_2D::corners() const {
 
 bool AABB_2D::contains(const glm::vec2 &point) const {
 	return (
-				min.x < point.x && point.x < max.x &&
-				min.y < point.y && point.y < max.y
+				min.x <= point.x && point.x <= max.x &&
+				min.y <= point.y && point.y <= max.y
 			);
 }
 

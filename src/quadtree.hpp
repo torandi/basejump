@@ -50,6 +50,15 @@ class QuadTree {
 		const AABB_2D aabb;
 
 		int level() const;
+
+		/*
+		 * This grows the tree upwards. That is: create a new quad tree that is twice the size of
+		 * this node, and then add this node to the new node. 
+		 *
+		 * returns the new node
+		 */
+		QuadTree * grow();
+
 	private:
 		/**
 		 * 0 | 1

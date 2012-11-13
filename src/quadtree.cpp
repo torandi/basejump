@@ -34,7 +34,7 @@ QuadTree * QuadTree::child(const glm::vec2 &position) {
 		if(level_ == 0) return this; //This is a leaf
 
 		int index = child_index(position);
-		return child(index);
+		return child(index)->child(position);
 	} else {
 		return nullptr;
 	}
@@ -87,4 +87,12 @@ void QuadTree::traverse(const std::function<bool(QuadTree*)> & func) {
 			if(children[i] != nullptr) children[i]->traverse(func);
 		}
 	}
+}
+
+QuadTree * QuadTree::grow() {
+	AABB_2D new_aabb = aabb;
+	new_aabb.max = new_aabb.max + aabb.size();
+	QuadTree * new_node  = new QuadTree(new_aabb, level_ + 1);
+	new_node->add_child(this);
+	return new_node;
 }
