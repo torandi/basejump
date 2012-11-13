@@ -50,6 +50,11 @@ class Input {
 
 		bool button_down(int btn);
 
+		/*
+		 * Combination of has_changed and checking value > 0.9
+		 *
+		 * Simply checks if the button is presed, and was has changed since last check
+		 */
 		bool down(Input::input_action_t action);
 		bool has_changed(input_action_t action, float epsilon) const;
 
