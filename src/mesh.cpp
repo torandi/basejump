@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "aabb2d.hpp"
 #include "mesh.hpp"
 #include "logging.hpp"
 #include "shader.hpp"
@@ -18,35 +19,95 @@
 #include <vector>
 #include <cassert>
 
-Mesh::Mesh() : MovableObject(), vbos_generated_(false), has_tangents_(false){ }
+Mesh::Mesh(float partition_size) 
+	: MovableObject()
+	, vbos_generated_(false)
+	, has_tangents_(false)
+	, partition_size_(partition_size)
+{ }
 
-Mesh::Mesh(const std::vector<Shader::vertex_t> &vertices, const std::vector<unsigned int> &indices) :
+Mesh::Mesh(const std::vector<Shader::vertex_t> &vertices, const std::vector<unsigned int> &indices, float partition_size) :
 	MovableObject()
-	, vertices_(vertices), indices_(indices)
 	, aabb_dirty_(true)
+	, vertices_(vertices)
 	,	vbos_generated_(false),has_tangents_(false)
+	, partition_size_(partition_size)
 {
-	assert((indices.size()%3)==0);
+
+	submesh_tree = new QuadTree(AABB_2D(glm::vec2(0.f), glm::vec2(partition_size)));
+	submesh_tree->data = new SubMesh(*this);
+
+	if(!(indices.size()%3)==0) {
+		Logging::fatal("Trying to create a Mesh with number of indices not a factor of 3\n");
+	}
+	add_indices(indices);
 }
 
 Mesh::~Mesh() {
-	if(vbos_generated_)
-		glDeleteBuffers(2, buffers_);
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) delete (SubMesh*) qt->data;
+		return true;
+	});
+
+	delete submesh_tree;
+
+	if(vbos_generated_) {
+		glDeleteBuffers(1, &vertex_buffer);
+	}
 }
 
-void Mesh::set_vertices(const std::vector<Shader::vertex_t> &vertices) {
+SubMesh::SubMesh(Mesh &mesh) : vbo_generated(false), parent(mesh) {
+
+}
+
+SubMesh::~SubMesh() {
+	if(vbo_generated) {
+		glDeleteBuffers(1, &index_buffer);
+	}
+}
+
+void Mesh::add_vertices(const std::vector<Shader::vertex_t> &vertices) {
    verify_immutable("set_vertices");
-   vertices_ = vertices;
+	 vertices_.insert(vertices_.end(), vertices.begin(), vertices.end());
 }
 
-void Mesh::set_indices(const std::vector<unsigned int> &indices) {
+void Mesh::add_indices(const std::vector<unsigned int> &indices) {
    verify_immutable("set_indices");
-   indices_ = indices;
+	 if(indices.size() % 3 != 0) {
+		Logging::fatal("Must add indices in groups of 3\n");
+	 }
+
+	 if(partition_size_ < 0.f) {
+		//Ignore quad tree size, just insert in the quad tree node
+		SubMesh * m = (SubMesh*) submesh_tree->data ;
+		m->indices.insert(m->indices.end(), indices.begin(), indices.end());
+	 } else {
+		for(auto it = indices.begin(); it != indices.end(); it += 3) {
+			glm::vec3 center = ( vertices_[*it].pos + vertices_[*(it + 1)].pos + vertices_[*(it + 2)].pos ) / 3.f;
+			glm::vec2 center_2d = glm::vec2(center.x, center.z); //Ignore y
+			//Find child:
+			QuadTree * child = nullptr;
+			while(child == nullptr) {
+				child = submesh_tree->child(center_2d);
+				if(child == nullptr) {
+					//The point was outside the quad tree, enlarge!
+					AABB_2D new_aabb = submesh_tree->aabb;
+					new_aabb.max = new_aabb.max + submesh_tree->aabb.size();
+					QuadTree * cur = submesh_tree;
+					submesh_tree = new QuadTree(new_aabb, cur->level() + 1);
+					submesh_tree->add_child(cur);
+				}
+			}
+			if(child->data == nullptr) child->data = (void*) new SubMesh(*this);
+
+			SubMesh * m = ((SubMesh*) child->data );
+			m->indices.insert(m->indices.end(), it, it + 4);
+		}
+	 }
 }
 
-void Mesh::set_vertices(const float vertices[][5], const size_t num_vertices) {
+void Mesh::add_vertices(const float vertices[][5], const size_t num_vertices) {
    verify_immutable("set_vertices");
-   vertices_.clear();
    Shader::vertex_t v;
 
    v.normal = glm::vec3();
@@ -61,15 +122,24 @@ void Mesh::set_vertices(const float vertices[][5], const size_t num_vertices) {
 }
 
 void Mesh::generate_normals() {
-	if(vertices_.size() == 3 || indices_.size() == 0) {
-		Logging::fatal("Mesh::generate_normals() called with vertices or indices empty\n");
-	}
+	verify_immutable("generate_normals()");
 
-	verify_immutable("calculate_normals()");
+	if(vertices_.size() < 3) Logging::fatal("Mesh::generate_normals() called with vertices empty\n");
 
-	for(unsigned int i=0; i<indices_.size(); i+=3) {
-		unsigned int tri[3] = {indices_[i], indices_[i+1], indices_[i+2]};
-		Shader::vertex_t * face[3] = {&vertices_[tri[0]], &vertices_[tri[1]], &vertices_[tri[2]]};
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) ( (SubMesh*) qt->data )->generate_normals();
+		return true;
+	});
+
+	has_normals_ = true;
+}
+
+void SubMesh::generate_normals() {
+	if(indices.size() == 0) Logging::fatal("SubMesh::generate_normals() called with indices empty\n");
+
+	for(unsigned int i=0; i<indices.size(); i+=3) {
+		unsigned int tri[3] = {indices[i], indices[i+1], indices[i+2]};
+		Shader::vertex_t * face[3] = {&parent.vertices_[tri[0]], &parent.vertices_[tri[1]], &parent.vertices_[tri[2]]};
 		glm::vec3 v1 = face[1]->pos-face[0]->pos;
 		glm::vec3 v2 = face[2]->pos-face[0]->pos;
 		glm::vec3 normal = glm::cross(v1, v2);
@@ -77,7 +147,6 @@ void Mesh::generate_normals() {
 			face[f]->normal += normal;
 		}
 	}
-   has_normals_ = true;
 }
 
 void Mesh::activate_normals() {
@@ -88,14 +157,23 @@ void Mesh::activate_tangents_and_bitangents() {
    has_tangents_ = true;
 }
 
-
-//This method orgonormalizes the tangent space
 void Mesh::ortonormalize_tangent_space() {
+	verify_immutable("ortonormalize_tangent_space");
+
 	if(! (has_normals_ && has_tangents_)) {
 		Logging::fatal("Mesh::ortonormalize_tangent_space() called with normals or tangents inactive\n");
 	}
 
-	for(std::vector<Shader::vertex_t>::iterator it=vertices_.begin(); it!=vertices_.end(); ++it) {
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) ( (SubMesh*) qt->data )->ortonormalize_tangent_space();
+		return true;
+	});
+}
+
+//This method orgonormalizes the tangent space
+void SubMesh::ortonormalize_tangent_space() {
+
+	for(std::vector<Shader::vertex_t>::iterator it=parent.vertices_.begin(); it!=parent.vertices_.end(); ++it) {
 		it->normal = glm::normalize(it->normal);
 		//Make sure tangent is ortogonal to normal (and normalized)
 		it->tangent = glm::normalize(it->tangent - it->normal*glm::dot(it->normal, it->tangent));
@@ -112,13 +190,22 @@ void Mesh::ortonormalize_tangent_space() {
 }
 
 void Mesh::generate_tangents_and_bitangents() {
-	if(vertices_.size() == 3 || indices_.size() == 0) {
-		Logging::fatal("Mesh::generate_tangents_and_bitangents() called with vertices or indices empty\n");
-	}
+	if(vertices_.size() < 3) Logging::fatal("Mesh::generate_normals() called with vertices empty\n");
 
-	for(unsigned int i=0; i<indices_.size(); i+=3) {
-		unsigned int tri[3] = {indices_[i], indices_[i+1], indices_[i+2]};
-		Shader::vertex_t * face[3] = {&vertices_[tri[0]], &vertices_[tri[1]], &vertices_[tri[2]]};
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) ( (SubMesh*) qt->data )->generate_tangents_and_bitangents();
+		return true;
+	});
+
+	has_tangents_ = true;
+}
+
+void SubMesh::generate_tangents_and_bitangents() {
+	if(indices.size() == 0) Logging::fatal("SubMesh::generate_normals() called with indices empty\n");
+
+	for(unsigned int i=0; i<indices.size(); i+=3) {
+		unsigned int tri[3] = {indices[i], indices[i+1], indices[i+2]};
+		Shader::vertex_t * face[3] = {&parent.vertices_[tri[0]], &parent.vertices_[tri[1]], &parent.vertices_[tri[2]]};
 		glm::vec3 v1 = face[1]->pos-face[0]->pos;
 		glm::vec3 v2 = face[2]->pos-face[0]->pos;
 		glm::vec2 uv1 = face[1]->uv-face[0]->uv;
@@ -133,7 +220,6 @@ void Mesh::generate_tangents_and_bitangents() {
 			face[f]->bitangent += bitangent;
 		}
 	}
-   has_tangents_ = true;
 }
 
 void Mesh::verify_immutable(const char * where) {
@@ -145,26 +231,22 @@ void Mesh::verify_immutable(const char * where) {
 void Mesh::generate_vbos() {
 	verify_immutable("generate_vbos()");
 
-	//Upload data:
-	glGenBuffers(2, buffers_);
+	glGenBuffers(1, &vertex_buffer);
 	checkForGLErrors("Mesh::generate_vbos(): gen buffers");
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffers_[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Shader::vertex_t)*vertices_.size(), &vertices_.front(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Shader::vertex_t)*vertices_.size(), vertices_.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	checkForGLErrors("Mesh::generate_vbos(): fill array buffer");
+	checkForGLErrors("Mesh::generate_vbos(): fill vertex buffer");
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*indices_.size(), &indices_.front(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	checkForGLErrors("Mesh::generate_vbos(): fill element array buffer");
-
-	num_faces_ = indices_.size();
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) ( (SubMesh*) qt->data )->generate_vbos();
+		return true;
+	});
 
 	raw_aabb_.min = vertices_[0].pos;
 	raw_aabb_.max = vertices_[0].pos;
 
-	/* Calculate aabb */
 	for(const Shader::vertex_t &v : vertices_) {
 		raw_aabb_.add_point(v.pos);
 	}
@@ -172,19 +254,55 @@ void Mesh::generate_vbos() {
 	vbos_generated_ = true;
 }
 
+void SubMesh::generate_vbos() {
+	//Upload data:
+	glGenBuffers(1, &index_buffer);
+	checkForGLErrors("SubMesh::generate_vbos(): gen buffers");
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*indices.size(), indices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	checkForGLErrors("SubMesh::generate_vbos(): fill index buffer");
+
+	num_faces = static_cast<unsigned int>( static_cast<float>(indices.size()) / 3.f );
+	vbo_generated = true;
+}
+
+void Mesh::prepare_submesh_rendering(const glm::mat4& m) {
+	Shader::upload_model_matrix(m * matrix());
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+}
+
 void Mesh::render(const glm::mat4& m) {
-	render_geometry(m);
+
+	prepare_submesh_rendering(m);
+
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) ( (SubMesh*) qt->data )->render();
+		return true;
+	});
 }
 
 void Mesh::render_geometry(const glm::mat4& m) {
-	Shader::upload_model_matrix(m * matrix());
+	prepare_submesh_rendering(m);
 
-	glBindBuffer(GL_ARRAY_BUFFER, buffers_[0]);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers_[1]);
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) ( (SubMesh*) qt->data )->render_geometry();
+		return true;
+	});
+}
 
-	checkForGLErrors("Mesh::render(): Bind buffers");
+void SubMesh::render() {
+	render_geometry();
+}
 
-	Shader::push_vertex_attribs(6);
+void SubMesh::render_geometry() {
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+
+	checkForGLErrors("SubMesh::render(): Bind buffers");
+
+	//Shader::push_vertex_attribs(6);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, pos));
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, uv));
@@ -193,17 +311,17 @@ void Mesh::render_geometry(const glm::mat4& m) {
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, bitangent));
 	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, color));
 
-	checkForGLErrors("Mesh::render(): Set vertex attribs");
+	checkForGLErrors("SubMesh::render(): Set vertex attribs");
 
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(num_faces_), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(num_faces * 3), GL_UNSIGNED_INT, 0);
 
-	checkForGLErrors("Mesh::render(): glDrawElements()");
+	checkForGLErrors("SubMesh::render(): glDrawElements()");
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	Shader::pop_vertex_attribs();
-	checkForGLErrors("Mesh::render(): Teardown ");
+	//Shader::pop_vertex_attribs();
+	checkForGLErrors("SubMesh::render(): Teardown ");
 }
 
 void Mesh::calculate_aabb() {
