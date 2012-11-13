@@ -1,8 +1,13 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "quadtree.hpp"
+#include "logging.hpp"
 
 QuadTree::QuadTree(AABB_2D position, int level)
-	: aabb(position)
-	, data(nullptr)
+	: data(nullptr)
+	, aabb(position)
 	, level_(level)
 {
 		for(int i=0; i<4; ++i) children[i] = nullptr;

@@ -52,6 +52,7 @@ libfrob_a_SOURCES = \
 	src/timetable.cpp src/timetable.hpp \
 	src/utils.cpp src/utils.hpp \
 	src/quad.cpp src/quad.hpp \
+	src/quadtree.cpp src/quadtree.hpp \
 	src/techniques/blur.cpp src/techniques/blur.hpp \
 	src/techniques/hdr.cpp src/techniques/hdr.hpp \
 	src/techniques/temporalblur.cpp src/techniques/temporalblur.hpp \

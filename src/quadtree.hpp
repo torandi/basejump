@@ -30,7 +30,7 @@ class QuadTree {
 		 * if the position is in this quad tree a quadtree ptr will be returned
 		 * if the position is not in this quad tree, a nullptr will be returned
 		 */
-		QuadTree * child(const glm::vec2 position);
+		QuadTree * child(const glm::vec2 &position);
 
 		/*
 		 * Same as above, but from specified index
@@ -64,7 +64,7 @@ class QuadTree {
 		 * Calculates which quadrant the position lies in.
 		 * Assumes that the position is in this nodes aabb
 		 */
-		int child_index(const glm::vec2 position);
+		int child_index(const glm::vec2 &position);
 
 		void create_child(int index);
 
