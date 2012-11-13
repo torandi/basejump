@@ -309,7 +309,7 @@ void SubMesh::render_geometry() {
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, normal));
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, tangent));
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, bitangent));
-	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, color));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, color));
 
 	checkForGLErrors("SubMesh::render(): Set vertex attribs");
 
