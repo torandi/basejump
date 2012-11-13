@@ -63,33 +63,6 @@ void MovableLight::update() {
 	}
 }
 
-void MovableLight::calculateFrustrumData(const Camera &cam, float near, float far, glm::vec3 * points) const {
-	//Near plane:
-	float y = near * tanf(cam.fov() / 2.f);
-	float x = y * cam.aspect();
-
-	glm::vec3 lx, ly, lz;
-	lx = glm::normalize(cam.local_x());
-	ly = glm::normalize(cam.local_y());
-	lz = glm::normalize(cam.local_z());
-
-	glm::vec3 near_center = cam.position() + lz * near;
-	glm::vec3 far_center = cam.position() + lz * far;
-
-	points[0] = near_center + -x * lx + -y * ly;
-	points[1] = near_center + -x * lx +  y * ly;
-	points[2] = near_center +  x * lx +  y * ly;
-	points[3] = near_center +  x * lx + -y * ly;
-
-	y = far * tanf(cam.fov() / 2.f);
-	x = y * cam.aspect();
-
-	points[4] = far_center + -x * lx + -y * ly;
-	points[5] = far_center + -x * lx +  y * ly;
-	points[6] = far_center +  x * lx +  y * ly;
-	points[7] = far_center +  x * lx + -y * ly;
-}
-
 void MovableLight::recalculate_matrices() {
 	switch(type) {
 		case DIRECTIONAL_LIGHT:
@@ -144,7 +117,7 @@ void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aab
 			{
 
 				glm::vec3 frustrum_corners[8];
-				calculateFrustrumData(camera, near, far, frustrum_corners);
+				camera.frustrum_corners(frustrum_corners, near, far);
 
 
 				glm::vec3 min = glm::vec3(FLT_MAX);

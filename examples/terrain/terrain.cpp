@@ -15,10 +15,13 @@ static Shader* passthru = nullptr;
 static Terrain* terrain = nullptr;
 static RenderTarget* scene = nullptr;
 static LightsData* lights = nullptr;
-static Camera cam(75, 1.3f, 0.1f, 400.0f);
+static Camera cam(75, 1.3f, 0.1f, 200.0f), cam2(75, 1.3f, 0.1f, 200.0f);
 extern glm::mat4 screen_ortho;   /* defined in main.cpp */
 extern Time global_time;         /* defined in main.cpp */
 extern glm::ivec2 resolution;    /* defined in main.cpp */
+static Camera * move;
+static GLuint frustrum_buffer;
+static Shader * simple = nullptr;
 
 namespace Engine {
 	RenderTarget* rendertarget_by_name(const std::string& fullname){
@@ -30,6 +33,7 @@ namespace Engine {
 
 		passthru  = Shader::create_shader("/shaders/passthru");
 		shader    = Shader::create_shader("/shaders/normal");
+		simple		= Shader::create_shader("/shaders/simple");
 		terrain   = new Terrain("/terrain.cfg");
 		scene     = new RenderTarget(resolution, GL_RGB8, RenderTarget::DEPTH_BUFFER, GL_LINEAR);
 		lights = new LightsData();
@@ -48,6 +52,13 @@ namespace Engine {
 		cam.set_position(glm::vec3(0.f, 32.f, 0.f));
 		cam.look_at(glm::vec3(0.f, 32.f, 2.f));
 
+		cam2.set_position(glm::vec3(0.f, 32.f, 0.f));
+		cam2.look_at(glm::vec3(0.f, 32.f, 2.f));
+
+		move = &cam;
+
+		glGenBuffers(1, &frustrum_buffer);
+
 #ifdef ENABLE_INPUT
 		Input::movement_speed = 32.f;
 #endif
@@ -59,6 +70,9 @@ namespace Engine {
 	void cleanup(){
 		delete terrain;
 		delete scene;
+
+		glDeleteBuffers(1, &frustrum_buffer);
+
 		Shader::cleanup();
 	}
 
@@ -70,7 +84,10 @@ namespace Engine {
 		Shader::upload_resolution(resolution);
 
 		RenderTarget::clear(Color::white);
-		terrain->render();
+		terrain->render_cull(cam2);
+
+		simple->bind();
+		cam2.render_frustrum(frustrum_buffer);
 	}
 
 	void update(float t, float dt){
@@ -78,7 +95,11 @@ namespace Engine {
 		const float d = 15.5f;
 
 #ifdef ENABLE_INPUT
-		input.update_object(cam, dt);
+		input.update_object(*move, dt);
+		if(input.down(Input::ACTION_0)) {
+			if(move == &cam) move = &cam2;
+			else move = &cam;
+		}
 #else
 		cam.look_at(glm::vec3(0,0,0));
 		cam.set_position(glm::vec3(cos(s)*d, 8.0f, sin(s)*d));

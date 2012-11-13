@@ -17,11 +17,6 @@ class MovableLight : public MovableObject {
 		static glm::ivec2 shadowmap_resolution;
 		static float shadowmap_far_factor;
 
-		/**
-		 * points shall be [8], filled with corners
-		 */
-		void calculateFrustrumData(const Camera &cam, float near, float far, glm::vec3 * points) const;
-
 		enum light_type_t {
 			DIRECTIONAL_LIGHT, //position is direction instead
 			POINT_LIGHT,

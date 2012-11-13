@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "movable_object.hpp"
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 class Camera : public MovableObject {
@@ -38,6 +39,20 @@ public:
 	virtual void relative_rotate(const glm::vec3 &axis, const float &angle);
 
 	virtual const glm::vec3 &position() const;
+
+	/*
+	 * Get a list of all frustrum corners
+	 *
+	 * @param points a array with 8 entries to store result
+	 * @param near, far: Specify near and far, leave at -1 to use cameras values
+	 */
+	void frustrum_corners(glm::vec3 * points, float near = -1.f, float far = -1.f) const;
+
+	/*
+	 * Debug function for rendering the view frustrum
+	 * Expects /shaders/simple to be bound
+	 */
+	void render_frustrum(GLuint buffer);
 
 private:
 	void recalculate();
