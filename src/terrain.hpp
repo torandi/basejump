@@ -39,6 +39,8 @@ class Terrain : public Mesh {
 
 	const glm::ivec2& heightmap_size() const;
 
+	static bool cull_or_render(QuadTree * node);
+
 	public:
 		float vertical_scale() { return vertical_scale_; };
 
@@ -53,7 +55,12 @@ class Terrain : public Mesh {
 		 */
 		Terrain(const std::string &file);
 		virtual ~Terrain();
+
 		virtual void render(const glm::mat4& m = glm::mat4());
+
+		void render_cull(const Camera &cam, const glm::mat4& m = glm::mat4());
+		void render_geometry_cull( const Camera &cam, const glm::mat4& m = glm::mat4());
+
 		static glm::vec4 get_pixel_color(int x, int y, SDL_Surface * surface, const glm::ivec2 &size);
 
 		float height_at(float x, float y) const;
@@ -63,6 +70,8 @@ class Terrain : public Mesh {
 		 * Once this has been called get_pixel_color can not be called
 		 */
 		void free_surface();
+
+		void prepare_shader();
 };
 
 #endif

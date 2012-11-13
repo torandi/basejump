@@ -24,7 +24,10 @@ Mesh::Mesh(float partition_size)
 	, vbos_generated_(false)
 	, has_tangents_(false)
 	, partition_size_(partition_size)
-{ }
+{
+	submesh_tree = new QuadTree(AABB_2D(glm::vec2(0.f), glm::vec2(partition_size)));
+	submesh_tree->data = new SubMesh(*this);
+}
 
 Mesh::Mesh(const std::vector<Shader::vertex_t> &vertices, const std::vector<unsigned int> &indices, float partition_size) :
 	MovableObject()

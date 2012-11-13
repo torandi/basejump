@@ -23,8 +23,8 @@ Quad::Quad(glm::vec2 texture_scale, bool normal, bool tangent_and_bitangent) : M
 		v[i][3]*=texture_scale.x; //u
 		v[i][4]*=texture_scale.y; //v
 	}
-	set_vertices(v, NUM_VERTICES);
-	set_indices(std::vector<unsigned int>(indices, indices+NUM_INDICES));
+	add_vertices(v, NUM_VERTICES);
+	add_indices(std::vector<unsigned int>(indices, indices+NUM_INDICES));
 
 	if(normal) generate_normals();
 	if(tangent_and_bitangent) generate_tangents_and_bitangents();

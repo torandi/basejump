@@ -39,10 +39,8 @@ Terrain::Terrain(const std::string &file) {
 	const std::vector<ConfigEntry*> texture_selection = config["/texture_selection"]->as_list();
 	texture_selection_[0] = glm::radians(texture_selection[0]->as_float());
 	texture_selection_[1] = glm::radians(texture_selection[1]->as_float()) - texture_selection_[0];
-	printf("Normal selection: %f, %f\n", texture_selection_[0], texture_selection_[1]);
 	/* 
-	 * second value is given as end, but algorithm handleslength (delta)
-	 * Also: internal check is done with dot (cos of the angle), so store in cos
+	 * second value is given as end, but algorithm handles length (delta)
 	*/
 
 	diffuse_textures_ = TextureArray::from_filename(
@@ -125,19 +123,21 @@ void Terrain::generate_terrain() {
 	unsigned long indexCount = (size_.y - 1 ) * (size_.x -1) * 6;
 
 	//build indices
-	indices_ = std::vector<unsigned int>(indexCount);
+	std::vector<unsigned int> indices = std::vector<unsigned int>(indexCount);
 	for(int x=0; x<size_.x- 1; ++x) {
 		for(int y=0; y<size_.y- 1; ++y) {
 			int i = y * (size_.x-1) + x;
-			indices_[i*6 + 2] = (x + 1) + y*size_.x;
-			indices_[i*6 + 1] = x + (y+1)*size_.x;
-			indices_[i*6 + 0] = x + y*size_.x;
+			indices[i*6 + 2] = (x + 1) + y*size_.x;
+			indices[i*6 + 1] = x + (y+1)*size_.x;
+			indices[i*6 + 0] = x + y*size_.x;
 
-			indices_[i*6 + 5] = (x + 1) + y*size_.x;
-			indices_[i*6 + 4] = (x+1) + (y+1)*size_.x;
-			indices_[i*6 + 3] = x + (y+1)*size_.x;
+			indices[i*6 + 5] = (x + 1) + y*size_.x;
+			indices[i*6 + 4] = (x+1) + (y+1)*size_.x;
+			indices[i*6 + 3] = x + (y+1)*size_.x;
 		}
 	}
+
+	add_indices(indices);
 
 	generate_normals();
 	generate_tangents_and_bitangents();
@@ -199,17 +199,7 @@ glm::vec4 Terrain::get_pixel_color(int x, int y, SDL_Surface * surface, const gl
 }
 
 void Terrain::render(const glm::mat4& m) {
-
-	shader_->bind();
-	glUniform1f(u_texture_selection_[0], texture_selection_[0]);
-	glUniform1f(u_texture_selection_[1], texture_selection_[1]);
-	glUniform1fv(u_material_shininess_, 3, material_shininess_);
-	glUniform4fv(u_material_specular_, 3, (float*)material_specular_);
-
-	Shader::upload_model_matrix(matrix() * m);
-
-	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
-	normal_textures_->texture_bind(Shader::TEXTURE_ARRAY_1);
+	prepare_shader();
 
 	Mesh::render();
 
@@ -220,6 +210,35 @@ void Terrain::render(const glm::mat4& m) {
 
 	Mesh::render();
 #endif
+}
 
+void Terrain::prepare_shader() {
+	shader_->bind();
+	glUniform1f(u_texture_selection_[0], texture_selection_[0]);
+	glUniform1f(u_texture_selection_[1], texture_selection_[1]);
+	glUniform1fv(u_material_shininess_, 3, material_shininess_);
+	glUniform4fv(u_material_specular_, 3, (float*)material_specular_);
 
+	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
+	normal_textures_->texture_bind(Shader::TEXTURE_ARRAY_1);
+}
+
+void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
+
+	prepare_shader();
+
+	prepare_submesh_rendering(m);
+
+	submesh_tree->traverse(Terrain::cull_or_render);
+}
+
+void Terrain::render_geometry_cull( const Camera &cam, const glm::mat4& m) {
+	prepare_submesh_rendering(m);
+
+	submesh_tree->traverse(Terrain::cull_or_render);
+}
+
+bool Terrain::cull_or_render(QuadTree * node) {
+	if(node->data != nullptr) ( (SubMesh*) node->data )->render_geometry();
+	return true;
 }
