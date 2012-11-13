@@ -21,6 +21,7 @@ endif
 
 libfrob_a_SOURCES = \
 	src/aabb.cpp src/aabb.hpp \
+	src/aabb2d.cpp src/aabb2d.hpp \
 	src/bindable.hpp \
 	src/camera.cpp src/camera.hpp \
 	src/cl.cpp src/cl.hpp \
@@ -40,7 +41,6 @@ libfrob_a_SOURCES = \
 	src/movable_object.cpp src/movable_object.hpp \
 	src/particle_system.cpp src/particle_system.hpp \
 	src/path.cpp src/path.hpp \
-	src/rails.cpp src/rails.hpp \
 	src/rendertarget.cpp src/rendertarget.hpp \
 	src/render_object.cpp src/render_object.hpp \
 	src/shader.cpp src/shader.hpp \
