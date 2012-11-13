@@ -8,8 +8,8 @@
 #include <cstdio>
 
 AABB::AABB()
-	: min()
-	, max()
+	: min(FLT_MAX)
+	, max(-FLT_MAX)
 	, corners_dirty_(true)
 	{ }
 
@@ -25,6 +25,13 @@ AABB AABB::operator+(const AABB &other) const {
 				glm::vec3(glm::min(min.x, other.min.x),glm::min(min.y, other.min.y),glm::min(min.z, other.min.z)),
 				glm::vec3(glm::max(max.x, other.max.x),glm::max(max.y, other.max.y),glm::max(max.z, other.max.z))
 			);
+}
+
+AABB &AABB::operator+=(const AABB &other) {
+	corners_dirty_ = true;
+	min = glm::vec3(glm::min(min.x, other.min.x),glm::min(min.y, other.min.y),glm::min(min.z, other.min.z));
+	max = glm::vec3(glm::max(max.x, other.max.x),glm::max(max.y, other.max.y),glm::max(max.z, other.max.z));
+	return *this;
 }
 
 AABB AABB::operator*(const glm::mat4 &matrix) const {

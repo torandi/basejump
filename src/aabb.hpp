@@ -17,6 +17,11 @@ struct AABB {
 	 */
 	AABB operator+(const AABB &other) const;
 
+	/*
+	 * Same as operator+
+	 */
+	AABB &operator+=(const AABB &other);
+
 	/**
 	 * Multiply both points with given matrix
 	 */
