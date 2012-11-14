@@ -13,6 +13,7 @@
 #include "config.hpp"
 #include "terrain.hpp"
 #include "engine.hpp"
+#include "data.hpp"
 
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
@@ -24,9 +25,13 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	printf("Loading level %s\n", level.c_str());
 
-	std::string base_dir = "/levels/" + level;
+	std::string base_dir = std::string(srcdir) + "/basejump/levels/" + level;
 
-	Config config = Config::parse(base_dir + "/level.cfg");
+	Data::add_search_path(srcdir "/basejump");
+	Data::add_search_path(base_dir);
+
+	Config config = Config::parse("/level.cfg");
+	terrain = new Terrain("/terrain.cfg");
 
 	lights.ambient_intensity() = config["/environment/light/ambient"]->as_vec3();
 	lights.num_lights() = 1;
@@ -39,7 +44,12 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	fog.color = config["/environment/fog/color"]->as_color().to_vec4();
 	fog.density = config["/environment/fog/density"]->as_float();
-	
+
+	//TODO: Remove debug hack
+	camera.set_position(glm::vec3(0.f, 32.f, 0.f));
+	camera.look_at(glm::vec3(0.f, 32.f, 2.f));
+
+	Input::movement_speed = 32.f;
 }
 
 Game::~Game() {
@@ -48,6 +58,7 @@ Game::~Game() {
 
 void Game::render_geometry() {
 	/* This should render all geometry in the scene for the shadow map */
+	terrain->render_geometry();
 }
 
 void Game::render_scene(){
@@ -60,9 +71,12 @@ void Game::render_scene(){
 	Shader::upload_camera(camera);
 	Shader::upload_lights(lights);
 
-	scene->with([](){
-			RenderTarget::clear(Color::green);
+	Shader::upload_fog(fog);
+
+	scene->with([&](){
+			RenderTarget::clear(sky_color);
 			/* Render scene here */
+			terrain->render();
 	});
 }
 
@@ -81,6 +95,42 @@ void Game::render(){
 	render_blit();
 }
 
+static void print_values(const Technique::HDR &hdr) {
+	printf("Exposure: %f\n, bloom: %f\n, bright_max: %f\n", hdr.exposure(), hdr.bloom_factor(), hdr.bright_max());
+}
+
 void Game::update(float t, float dt) {
 	/* Update game logic */
+
+
+	//Debug stuff
+	input.update_object(camera, dt);
+
+	//Update hdr
+	if(input.down(Input::ACTION_0)) {
+		hdr.set_exposure(hdr.exposure() - 0.1f);
+		print_values(hdr);
+	}
+	if(input.down(Input::ACTION_1)) {
+		hdr.set_exposure(hdr.exposure() + 0.1f);
+		print_values(hdr);
+	}
+
+	if(input.down(Input::ACTION_2)) {
+		hdr.set_bright_max(hdr.bright_max() - 0.1f);
+		print_values(hdr);
+	}
+	if(input.down(Input::ACTION_3)) {
+		hdr.set_bright_max(hdr.bright_max() + 0.1f);
+		print_values(hdr);
+	}
+
+	if(input.down(Input::ACTION_4)) {
+		hdr.set_bloom_factor(hdr.bloom_factor() - 0.1f);
+		print_values(hdr);
+	}
+	if(input.down(Input::ACTION_5)) {
+		hdr.set_bloom_factor(hdr.bloom_factor() + 0.1f);
+		print_values(hdr);
+	}
 }
