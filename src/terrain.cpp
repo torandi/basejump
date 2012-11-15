@@ -10,6 +10,9 @@
 #include "utils.hpp"
 #include "config.hpp"
 #include "color.hpp"
+#include "triangle2d.hpp"
+#include "line2d.hpp"
+#include "intersect2d.hpp"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -23,19 +26,23 @@
 	static Shader * debug_shader;
 #endif
 
+float Terrain::culling_fov_factor = 1.2f;
+float Terrain::culling_near_padding = 1.5f;
+
 Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
 	free_surface();
 }
 
-Terrain::Terrain(const std::string &file) : Mesh(20.f) {
+Terrain::Terrain(const std::string &file) : Mesh(32.f) {
 	Config config = Config::parse(file);
 
 	data_map_  = TextureBase::load_image(config["/heightmap"]->as_string() , &size_);
 	horizontal_scale_ = config["/horizontal_size"]->as_float() / static_cast<float>(size_.x);
 	vertical_scale_ = config["/vertical_size"]->as_float();;
 	uv_scale_ = config["/uv_repeat"]->as_float();
+	set_partition_size(config["/submesh_size"]->as_float());
 	const std::vector<ConfigEntry*> texture_selection = config["/texture_selection"]->as_list();
 	texture_selection_[0] = glm::radians(texture_selection[0]->as_float());
 	texture_selection_[1] = glm::radians(texture_selection[1]->as_float()) - texture_selection_[0];
@@ -108,6 +115,7 @@ void Terrain::generate_terrain() {
 	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
 
 	vertices_ = std::vector<Shader::Shader::vertex_t>(numVertices);
+
 	for(int y=0; y<size_.y; ++y) {
 		for(int x=0; x<size_.x; ++x) {
 			Shader::Shader::vertex_t v;
@@ -139,9 +147,13 @@ void Terrain::generate_terrain() {
 
 	add_indices(indices);
 
+	printf("[Terrain] Generate normals\n");
 	generate_normals();
+	printf("[Terrain] Generate tangent space\n");
 	generate_tangents_and_bitangents();
+	printf("[Terrain] Ortonormalize tangent space\n");
 	ortonormalize_tangent_space();
+	printf("[Terrain] Create buffers\n");
 	generate_vbos();
 }
 
@@ -228,17 +240,51 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 	prepare_shader();
 
 	prepare_submesh_rendering(m);
-
-	submesh_tree->traverse(Terrain::cull_or_render);
+	//We assume no roll (we could widen the frustrum a bit to take some roll into account)
+	
+	Triangle2D cam_tri = calculate_camera_tri(cam);
+	
+	submesh_tree->traverse([&,cam_tri](QuadTree * tree) -> bool {
+			return Terrain::cull_or_render(cam_tri, tree);
+	});
 }
 
 void Terrain::render_geometry_cull( const Camera &cam, const glm::mat4& m) {
 	prepare_submesh_rendering(m);
 
-	submesh_tree->traverse(Terrain::cull_or_render);
+	Triangle2D cam_tri = calculate_camera_tri(cam);
+	
+	submesh_tree->traverse([&,cam_tri](QuadTree * tree) -> bool {
+			return Terrain::cull_or_render(cam_tri, tree);
+	});
 }
 
-bool Terrain::cull_or_render(QuadTree * node) {
-	if(node->data != nullptr) ( (SubMesh*) node->data )->render_geometry();
-	return true;
+Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
+	glm::vec3 corners[8];
+
+	cam.frustrum_corners(corners, cam.near(), cam.far(), cam.fov() * culling_fov_factor);
+
+	glm::vec2 points[3];
+
+	points[0] = glm::vec2(corners[4].x, corners[4].z);
+	points[1] = glm::vec2(corners[6].x, corners[6].z);
+	points[2] = glm::vec2(cam.position().x, cam.position().z) - glm::normalize(glm::vec2(cam.local_z().x, cam.local_z().z)) * culling_near_padding;
+	
+	return Triangle2D(
+			points[0],
+			points[1],
+			points[2]
+			);
+
+}
+
+bool Terrain::cull_or_render(const Triangle2D &cam_tri, QuadTree * node) {
+	if(intersect2d::aabb_triangle(node->aabb, cam_tri)) {
+		if(node->data != nullptr) {
+			( (SubMesh*) node->data )->render_geometry();
+		}
+		return true;
+	} else {
+		return false;
+	}
 }

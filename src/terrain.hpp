@@ -39,7 +39,9 @@ class Terrain : public Mesh {
 
 	const glm::ivec2& heightmap_size() const;
 
-	static bool cull_or_render(QuadTree * node);
+	static bool cull_or_render(const Triangle2D &cam_tri, QuadTree * node);
+
+	static Triangle2D calculate_camera_tri(const Camera& cam);
 
 	public:
 		float vertical_scale() { return vertical_scale_; };
@@ -66,12 +68,21 @@ class Terrain : public Mesh {
 		float height_at(float x, float y) const;
 		glm::vec3 normal_at(float x, float y) const;
 
+		void prepare_shader();
+
 		/*
 		 * Once this has been called get_pixel_color can not be called
 		 */
 		void free_surface();
 
-		void prepare_shader();
+
+		/*
+		 * Configuration for culling. If you don't intend to use full roll (or maybee even then)
+		 * the default values will probably do
+		 */
+		static float culling_fov_factor; /* How much fov is taken into account when culling (multiplied with fov)*/
+		static float culling_near_padding; /* How far back camera point (near plan single point in triangle) 
+																					is moved from camera position */
 };
 
 #endif
