@@ -18,6 +18,7 @@
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
 	,	hdr(resolution, /* exposure = */ 2.5f, /* bright_max = */ 3.6f, /* bloom_amount = */ 1.0f)
+	, dof(resolution, 1, GL_RGBA32F)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
 	shader_normal = Shader::create_shader("/shaders/normal");
@@ -84,7 +85,10 @@ void Game::render_blit(){
 	Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 	Shader::upload_model_matrix(glm::mat4());
 
-	hdr.render(scene);
+	dof.render(scene);
+
+	hdr.render(&dof);
+
 
 	RenderTarget::clear(Color::magenta);
 	hdr.draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));

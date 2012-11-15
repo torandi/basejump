@@ -4,6 +4,7 @@
 #include "aabb.hpp"
 #include "lights_data.hpp"
 #include "techniques/hdr.hpp"
+#include "techniques/dof.hpp"
 
 #include <string>
 
@@ -27,6 +28,7 @@ class Game {
 
 		AABB scene_aabb;
 		Technique::HDR hdr;
+		Technique::DoF dof;
 		Shader * shader_normal, *shader_passthru;
 
 		Terrain * terrain;
