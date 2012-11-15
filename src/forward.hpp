@@ -1,5 +1,5 @@
-class AABB;
-class AABB_2D;
+struct AABB;
+struct AABB_2D;
 struct Triangle2D;
 class Camera;
 class Color;
