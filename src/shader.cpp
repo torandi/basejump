@@ -50,7 +50,7 @@ struct UBO {
 static const struct UBO ubo[Shader::NUM_GLOBAL_UNIFORMS] = {
 	{"projectionViewMatrices", sizeof(glm::mat4)*3,           GL_DYNAMIC_DRAW},
 	{"modelMatrices",          sizeof(glm::mat4)*2,           GL_DYNAMIC_DRAW},
-	{"Camera",                 sizeof(glm::vec3),             GL_DYNAMIC_DRAW},
+	{"Camera",                 sizeof(Shader::camera_t),      GL_DYNAMIC_DRAW},
 	{"Material",               sizeof(Shader::material_t),    GL_DYNAMIC_DRAW},
 	{"LightsData",             sizeof(Shader::lights_data_t), GL_DYNAMIC_DRAW},
 	{"Resolution",             sizeof(struct resolution_data),GL_DYNAMIC_DRAW},
@@ -383,13 +383,6 @@ void Shader::upload_lights(LightsData &lights) {
 	upload_lights(lights.shader_data());
 }
 
-void Shader::upload_camera_position(const Camera &camera) {
-	glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[UNIFORM_CAMERA]);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(camera.position()));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	checkForGLErrors("upload camera position");
-}
-
 void Shader::upload_projection_view_matrices(
 	const glm::mat4 &projection,
 	const glm::mat4 &view
@@ -432,7 +425,12 @@ void Shader::upload_blank_material() {
 }
 
 void Shader::upload_camera(const Camera &camera) {
-	upload_camera_position(camera);
+	const camera_t cam = {camera.position(),  camera.near(), camera.far(), };
+
+	glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[UNIFORM_CAMERA]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(camera_t), &cam);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	checkForGLErrors("upload camera");
 	upload_projection_view_matrices(camera.projection_matrix(), camera.view_matrix());
 }
 

@@ -167,7 +167,13 @@ public:
 	 */
 	void release();
 
-private:
+	struct camera_t {
+		glm::vec3 pos;
+		float near;
+		float far;
+	};
+
+	private:
 
 	Shader(const std::string &name_, GLuint program);
 	~Shader();
@@ -207,10 +213,6 @@ public:
 	static void upload_lights(const lights_data_t &lights);
 	static void upload_lights(LightsData &lights);
 
-	/*
-	 * Uploads the camera position
-	 */
-	static void upload_camera_position(const Camera &camera);
 
 	/**
 	 * Upload the material
@@ -231,7 +233,7 @@ public:
 	static void upload_model_matrix( const glm::mat4 &model);
 
 	/**
-	 * Uploads camera position, and projection and view matrix
+	 * Uploads camera data, and projection and view matrix
 	 */
 	static void upload_camera(const Camera &camera);
 
