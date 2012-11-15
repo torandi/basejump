@@ -32,6 +32,7 @@ libfrob_a_SOURCES = \
 	src/globals.cpp src/globals.hpp \
 	src/light.cpp src/light.hpp \
 	src/lights_data.cpp src/lights_data.hpp \
+	src/line2d.cpp src/line2d.hpp \
 	src/loading.cpp src/loading.hpp \
 	src/logging.cpp src/logging.hpp \
 	src/material.cpp src/material.hpp \
@@ -50,6 +51,7 @@ libfrob_a_SOURCES = \
 	src/texture.cpp src/texture.hpp \
 	src/time.cpp src/time.hpp \
 	src/timetable.cpp src/timetable.hpp \
+	src/triangle2d.cpp src/triangle2d.hpp \
 	src/utils.cpp src/utils.hpp \
 	src/quad.cpp src/quad.hpp \
 	src/quadtree.cpp src/quadtree.hpp \
