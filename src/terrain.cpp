@@ -195,7 +195,7 @@ void Terrain::generate_terrain() {
 }
 
 float Terrain::height_from_color(const glm::vec4 &color) const {
-	return color.r;
+	return color.r + color.g;
 }
 
 float Terrain::height_at(int x, int y) const {
