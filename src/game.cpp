@@ -46,8 +46,8 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	fog.density = config["/environment/fog/density"]->as_float();
 
 	//TODO: Remove debug hack
-	camera.set_position(glm::vec3(0.f, 32.f, 0.f));
-	camera.look_at(glm::vec3(0.f, 32.f, 2.f));
+	camera.set_position(glm::vec3(100.f, 32.f, 100.f));
+	camera.look_at(glm::vec3(100.f, 32.f, 102.f));
 
 	Input::movement_speed = 32.f;
 }
