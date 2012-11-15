@@ -87,7 +87,7 @@ public:
 		return glm::vec4(r,g,b,a);
 	}
 
-	static Color lerp(const Color& c1, const Color& c2, float s){
+	static Color mix(const Color& c1, const Color& c2, float s){
 		return Color(
 			c1.r + ( c2.r - c1.r ) * s,
 			c1.g + ( c2.g - c1.g ) * s,
