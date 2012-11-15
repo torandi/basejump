@@ -32,7 +32,6 @@ class SubMesh {
 	protected:
 		void generate_normals();
 		void generate_tangents_and_bitangents();
-		void ortonormalize_tangent_space();
 
 		GLuint index_buffer;
 		bool vbo_generated;

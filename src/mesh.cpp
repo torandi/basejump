@@ -164,16 +164,7 @@ void Mesh::ortonormalize_tangent_space() {
 		Logging::fatal("Mesh::ortonormalize_tangent_space() called with normals or tangents inactive\n");
 	}
 
-	submesh_tree->traverse([](QuadTree * qt) -> bool {
-		if(qt->data != nullptr) ( (SubMesh*) qt->data )->ortonormalize_tangent_space();
-		return true;
-	});
-}
-
-//This method orgonormalizes the tangent space
-void SubMesh::ortonormalize_tangent_space() {
-
-	for(std::vector<Shader::vertex_t>::iterator it=parent.vertices_.begin(); it!=parent.vertices_.end(); ++it) {
+	for(std::vector<Shader::vertex_t>::iterator it=vertices_.begin(); it!=vertices_.end(); ++it) {
 		it->normal = glm::normalize(it->normal);
 		//Make sure tangent is ortogonal to normal (and normalized)
 		it->tangent = glm::normalize(it->tangent - it->normal*glm::dot(it->normal, it->tangent));
