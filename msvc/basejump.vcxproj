@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6C36B3D9-C67D-41E8-B496-0BF537A4E849}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>nox2</RootNamespace>
+    <RootNamespace>basejump</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -40,8 +40,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Configuration)\nox2\</OutDir>
-    <IntDir>$(SolutionDir)$(Configuration)\nox2\</IntDir>
+    <OutDir>$(SolutionDir)$(Configuration)\basejump\</OutDir>
+    <IntDir>$(SolutionDir)$(Configuration)\basejump\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -52,7 +52,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;NAME="nox2";TITLE="NördtroXy II Invitation";WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;NAME="basejump";TITLE="NördtroXy II Invitation";WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/../vendor/include;$(SolutionDir)/../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -84,13 +84,10 @@
     <ClInclude Include="..\..\src\platform.hpp" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\crt.hpp" />
-    <ClInclude Include="autoload.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\basejump.cpp" />
     <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\nox2.cpp" />
-    <ClCompile Include="..\src\scene\nox.cpp" />
-    <ClCompile Include="autoload.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libfrob.vcxproj">

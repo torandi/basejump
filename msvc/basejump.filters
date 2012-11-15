@@ -35,7 +35,7 @@
     <ClCompile Include="autoload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\nox2.cpp">
+    <ClCompile Include="..\src\basejump.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\main.cpp">
