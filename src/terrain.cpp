@@ -116,12 +116,48 @@ void Terrain::generate_terrain() {
 
 	vertices_ = std::vector<Shader::Shader::vertex_t>(numVertices);
 
+
+	int filter_offset_x[] = {
+		-1, 0, 1,
+		-1, 0, 1,
+		-1, 0, 1,
+	};
+
+	int filter_offset_y[] = {
+		-1, -1, -1,
+		 0,  0,  0,
+		 1,  1,  1,
+	};
+
+	float filter_kernel[] = {
+		1.f, 1.f, 1.f,
+		1.f, 1.f, 1.f,
+		1.f, 1.f, 1.f,
+	};
+
+	int filter_size = sizeof(filter_offset_x) / sizeof(int);
+
+	float inverse_filter_sum = 0.f;
+	for(int i=0; i<filter_size; ++i) {
+		inverse_filter_sum += filter_kernel[i];
+	}
+	inverse_filter_sum = 1.f/inverse_filter_sum;
+
 	for(int y=0; y<size_.y; ++y) {
 		for(int x=0; x<size_.x; ++x) {
 			Shader::Shader::vertex_t v;
 			int i = y * size_.x + x;
-			glm::vec4 color = get_pixel_color(x, y, data_map_, size_);
-			float h = height_from_color(color);
+
+			float h = 0.f;
+			if(x == 0 || y == 0 || x == size_.x || y == size_.y) {
+				//On edge, can't run box filter:
+				h = height_from_color(get_pixel_color(x, y, data_map_, size_));
+			} else {
+				for(int f = 0; f<filter_size; ++f) {
+					h += height_from_color(get_pixel_color(x + filter_offset_x[f], y + filter_offset_y[f], data_map_, size_)) * filter_kernel[f] * inverse_filter_sum;
+				}
+			}
+
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
 			v.uv = glm::vec2(static_cast<float>(x) / static_cast<float>(size_.x), 1.f - static_cast<float>(y) / static_cast<float>(size_.y)) * uv_scale_;
 			vertices_[i] = v;
