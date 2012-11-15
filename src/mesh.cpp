@@ -87,6 +87,7 @@ void Mesh::add_indices(const std::vector<unsigned int> &indices) {
 		SubMesh * m = (SubMesh*) submesh_tree->data ;
 		m->indices.insert(m->indices.end(), indices.begin(), indices.end());
 	 } else {
+
 		for(auto it = indices.begin(); it != indices.end(); it += 3) {
 			glm::vec3 center = ( vertices_[*it].pos + vertices_[*(it + 1)].pos + vertices_[*(it + 2)].pos ) / 3.f;
 			glm::vec2 center_2d = glm::vec2(center.x, center.z); //Ignore y
@@ -180,10 +181,11 @@ void Mesh::ortonormalize_tangent_space() {
 		it->bitangent = new_bitangent;
 
 	}
+
 }
 
 void Mesh::generate_tangents_and_bitangents() {
-	if(vertices_.size() < 3) Logging::fatal("Mesh::generate_normals() called with vertices empty\n");
+	if(vertices_.size() < 3) Logging::fatal("Mesh::generate_tangents_and_bitangents() called with vertices empty\n");
 
 	submesh_tree->traverse([](QuadTree * qt) -> bool {
 		if(qt->data != nullptr) ( (SubMesh*) qt->data )->generate_tangents_and_bitangents();
@@ -194,7 +196,7 @@ void Mesh::generate_tangents_and_bitangents() {
 }
 
 void SubMesh::generate_tangents_and_bitangents() {
-	if(indices.size() == 0) Logging::fatal("SubMesh::generate_normals() called with indices empty\n");
+	if(indices.size() == 0) Logging::fatal("SubMesh::generate_tangents_and_bitangents() called with indices empty\n");
 
 	for(unsigned int i=0; i<indices.size(); i+=3) {
 		unsigned int tri[3] = {indices[i], indices[i+1], indices[i+2]};
