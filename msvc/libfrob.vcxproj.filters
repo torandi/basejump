@@ -147,6 +147,15 @@
     <ClInclude Include="..\src\triangle2d.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\techniques\blur.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\techniques\hdr.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\techniques\temporalblur.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\utils.cpp">
@@ -261,6 +270,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\triangle2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\techniques\blur.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\techniques\hdr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\techniques\temporalblur.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

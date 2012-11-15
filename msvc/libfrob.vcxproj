@@ -40,6 +40,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\libfrob\</OutDir>
     <IntDir>$(SolutionDir)$(Configuration)\libfrob\</IntDir>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\src\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\libfrob\</OutDir>
@@ -106,6 +108,9 @@
     <ClInclude Include="..\src\shader.hpp" />
     <ClInclude Include="..\src\skybox.hpp" />
     <ClInclude Include="..\src\sound.hpp" />
+    <ClInclude Include="..\src\techniques\blur.hpp" />
+    <ClInclude Include="..\src\techniques\hdr.hpp" />
+    <ClInclude Include="..\src\techniques\temporalblur.hpp" />
     <ClInclude Include="..\src\terrain.hpp" />
     <ClInclude Include="..\src\texture.hpp" />
     <ClInclude Include="..\src\time.hpp" />
@@ -148,6 +153,9 @@
     <ClCompile Include="..\src\shader.cpp" />
     <ClCompile Include="..\src\skybox.cpp" />
     <ClCompile Include="..\src\sound.cpp" />
+    <ClCompile Include="..\src\techniques\blur.cpp" />
+    <ClCompile Include="..\src\techniques\hdr.cpp" />
+    <ClCompile Include="..\src\techniques\temporalblur.cpp" />
     <ClCompile Include="..\src\terrain.cpp" />
     <ClCompile Include="..\src\testing.cpp" />
     <ClCompile Include="..\src\texture.cpp" />
