@@ -67,7 +67,7 @@ void main() {
 	/* Calculate bottom color (in screenspace) */
 	ivec2 size = textureSize(texture3, 0);
 	vec2 ss = vec2(gl_FragCoord.x / size.x, gl_FragCoord.y / size.y);
-	float depth = linear_depth(texture2, 1.0, 100.0f); /** @todo hardcoded near/far */
+	float depth = linear_depth(texture2);
 	vec3 bottom = texture(texture3, ss).rgb;
 
 	/* Mix colors together */
