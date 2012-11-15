@@ -203,7 +203,7 @@ float ConfigEntry::as_float() const {
 		printf("[ConfigEntry] Trying to read a non-string entry as float\n");
 		abort();
 	}
-	return atof(entry_string.c_str());
+	return static_cast<float>(atof(entry_string.c_str()));
 }
 
 glm::vec2 ConfigEntry::as_vec2() const {

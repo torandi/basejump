@@ -10,7 +10,7 @@
 #include "utils.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-static const unsigned long fade_time = 1e6; /* in µs */
+static const unsigned long fade_time = static_cast<float>(1e6); /* in µs */
 
 namespace Loading {
 

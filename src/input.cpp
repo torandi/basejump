@@ -261,7 +261,7 @@ float Input::get_hat_right_left(int hat) {
 }
 
 bool Input::down(Input::input_action_t action) {
-	return has_changed(action, 0.1) && current_value(action) > 0.9;
+	return has_changed(action, 0.1f) && current_value(action) > 0.9f;
 }
 
 bool Input::has_changed(Input::input_action_t action, float epsilon) const {
