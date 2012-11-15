@@ -184,9 +184,15 @@ void Input::parse_event(const SDL_Event &event) {
 		temporary_values[MOVE_X] = -normalized_axis_value(0)*movement_speed;
 		temporary_values[MOVE_Y] = get_hat_up_down(0)*movement_speed;
 		temporary_values[MOVE_Z] = -normalized_axis_value(1)*movement_speed;
+#ifdef WIN32
+		/* These are the other way around on windows */
+		temporary_values[ROTATE_Z] = -normalized_axis_value(4)*rotation_speed;
+		temporary_values[ROTATE_X] = normalized_axis_value(3)*rotation_speed;
+#else
 		temporary_values[ROTATE_X] = -normalized_axis_value(4)*rotation_speed;
-		temporary_values[ROTATE_Y] = -(normalized_trigger_value(5) - normalized_trigger_value(2))*rotation_speed;
 		temporary_values[ROTATE_Z] = normalized_axis_value(3)*rotation_speed;
+#endif
+		temporary_values[ROTATE_Y] = -(normalized_trigger_value(5) - normalized_trigger_value(2))*rotation_speed;
 	}
 }
 
