@@ -46,7 +46,7 @@ public:
 	 * @param points a array with 8 entries to store result
 	 * @param near, far: Specify near and far, leave at -1 to use cameras values
 	 */
-	void frustrum_corners(glm::vec3 * points, float near = -1.f, float far = -1.f) const;
+	void frustrum_corners(glm::vec3 * points, float near = -1.f, float far = -1.f, float fov=-1.f) const;
 
 	/*
 	 * Debug function for rendering the view frustrum
