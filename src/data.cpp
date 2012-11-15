@@ -66,16 +66,27 @@ static std::string path_cleanup(std::string path){
 	/* if the path is empty it is already fine */
 	if ( path == "" ) return path;
 
+#ifdef WIN32
+	for(int i=0; i<path.length() - 1; ++i) {
+		if(path[i] == '/') path[i] = __PATH_SEPARATOR_;
+	}
+#endif
+
+
 	/* make sure path has trailing slash */
 	const char last = path[path.length()-1];
-	if ( last != '/' ){
-		path += '/';
+	if ( last != __PATH_SEPARATOR_ ){
+		path += __PATH_SEPARATOR_;
 	}
 
-	/* windows dislikes ./ */
-	if ( path == "./" ){
-		return "";
+#ifdef WIN32
+	
+	if(path == ".\\") return "";
+
+	if ( path[0] == __PATH_SEPARATOR_ ) {
+		path = path.substr(1);
 	}
+#endif
 
 	return path;
 }
@@ -112,6 +123,12 @@ std::string Data::expand_path(std::string filename){
 	} else {
 		filename = filename.substr(1);
 	}
+
+#ifdef WIN32
+	for(int i=0; i<filename.length() - 1; ++i) {
+		if(filename[i] == '/') filename[i] = __PATH_SEPARATOR_;
+	}
+#endif
 
 	for ( auto path : search_path ){
 		const std::string fullpath = path + filename;
