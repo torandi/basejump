@@ -57,6 +57,7 @@ libfrob_a_SOURCES = \
 	src/quad.cpp src/quad.hpp \
 	src/quadtree.cpp src/quadtree.hpp \
 	src/techniques/blur.cpp src/techniques/blur.hpp \
+	src/techniques/dof.cpp src/techniques/dof.hpp \
 	src/techniques/hdr.cpp src/techniques/hdr.hpp \
 	src/techniques/temporalblur.cpp src/techniques/temporalblur.hpp \
 	vendor/src/nanosvg.cpp vendor/include/nanosvg.h
