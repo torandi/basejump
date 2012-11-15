@@ -8,7 +8,7 @@ namespace Technique {
 	class HDR : public RenderTarget {
 		public:
 			/**
-			 * Creates a blur technique for bluring a fbo of given size
+			 * Creates a hdr technique for doing hdr with bloom on a fbo
 			 * @param size: Size of the fbo (probably resolution)
 			 */
 			explicit HDR(const glm::ivec2& size, float exposure, float bright_max, float bloom_factor = 0.5f) throw();
