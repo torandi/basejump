@@ -58,7 +58,7 @@ Game::~Game() {
 
 void Game::render_geometry() {
 	/* This should render all geometry in the scene for the shadow map */
-	terrain->render_geometry();
+	terrain->render_geometry_cull(camera);
 }
 
 void Game::render_scene(){
@@ -76,7 +76,7 @@ void Game::render_scene(){
 	scene->with([&](){
 			RenderTarget::clear(sky_color);
 			/* Render scene here */
-			terrain->render();
+			terrain->render_cull(camera);
 	});
 }
 
