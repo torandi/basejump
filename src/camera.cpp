@@ -163,7 +163,7 @@ void Camera::frustrum_corners(glm::vec3 * points, float near, float far, float f
 	points[7] = far_center +  x * lx + -y * ly;
 }
 
-void Camera::render_frustrum(GLuint buffer) {
+void Camera::render_frustrum(GLuint buffer) const{
 	static const unsigned int indices[] = {
 		0, 1, 2, 3, 0, 4, 5, 6, 7, 4, 5, 1, 2, 6, 7, 3
 	};

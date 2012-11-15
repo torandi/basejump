@@ -52,7 +52,7 @@ public:
 	 * Debug function for rendering the view frustrum
 	 * Expects /shaders/simple to be bound
 	 */
-	void render_frustrum(GLuint buffer);
+	void render_frustrum(GLuint buffer) const;
 
 private:
 	void recalculate();
