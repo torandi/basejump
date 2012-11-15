@@ -76,11 +76,16 @@ ConfigEntry::~ConfigEntry() {
 
 Config Config::parse(std::string file) {
 	Data * data = Data::open(file);
+	ConfigEntry * current = new ConfigEntry(ConfigEntry::ENTRY_MAP);
+
+	if(data == nullptr) {
+		Logging::warning("[Config] Failed to open file %s: file not found\n", file.c_str());
+		return Config(current);
+	}
 	std::string str = std::string((const char*)data->data(), data->size());
 	std::vector<std::string> lines = split(str, ";[]{}", true);
 
 	std::list<ConfigEntry*> config_stack;
-	ConfigEntry * current = new ConfigEntry(ConfigEntry::ENTRY_MAP);
 	int linenr = 0;
 	for(std::string line : lines) {
 		++linenr;
