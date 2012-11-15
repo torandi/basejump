@@ -106,6 +106,14 @@ class Mesh : public MovableObject {
 
 		void verify_immutable(const char * where); //Checks that vbos_generated == false
 
+		/*
+		 * Warning! Calling this will remove any currently added indices
+		 */
+		void set_partition_size(float size);
+
+	private:
+		void free_submesh_tree();
+
 
 };
 

@@ -46,22 +46,24 @@ Mesh::Mesh(const std::vector<Shader::vertex_t> &vertices, const std::vector<unsi
 	add_indices(indices);
 }
 
-Mesh::~Mesh() {
+void Mesh::free_submesh_tree() {
 	submesh_tree->traverse([](QuadTree * qt) -> bool {
 		if(qt->data != nullptr) delete (SubMesh*) qt->data;
 		return true;
 	});
 
 	delete submesh_tree;
+}
+
+Mesh::~Mesh() {
+	free_submesh_tree();
 
 	if(vbos_generated_) {
 		glDeleteBuffers(1, &vertex_buffer);
 	}
 }
 
-SubMesh::SubMesh(Mesh &mesh) : vbo_generated(false), parent(mesh) {
-
-}
+SubMesh::SubMesh(Mesh &mesh) : vbo_generated(false), parent(mesh) { }
 
 SubMesh::~SubMesh() {
 	if(vbo_generated) {
@@ -332,4 +334,15 @@ const bool &Mesh::aabb_dirty() {
 
 void Mesh::matrix_becomes_dirty() {
 	aabb_dirty_ = true;
+}
+
+void Mesh::set_partition_size(float size) {
+	verify_immutable("set_partition_size");
+
+	free_submesh_tree();
+
+	submesh_tree = new QuadTree(AABB_2D(glm::vec2(0.f), glm::vec2(size)));
+	submesh_tree->data = new SubMesh(*this);
+
+	partition_size_ = size;
 }
