@@ -17,7 +17,7 @@
 
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
-	,	hdr(resolution, /* exposure = */ 1.8f, /* bright_max = */ 1.6f, /* bloom_amount = */ 1.0f)
+	,	hdr(resolution, /* exposure = */ 2.5f, /* bright_max = */ 3.6f, /* bloom_amount = */ 1.0f)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
 	shader_normal = Shader::create_shader("/shaders/normal");
@@ -61,16 +61,11 @@ Game::~Game() {
 	delete scene;
 }
 
-void Game::render_geometry() {
-	/* This should render all geometry in the scene for the shadow map */
-	terrain->render_geometry_cull(camera);
-}
-
 void Game::render_scene(){
 	Shader::upload_model_matrix(glm::mat4());
 
-	lights.lights[0]->render_shadow_map(camera, scene_aabb, [&](const glm::mat4 &m) -> void  {
-			render_geometry();
+	lights.lights[0]->render_shadow_map(camera, scene_aabb, [&](const AABB &aabb) -> void  {
+			terrain->render_geometry_cull(camera, aabb);
 	});
 
 	Shader::upload_camera(camera);

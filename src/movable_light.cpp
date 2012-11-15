@@ -88,6 +88,7 @@ void MovableLight::recalculate_matrices() {
 				lightv[1] = glm::normalize(glm::cross(lightv[0], hint));
 				lightv[2] = glm::normalize(glm::cross(lightv[1], lightv[0]));
 				view_matrix = glm::lookAt(glm::vec3(0.f), position(), lightv[2]);
+				inv_view_matrix = glm::inverse(view_matrix);
 			}
 		break;
 		case POINT_LIGHT:
@@ -103,7 +104,7 @@ void MovableLight::recalculate_matrices() {
 	matrices_dirty_ = false;
 }
 
-void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aabb, std::function<void(const glm::mat4& m)> render_geometry) {
+void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aabb, std::function<void(const AABB &aabb)> render_geometry) {
 	if(shadow_map.fbo == nullptr) shadow_map.create_fbo();
 
 	if(matrices_dirty_) recalculate_matrices();
@@ -112,13 +113,14 @@ void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aab
 	near = camera.near();
 	far = camera.far() * shadowmap_far_factor;
 
+	AABB render_aabb = scene_aabb;
+
 	switch(type) {
 		case DIRECTIONAL_LIGHT:
 			{
 
 				glm::vec3 frustrum_corners[8];
 				camera.frustrum_corners(frustrum_corners, near, far);
-
 
 				glm::vec3 min = glm::vec3(FLT_MAX);
 				glm::vec3 max = glm::vec3(-FLT_MAX);
@@ -165,6 +167,9 @@ void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aab
 
 				projection_matrix = glm::ortho(min.x, max.x, max.y, min.y, near_plane, far_plane);
 
+				render_aabb.min = glm::vec3(glm::vec4(min, 1.f) * inv_view_matrix);
+				render_aabb.max = glm::vec3(glm::vec4(max, 1.f) * inv_view_matrix);
+
 				break;
 			}
 		case POINT_LIGHT:
@@ -191,7 +196,7 @@ void MovableLight::render_shadow_map(const Camera &camera, const AABB &scene_aab
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
-	render_geometry(glm::mat4());
+	render_geometry(render_aabb);
 
 	shadow_map.fbo->unbind();
 }

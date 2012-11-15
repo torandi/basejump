@@ -88,7 +88,7 @@ namespace Engine {
 	}
 
 	static void render_scene(){
-		lights->lights[0]->render_shadow_map(cam, scene_aabb, [](const glm::mat4 &m) -> void  {
+		lights->lights[0]->render_shadow_map(cam, scene_aabb, [](const AABB &aabb) -> void  {
 				render_geometry();
 		});
 

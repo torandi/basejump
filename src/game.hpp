@@ -18,7 +18,6 @@ class Game {
 
 	private:
 		void render_blit();
-		void render_geometry();
 		void render_scene();
 
 		LightsData lights;
