@@ -114,7 +114,7 @@ void Terrain::generate_terrain() {
 	                 "  - World size: %dx%d\n"
 	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
 
-	vertices_ = std::vector<Shader::Shader::vertex_t>(numVertices);
+	vertices_ = std::vector<Shader::vertex_t>(numVertices);
 
 
 	int filter_offset_x[] = {
@@ -145,7 +145,7 @@ void Terrain::generate_terrain() {
 
 	for(int y=0; y<size_.y; ++y) {
 		for(int x=0; x<size_.x; ++x) {
-			Shader::Shader::vertex_t v;
+			Shader::vertex_t v;
 			int i = y * size_.x + x;
 
 			float h = 0.f;
