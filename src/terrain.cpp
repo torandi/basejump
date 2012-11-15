@@ -282,19 +282,34 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 	
 	Triangle2D cam_tri = calculate_camera_tri(cam);
 	
-	submesh_tree->traverse([&,cam_tri](QuadTree * tree) -> bool {
+	/*submesh_tree->traverse([&,cam_tri](QuadTree * tree) -> bool {
 			return Terrain::cull_or_render(cam_tri, tree);
-	});
+	});*/
+
+	AABB_2D aabb2d;
+	aabb2d.add_point(cam_tri.p1);
+	aabb2d.add_point(cam_tri.p2);
+	aabb2d.add_point(cam_tri.p3);
+
+	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, aabb2d, std::placeholders::_1));
 }
 
 void Terrain::render_geometry_cull( const Camera &cam, const glm::mat4& m) {
+	render_geometry_cull(cam, aabb(), m);
+}
+
+void Terrain::render_geometry_cull( const Camera &cam, const AABB &aabb, const glm::mat4& m) {
 	prepare_submesh_rendering(m);
 
 	Triangle2D cam_tri = calculate_camera_tri(cam);
-	
-	submesh_tree->traverse([&,cam_tri](QuadTree * tree) -> bool {
+
+	AABB_2D aabb2d(glm::vec2(aabb.min.x, aabb.min.z), glm::vec2(aabb.max.x, aabb.max.z));
+
+	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, aabb2d, std::placeholders::_1));
+			
+			/*[&,cam_tri](QuadTree * tree) -> bool {
 			return Terrain::cull_or_render(cam_tri, tree);
-	});
+	});*/
 }
 
 Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
@@ -316,8 +331,8 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
 
 }
 
-bool Terrain::cull_or_render(const Triangle2D &cam_tri, QuadTree * node) {
-	if(intersect2d::aabb_triangle(node->aabb, cam_tri)) {
+bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_box, QuadTree * node) {
+	if(intersect2d::aabb_aabb(node->aabb, limiting_box) && intersect2d::aabb_triangle(node->aabb, cam_tri)) {
 		if(node->data != nullptr) {
 			( (SubMesh*) node->data )->render_geometry();
 		}

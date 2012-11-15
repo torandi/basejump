@@ -246,6 +246,8 @@ void Mesh::generate_vbos() {
 		raw_aabb_.add_point(v.pos);
 	}
 
+	aabb_dirty_ = true;
+
 	vbos_generated_ = true;
 }
 

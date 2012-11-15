@@ -39,7 +39,7 @@ class Terrain : public Mesh {
 
 	const glm::ivec2& heightmap_size() const;
 
-	static bool cull_or_render(const Triangle2D &cam_tri, QuadTree * node);
+	static bool cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_box, QuadTree * node);
 
 	static Triangle2D calculate_camera_tri(const Camera& cam);
 
@@ -62,6 +62,7 @@ class Terrain : public Mesh {
 
 		void render_cull(const Camera &cam, const glm::mat4& m = glm::mat4());
 		void render_geometry_cull( const Camera &cam, const glm::mat4& m = glm::mat4());
+		void render_geometry_cull( const Camera &cam, const AABB &aabb, const glm::mat4& m = glm::mat4());
 
 		static glm::vec4 get_pixel_color(int x, int y, SDL_Surface * surface, const glm::ivec2 &size);
 

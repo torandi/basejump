@@ -34,3 +34,9 @@ bool intersect2d::aabb_line(const AABB_2D &aabb, const Line2D &line) {
 
 	return !( (l_min.x > l_max.x) || (l_min.y > l_max.y));
 }
+
+bool intersect2d::aabb_aabb(const AABB_2D &aabb1, const AABB_2D &aabb2) {
+	if(aabb1.min.x > aabb2.max.x || aabb2.min.x > aabb1.max.x) return false;
+	if(aabb1.min.y > aabb2.max.y || aabb2.min.y > aabb1.max.y) return false;
+	return true;
+}
