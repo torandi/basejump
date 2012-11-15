@@ -30,6 +30,7 @@ libfrob_a_SOURCES = \
 	src/data.cpp src/data.hpp \
 	src/engine.cpp src/engine.hpp \
 	src/globals.cpp src/globals.hpp \
+	src/intersect2d.cpp src/intersect2d.hpp \
 	src/light.cpp src/light.hpp \
 	src/lights_data.cpp src/lights_data.hpp \
 	src/line2d.cpp src/line2d.hpp \
