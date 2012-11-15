@@ -1,8 +1,11 @@
-struct AABB;
+class AABB;
+class AABB_2D;
+struct Triangle2D;
 class Camera;
 class Color;
 class Data;
 struct Light;
+struct Line2D;
 class Material;
 class Mesh;
 class MovableObject;
