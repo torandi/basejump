@@ -361,9 +361,39 @@ static void parse_argv(int argc, char* argv[]){
 }
 
 #else /* HAVE_GETOPT_H */
+void show_usage(){
+	printf("%s (" PACKAGE_NAME "-" VERSION ")\n"
+	       "usage: %s [OPTIONS]\n"
+	       "\n"
+	       "  -r x y   Set window resolution (default: 800x600 in windowed and\n"
+	       "                          current resolution in fullscreen.)\n"
+	       "  -f        Enable fullscreen mode (default: %s)\n"
+	       "  -w          Inverse of --fullscreen.\n"
+	       "  -n          Disable vsync.\n"
+	       "  -v           Enable verbose output to stdout (redirected to logfile otherwise)\n"
+	       "  -h              This text\n",
+	       program_name, program_name, FULLSCREEN ? "true" : "false");
+};
 static void parse_argv(int argc, char* argv[]){
-	if ( argc > 1 ){
-		Logging::warning("%s: warning: argument parsing has been disabled at compile-time.\n", program_name);
+	//Hack for platforms lacking getopt (I'm looking at you windows...)
+	for (int i = 0; i < argc; ++i)	{
+		const char* arg = argv[i];
+		if (strcmp(arg, "-f") == 0)
+			fullscreen = true;
+		else if (strcmp(arg, "-v") == 0)
+			verbose_flag = 1;
+		else if (strcmp(arg, "-w") == 0)
+			fullscreen = false;
+		else if (strcmp(arg, "-n") == 0)
+			vsync = false;
+		else if (strcmp(arg, "-h") == 0) {
+			show_usage();
+			exit(0);
+		} else if(strcmp(arg, "-r") == 0) {
+			resolution.x = atoi(argv[++i]);
+			resolution.y = atoi(argv[++i]);
+			resolution_given = true;
+		}
 	}
 }
 #endif
