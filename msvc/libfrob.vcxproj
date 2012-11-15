@@ -49,7 +49,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;ENABLE_INPUT;WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/../vendor/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -72,6 +72,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\aabb.hpp" />
+    <ClInclude Include="..\src\aabb2d.hpp" />
     <ClInclude Include="..\src\bindable.hpp" />
     <ClInclude Include="..\src\camera.hpp" />
     <ClInclude Include="..\src\cl.hpp" />
@@ -80,10 +82,13 @@
     <ClInclude Include="..\src\data.hpp" />
     <ClInclude Include="..\src\engine.hpp" />
     <ClInclude Include="..\src\forward.hpp" />
+    <ClInclude Include="..\src\game.hpp" />
     <ClInclude Include="..\src\globals.hpp" />
     <ClInclude Include="..\src\input.hpp" />
+    <ClInclude Include="..\src\intersect2d.hpp" />
     <ClInclude Include="..\src\light.hpp" />
     <ClInclude Include="..\src\lights_data.hpp" />
+    <ClInclude Include="..\src\line2d.hpp" />
     <ClInclude Include="..\src\loading.hpp" />
     <ClInclude Include="..\src\logging.hpp" />
     <ClInclude Include="..\src\material.hpp" />
@@ -95,9 +100,9 @@
     <ClInclude Include="..\src\path.hpp" />
     <ClInclude Include="..\src\platform.hpp" />
     <ClInclude Include="..\src\quad.hpp" />
+    <ClInclude Include="..\src\quadtree.hpp" />
     <ClInclude Include="..\src\rendertarget.hpp" />
     <ClInclude Include="..\src\render_object.hpp" />
-    <ClInclude Include="..\src\scene.hpp" />
     <ClInclude Include="..\src\shader.hpp" />
     <ClInclude Include="..\src\skybox.hpp" />
     <ClInclude Include="..\src\sound.hpp" />
@@ -105,22 +110,28 @@
     <ClInclude Include="..\src\texture.hpp" />
     <ClInclude Include="..\src\time.hpp" />
     <ClInclude Include="..\src\timetable.hpp" />
+    <ClInclude Include="..\src\triangle2d.hpp" />
     <ClInclude Include="..\src\utils.hpp" />
     <ClInclude Include="compat.hpp" />
     <ClInclude Include="config.h" />
     <ClInclude Include="crt.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\aabb.cpp" />
+    <ClCompile Include="..\src\aabb2d.cpp" />
     <ClCompile Include="..\src\camera.cpp" />
     <ClCompile Include="..\src\cl.cpp" />
     <ClCompile Include="..\src\color.cpp" />
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\data.cpp" />
     <ClCompile Include="..\src\engine.cpp" />
+    <ClCompile Include="..\src\game.cpp" />
     <ClCompile Include="..\src\globals.cpp" />
     <ClCompile Include="..\src\input.cpp" />
+    <ClCompile Include="..\src\intersect2d.cpp" />
     <ClCompile Include="..\src\light.cpp" />
     <ClCompile Include="..\src\lights_data.cpp" />
+    <ClCompile Include="..\src\line2d.cpp" />
     <ClCompile Include="..\src\loading.cpp" />
     <ClCompile Include="..\src\logging.cpp" />
     <ClCompile Include="..\src\material.cpp" />
@@ -131,10 +142,9 @@
     <ClCompile Include="..\src\particle_system.cpp" />
     <ClCompile Include="..\src\path.cpp" />
     <ClCompile Include="..\src\quad.cpp" />
+    <ClCompile Include="..\src\quadtree.cpp" />
     <ClCompile Include="..\src\rendertarget.cpp" />
     <ClCompile Include="..\src\render_object.cpp" />
-    <ClCompile Include="..\src\scene.cpp" />
-    <ClCompile Include="..\src\scenefactory.cpp" />
     <ClCompile Include="..\src\shader.cpp" />
     <ClCompile Include="..\src\skybox.cpp" />
     <ClCompile Include="..\src\sound.cpp" />
@@ -143,11 +153,8 @@
     <ClCompile Include="..\src\texture.cpp" />
     <ClCompile Include="..\src\time.cpp" />
     <ClCompile Include="..\src\timetable.cpp" />
+    <ClCompile Include="..\src\triangle2d.cpp" />
     <ClCompile Include="..\src\utils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\src\nox2.txt" />
-    <Text Include="..\src\timetable.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
