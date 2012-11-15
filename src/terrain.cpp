@@ -147,14 +147,15 @@ void Terrain::generate_terrain() {
 
 	add_indices(indices);
 
-	printf("[Terrain] Generate normals\n");
+	Logging::info("[Terrain] Generate normals.\n");
 	generate_normals();
-	printf("[Terrain] Generate tangent space\n");
+	Logging::info("[Terrain] Generate tangent space.\n");
 	generate_tangents_and_bitangents();
-	printf("[Terrain] Ortonormalize tangent space\n");
+	Logging::info("[Terrain] Ortonormalize tangent space.\n");
 	ortonormalize_tangent_space();
-	printf("[Terrain] Create buffers\n");
+	Logging::info("[Terrain] Create buffers.\n");
 	generate_vbos();
+	Logging::info("[Terrain] Terrain loaded.\n");
 }
 
 float Terrain::height_from_color(const glm::vec4 &color) const {
@@ -166,17 +167,18 @@ float Terrain::height_at(int x, int y) const {
 }
 
 float Terrain::height_at(float x_, float y_) const {
-	if(x_ > static_cast<float>(size_.x) * horizontal_scale_|| x_ < 0 || y_ > static_cast<float>(size_.y)*horizontal_scale_ || y_ < 0)
-		return 0.f;
+	printf("%f, %f\n", x_, y_);
 	int x = (int) (x_/horizontal_scale_);
 	int y = (int) (y_/horizontal_scale_);
+	if(x > size_.x || x < 0 || y > size_.y || y_ < 0)
+		return 0.f;
 	float dx = (x_/horizontal_scale_) - (float)x;
 	float dy = (y_/horizontal_scale_) - (float)y;
 	float height=0;
-	height += (1.f-dx) * (1.f-dy) * height_at((float)x,(float)y);
-	height += dx * (1.f-dy) * height_at((float)y,(float)(x+1));
-	height += (1.f-dx) * dy * height_at((float)(y+1),(float)x);
-	height += dx * dy * height_at((float)(y+1), (float)(x+1));
+	height += (1.f-dx) * (1.f-dy) * height_at(x,y);
+	height += dx * (1.f-dy) * height_at(y,(x+1));
+	height += (1.f-dx) * dy * height_at((y+1),x);
+	height += dx * dy * height_at((y+1), (x+1));
 	return height;
 }
 
@@ -192,10 +194,10 @@ glm::vec3 Terrain::normal_at(float x_, float y_) const {
 	float dx = (x_/horizontal_scale_) - (float)x;
 	float dy = (y_/horizontal_scale_) - (float)y;
 	glm::vec3 normal(0.f);
-	normal += (1.f-dx) * (1.f-dy) * normal_at((float)x,(float)y);
-	normal += dx * (1.f-dy) * normal_at((float)y,(float)(x+1));
-	normal += (1.f-dx) * dy * normal_at((float)(y+1),(float)x);
-	normal += dx * dy * normal_at((float)(y+1), (float)(x+1));
+	normal += (1.f-dx) * (1.f-dy) * normal_at(x,y);
+	normal += dx * (1.f-dy) * normal_at(y,(x+1));
+	normal += (1.f-dx) * dy * normal_at((y+1),x);
+	normal += dx * dy * normal_at((y+1), (x+1));
 	return normal;
 }
 
