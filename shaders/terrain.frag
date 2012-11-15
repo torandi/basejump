@@ -63,8 +63,8 @@ void main() {
 				Lgt.lights[light], originalColor,
 				pos_tangent_space, normal_map, camera_dir,
 				norm_normal, norm_tangent, norm_bitangent,
-					shininess, specular) * 1.f;
-			//shadow_coefficient(Lgt.lights[light], position, shadowmap_coord[light]);
+					shininess, specular) * 
+				shadow_coefficient(Lgt.lights[light], position, shadowmap_coord[light]);
 	}
 
 	ocolor = calculate_fog(accumLighting);
