@@ -35,6 +35,7 @@ class Sky {
 		GLint u_sun_radius;
 		GLint u_lerp;
 
+		glm::vec3 sun_position;
 		float time_of_day;
 
 		float sun_radius;
@@ -42,7 +43,7 @@ class Sky {
 		struct sky_data_t {
 			float time;
 			Color zenit, horizont, sun, sunlight;
-			float lerp[2]; //Size, offset
+			float lerp[2];
 			bool operator<(const sky_data_t & d) const;
 		};
 

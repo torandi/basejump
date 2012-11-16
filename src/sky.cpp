@@ -23,15 +23,16 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 	Config config = Config::parse(file);
 
 	sun_radius = config["/sun_radius"]->as_float();
+
 	for(ConfigEntry * c : config["/colors"]->as_list()) {
 		sky_data_t d;
 		d.time = c->find("/time", true)->as_float();
-		d.lerp[0] = c->find("/lerp_size", true)->as_float();
-		d.lerp[1] = c->find("/lerp_offset", true)->as_float();
 		d.zenit = c->find("/zenit", true)->as_color();
 		d.horizont = c->find("/horizont", true)->as_color();
 		d.sun = c->find("/sun", true)->as_color();
 		d.sunlight = c->find("/sunlight", true)->as_color();
+		d.lerp[0] = c->find("/lerp_size", true)->as_float();
+		d.lerp[1] = c->find("/lerp_offset", true)->as_float();
 		colors.push_back(d);
 	}
 
@@ -47,6 +48,7 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 	u_lerp = shader->uniform_location("lerp");
 
 	u_sun_radius = shader->uniform_location("sun_radius");
+
 	shader->uniform_upload(u_sun_radius, sun_radius);
 
 	set_time_of_day(t);
@@ -88,8 +90,6 @@ void Sky::render(const Camera &camera) const{
 void Sky::set_time_of_day(float t) {
 	time_of_day = static_cast<float>(fmod(t, 1.f));
 
-	printf("Set itme of day: %f\n", t);
-
 	auto prev = colors.end() - 1;
 	auto cur = colors.begin();
 	for(; cur != colors.end(); ++cur) {
@@ -122,13 +122,28 @@ void Sky::set_time_of_day(float t) {
 	current_sun_data.lerp[0] = glm::mix(prev->lerp[0], cur->lerp[0], s);
 	current_sun_data.lerp[1] = glm::mix(prev->lerp[1], cur->lerp[1], s);
 
-	//TODO: Calculate sun position
+	glm::vec2 sp_sun;
+
+	float two_pi = 2.f * static_cast<float>(M_PI);
+	sp_sun.x = two_pi * (1.f - time_of_day) + static_cast<float>(M_PI); 
+	sp_sun.y = 0.f;//two_pi * time_of_day;
+
+	/* Convert to cartesian */
+	sun_position.x = glm::sin(sp_sun.x) * glm::cos(sp_sun.y);
+	sun_position.z = glm::sin(sp_sun.x) * glm::sin(sp_sun.y);
+	sun_position.y = glm::cos(sp_sun.x);
+
 	
 	shader->uniform_upload(u_zenit_color, current_sun_data.zenit);
 	shader->uniform_upload(u_horizont_color, current_sun_data.horizont);
 	shader->uniform_upload(u_sun_color, current_sun_data.sun);
 	shader->uniform_upload(u_sun_aura_color, current_sun_data.sunlight);
+
+	shader->uniform_upload(u_sun_position, sun_position);
+
 	glUniform1fv(u_lerp, 2, current_sun_data.lerp);
+
+	checkForGLErrors("Sky::set_time_of_day(): Post");
 }
 
 bool Sky::sky_data_t::operator<(const Sky::sky_data_t & d) const {
