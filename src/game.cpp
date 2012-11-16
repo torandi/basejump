@@ -116,15 +116,10 @@ void Game::update(float t, float dt) {
 
 	//Update hdr
 	if(input.down(Input::ACTION_0)) {
-		//hdr.set_exposure(hdr.exposure() - 0.1f);
-		//print_values(hdr);
-
+		hdr.set_exposure(hdr.exposure() - 0.1f);
+		print_values(hdr);
 	}
 
-	if(input.current_value(Input::ACTION_0) > 0.9) {
-		sky->set_time_of_day(sky->time() + (dt / 10.f));
-		sky->configure_light(lights.lights[0]);
-	}
 
 	if(input.down(Input::ACTION_1)) {
 		hdr.set_exposure(hdr.exposure() + 0.1f);
@@ -140,12 +135,21 @@ void Game::update(float t, float dt) {
 		print_values(hdr);
 	}
 
-	if(input.down(Input::ACTION_4)) {
+	if(input.current_value(Input::ACTION_4) > 0.9) {
+		sky->set_time_of_day(sky->time() + (dt / 10.f));
+		sky->configure_light(lights.lights[0]);
+	}
+	if(input.current_value(Input::ACTION_5) > 0.9) {
+		sky->set_time_of_day(sky->time() - (dt / 10.f));
+		sky->configure_light(lights.lights[0]);
+	}
+
+	/*if(input.down(Input::ACTION_4)) {
 		hdr.set_bloom_factor(hdr.bloom_factor() - 0.1f);
 		print_values(hdr);
 	}
 	if(input.down(Input::ACTION_5)) {
 		hdr.set_bloom_factor(hdr.bloom_factor() + 0.1f);
 		print_values(hdr);
-	}
+	}*/
 }
