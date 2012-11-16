@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 #include "camera.hpp"
 
@@ -22,10 +23,20 @@ class Sky {
 
 		float time() const { return time_of_day; };
 
+		/*
+		 * Configure light to be sun
+		 */
+		void configure_light(MovableLight *light) const;
+
+		/*
+		 * Get current ambient light
+		 */
+		glm::vec3 ambient_intensity() const;
+
 	private:
 		Shader* shader;
 		GLuint vbo;
-		static const float vertices[2*3*36];
+		static const float vertices[2*6*18];
 
 		GLint u_zenit_color;
 		GLint u_horizont_color;

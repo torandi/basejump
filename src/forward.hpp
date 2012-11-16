@@ -8,6 +8,7 @@ struct Light;
 struct Line2D;
 class Material;
 class Mesh;
+class MovableLight;
 class MovableObject;
 class ParticleSystem;
 class PointTable;

@@ -35,12 +35,13 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	Config config = Config::parse("/level.cfg");
 	terrain = new Terrain("/terrain.cfg");
 
-	lights.ambient_intensity() = config["/environment/light/ambient"]->as_vec3();
-	lights.num_lights() = 1;
+	sky = new Sky("/sky.cfg", 0.5f);
 
-	lights.lights[0]->set_position(glm::normalize(glm::vec3(0.f) - config["/environment/light/sun_position"]->as_vec3())); /* subtract to get direction from sun position */
-	lights.lights[0]->intensity = config["/environment/light/sunlight"]->as_vec3();
-	lights.lights[0]->type = MovableLight::DIRECTIONAL_LIGHT;
+	lights.num_lights() = 1;
+	lights.ambient_intensity() = sky->ambient_intensity();
+	sky->configure_light(lights.lights[0]);
+
+
 
 	sky_color = config["/environment/sky_color"]->as_color();
 
@@ -54,8 +55,6 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	pos.y = terrain->height_at(pos.x, pos.z) + 2.f;
 	camera.set_position(pos);
 	camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
-
-	sky = new Sky("/sky.cfg", 0.9f);
 
 	Input::movement_speed = 32.f;
 }
@@ -124,6 +123,7 @@ void Game::update(float t, float dt) {
 
 	if(input.current_value(Input::ACTION_0) > 0.9) {
 		sky->set_time_of_day(sky->time() + (dt / 10.f));
+		sky->configure_light(lights.lights[0]);
 	}
 
 	if(input.down(Input::ACTION_1)) {

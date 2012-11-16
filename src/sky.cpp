@@ -7,6 +7,7 @@
 #include "utils.hpp"
 #include "shader.hpp"
 #include "config.hpp"
+#include "movable_light.hpp"
 
 #include <algorithm>
 #include <glm/glm.hpp>
@@ -22,8 +23,6 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 
 	Config config = Config::parse(file);
 
-	config.print();
-
 	for(ConfigEntry * c : config["/colors"]->as_list()) {
 		sky_data_t d;
 		d.zenit = c->find("/zenit", true)->as_color();
@@ -34,6 +33,7 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 		d.lerp[0] = c->find("/lerp_size", true)->as_float();
 		d.lerp[1] = c->find("/lerp_offset", true)->as_float();
 		d.sun_radius = c->find("/sun_radius", true)->as_float();
+		d.ambient_amount = c->find("/ambient_amount", true)->as_float();
 		/* Store scale inverse, since smaller number => bigger gradient, but it's more logical
 		 * to specify bigger number => larger aura.
 		 * Also, for scales > 1.0 the colors go bananas, so don't allow that
@@ -41,16 +41,13 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 		d.sun_aura_scale = glm::min(1.f / c->find("/sun_aura_scale", true)->as_float(), 1.f);
 		const ConfigEntry * time = c->find("/time", true);
 		if(time->type == ConfigEntry::ENTRY_LIST) {
-			printf("Time is list\n");
 			for(const ConfigEntry * t : time->as_list()) {
 				d.time = t->as_float();
 				colors.push_back(d);
-				printf("%f\n", d.time);
 			}
 		} else {
 			d.time = time->as_float();
 			colors.push_back(d);
-			printf("%f\n", d.time);
 		}
 	}
 
@@ -140,6 +137,7 @@ void Sky::set_time_of_day(float t) {
 	current_sun_data.sun_aura_scale = glm::mix(prev->sun_aura_scale, cur->sun_aura_scale, s);
 	current_sun_data.lerp[0] = glm::mix(prev->lerp[0], cur->lerp[0], s);
 	current_sun_data.lerp[1] = glm::mix(prev->lerp[1], cur->lerp[1], s);
+	current_sun_data.ambient_amount = glm::mix(prev->ambient_amount, cur->ambient_amount, s);
 
 	glm::vec2 sp_sun;
 
@@ -172,6 +170,15 @@ bool Sky::sky_data_t::operator<(const Sky::sky_data_t & d) const {
 }
 
 
+void Sky::configure_light(MovableLight *light) const {
+	light->type = MovableLight::DIRECTIONAL_LIGHT;
+	light->intensity = current_sun_data.sunlight.to_vec3();
+	light->set_position(glm::normalize(-sun_position));
+}
+
+glm::vec3 Sky::ambient_intensity() const {
+		return current_sun_data.ambient_amount * current_sun_data.sunlight.to_vec3();
+}
 
 const float Sky::vertices[] = {
 	#include "cube_vertices.hpp"
