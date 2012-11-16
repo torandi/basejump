@@ -33,6 +33,7 @@ class Sky {
 		GLint u_sun_aura_color;
 		GLint u_sun_position;
 		GLint u_sun_radius;
+		GLint u_sun_aura_scale;
 		GLint u_lerp;
 
 		glm::vec3 sun_position;
@@ -46,6 +47,7 @@ class Sky {
 			float lerp[2];
 			float sun_radius;
 			float ambient_amount;
+			float sun_aura_scale;
 			bool operator<(const sky_data_t & d) const;
 		};
 

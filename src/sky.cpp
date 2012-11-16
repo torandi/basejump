@@ -34,6 +34,11 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 		d.lerp[0] = c->find("/lerp_size", true)->as_float();
 		d.lerp[1] = c->find("/lerp_offset", true)->as_float();
 		d.sun_radius = c->find("/sun_radius", true)->as_float();
+		/* Store scale inverse, since smaller number => bigger gradient, but it's more logical
+		 * to specify bigger number => larger aura.
+		 * Also, for scales > 1.0 the colors go bananas, so don't allow that
+		 */
+		d.sun_aura_scale = glm::min(1.f / c->find("/sun_aura_scale", true)->as_float(), 1.f);
 		const ConfigEntry * time = c->find("/time", true);
 		if(time->type == ConfigEntry::ENTRY_LIST) {
 			printf("Time is list\n");
@@ -60,6 +65,7 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 	u_sun_position = shader->uniform_location("sun_position");
 	u_lerp = shader->uniform_location("lerp");
 	u_sun_radius = shader->uniform_location("sun_radius");
+	u_sun_aura_scale = shader->uniform_location("sun_aura_scale");
 
 	set_time_of_day(t);
 }
@@ -131,6 +137,7 @@ void Sky::set_time_of_day(float t) {
 	current_sun_data.sun_aura = Color::mix(prev->sun_aura, cur->sun_aura, s);
 	current_sun_data.sunlight = Color::mix(prev->sunlight, cur->sunlight, s);
 	current_sun_data.sun_radius = glm::mix(prev->sun_radius, cur->sun_radius, s);
+	current_sun_data.sun_aura_scale = glm::mix(prev->sun_aura_scale, cur->sun_aura_scale, s);
 	current_sun_data.lerp[0] = glm::mix(prev->lerp[0], cur->lerp[0], s);
 	current_sun_data.lerp[1] = glm::mix(prev->lerp[1], cur->lerp[1], s);
 
@@ -150,6 +157,7 @@ void Sky::set_time_of_day(float t) {
 	shader->uniform_upload(u_horizont_color, current_sun_data.horizont);
 	shader->uniform_upload(u_sun_color, current_sun_data.sun);
 	shader->uniform_upload(u_sun_aura_color, current_sun_data.sun_aura);
+	shader->uniform_upload(u_sun_aura_scale, current_sun_data.sun_aura_scale);
 	shader->uniform_upload(u_sun_radius, current_sun_data.sun_radius);
 
 	shader->uniform_upload(u_sun_position, sun_position);
