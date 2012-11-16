@@ -42,8 +42,10 @@ class Sky {
 
 		struct sky_data_t {
 			float time;
-			Color zenit, horizont, sun, sunlight;
+			Color zenit, horizont, sun, sun_aura, sunlight;
 			float lerp[2];
+			float sun_radius;
+			float ambient_amount;
 			bool operator<(const sky_data_t & d) const;
 		};
 

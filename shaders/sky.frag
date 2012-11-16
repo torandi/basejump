@@ -15,14 +15,9 @@ out vec4 ocolor;
 
 void main() {
 	vec3 on_sphere = normalize(position);
-	//vec2 spherical = vec2(atan(on_sphere.z, on_sphere.x), acos(on_sphere.y));
 
 	vec4 skycolor = mix(horizont_color, zenit_color, clamp(( on_sphere.y + lerp[1])/ lerp[0], 0.0, 1.0));
 
 	ocolor = mix(sun_color, skycolor, step(sun_radius, distance(sun_position, on_sphere)));
 	ocolor = mix(sun_aura_color, ocolor, (distance(sun_position, on_sphere)) * 0.5);
-
-	
-
-
 }

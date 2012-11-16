@@ -22,18 +22,31 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 
 	Config config = Config::parse(file);
 
-	sun_radius = config["/sun_radius"]->as_float();
+	config.print();
 
 	for(ConfigEntry * c : config["/colors"]->as_list()) {
 		sky_data_t d;
-		d.time = c->find("/time", true)->as_float();
 		d.zenit = c->find("/zenit", true)->as_color();
 		d.horizont = c->find("/horizont", true)->as_color();
 		d.sun = c->find("/sun", true)->as_color();
+		d.sun_aura = c->find("/sun_aura", true)->as_color();
 		d.sunlight = c->find("/sunlight", true)->as_color();
 		d.lerp[0] = c->find("/lerp_size", true)->as_float();
 		d.lerp[1] = c->find("/lerp_offset", true)->as_float();
-		colors.push_back(d);
+		d.sun_radius = c->find("/sun_radius", true)->as_float();
+		const ConfigEntry * time = c->find("/time", true);
+		if(time->type == ConfigEntry::ENTRY_LIST) {
+			printf("Time is list\n");
+			for(const ConfigEntry * t : time->as_list()) {
+				d.time = t->as_float();
+				colors.push_back(d);
+				printf("%f\n", d.time);
+			}
+		} else {
+			d.time = time->as_float();
+			colors.push_back(d);
+			printf("%f\n", d.time);
+		}
 	}
 
 	std::sort(colors.begin(), colors.end()); //Sort on time
@@ -46,10 +59,7 @@ Sky::Sky(const std::string &file, float t) : time_of_day(t) {
 	u_sun_aura_color = shader->uniform_location("sun_aura_color");
 	u_sun_position = shader->uniform_location("sun_position");
 	u_lerp = shader->uniform_location("lerp");
-
 	u_sun_radius = shader->uniform_location("sun_radius");
-
-	shader->uniform_upload(u_sun_radius, sun_radius);
 
 	set_time_of_day(t);
 }
@@ -118,7 +128,9 @@ void Sky::set_time_of_day(float t) {
 	current_sun_data.zenit = Color::mix(prev->zenit, cur->zenit, s);
 	current_sun_data.horizont = Color::mix(prev->horizont, cur->horizont, s);
 	current_sun_data.sun = Color::mix(prev->sun, cur->sun, s);
+	current_sun_data.sun_aura = Color::mix(prev->sun_aura, cur->sun_aura, s);
 	current_sun_data.sunlight = Color::mix(prev->sunlight, cur->sunlight, s);
+	current_sun_data.sun_radius = glm::mix(prev->sun_radius, cur->sun_radius, s);
 	current_sun_data.lerp[0] = glm::mix(prev->lerp[0], cur->lerp[0], s);
 	current_sun_data.lerp[1] = glm::mix(prev->lerp[1], cur->lerp[1], s);
 
@@ -137,7 +149,8 @@ void Sky::set_time_of_day(float t) {
 	shader->uniform_upload(u_zenit_color, current_sun_data.zenit);
 	shader->uniform_upload(u_horizont_color, current_sun_data.horizont);
 	shader->uniform_upload(u_sun_color, current_sun_data.sun);
-	shader->uniform_upload(u_sun_aura_color, current_sun_data.sunlight);
+	shader->uniform_upload(u_sun_aura_color, current_sun_data.sun_aura);
+	shader->uniform_upload(u_sun_radius, current_sun_data.sun_radius);
 
 	shader->uniform_upload(u_sun_position, sun_position);
 
