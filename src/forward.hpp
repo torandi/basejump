@@ -16,6 +16,7 @@ class RenderObject;
 class RenderTarget;
 class Scene;
 class Shader;
+class Sky;
 class Sound;
 class Terrain;
 class TextureBase;

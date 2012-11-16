@@ -46,6 +46,7 @@ libfrob_a_SOURCES = \
 	src/rendertarget.cpp src/rendertarget.hpp \
 	src/render_object.cpp src/render_object.hpp \
 	src/shader.cpp src/shader.hpp \
+	src/sky.cpp src/sky.hpp \
 	src/skybox.cpp src/skybox.hpp \
 	src/sound.cpp src/sound.hpp \
 	src/terrain.cpp src/terrain.hpp \
