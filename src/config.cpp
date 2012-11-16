@@ -69,7 +69,7 @@ ConfigEntry::~ConfigEntry() {
 				delete it;
 			}
 			break;
-		case ENTRY_STRING:
+		case ENTRY_DATA:
 			break;
 	}
 }
@@ -112,11 +112,11 @@ Config Config::parse(std::string file) {
 							new_cfg = new ConfigEntry(ConfigEntry::ENTRY_LIST);
 							break;
 						default:
-							new_cfg = new ConfigEntry(ConfigEntry::ENTRY_STRING);
+							new_cfg = new ConfigEntry(ConfigEntry::ENTRY_DATA);
 							new_cfg->entry_string = data[1];
 					}
 					current->entry_map[data[0]] = new_cfg;
-					if(new_cfg->type != ConfigEntry::ENTRY_STRING) {
+					if(new_cfg->type != ConfigEntry::ENTRY_DATA) {
 						config_stack.push_back(current);
 						current = new_cfg;
 					}
@@ -139,17 +139,17 @@ Config Config::parse(std::string file) {
 							new_cfg = new ConfigEntry(ConfigEntry::ENTRY_LIST);
 							break;
 						default:
-							new_cfg = new ConfigEntry(ConfigEntry::ENTRY_STRING);
+							new_cfg = new ConfigEntry(ConfigEntry::ENTRY_DATA);
 							new_cfg->entry_string = line;
 					}
 					current->entry_list.push_back(new_cfg);
-					if(new_cfg->type != ConfigEntry::ENTRY_STRING) {
+					if(new_cfg->type != ConfigEntry::ENTRY_DATA) {
 						config_stack.push_back(current);
 						current = new_cfg;
 					}
 				}
 				break;
-			case ConfigEntry::ENTRY_STRING:
+			case ConfigEntry::ENTRY_DATA:
 				print_error("parsing line in string context", linenr, line);
 				break;
 		}
@@ -170,7 +170,7 @@ void ConfigEntry::print(std::string indent) const {
 			printf("%s{\n", indent.c_str());
 			for(auto it : entry_map) {
 				printf("%s%s = ", indent_next.c_str(), it.first.c_str());
-				it.second->print(it.second->type == ENTRY_STRING ? "" : indent_next);
+				it.second->print(it.second->type == ENTRY_DATA ? "" : indent_next);
 			}
 			printf("%s}\n", indent.c_str());
 			break;
@@ -181,14 +181,14 @@ void ConfigEntry::print(std::string indent) const {
 			}
 			printf("%s]\n", indent.c_str());
 			break;
-		case ENTRY_STRING:
+		case ENTRY_DATA:
 			printf("%s%s;\n", indent.c_str(), entry_string.c_str());
 			break;
 	}
 }
 
 const std::string &ConfigEntry::as_string() const {
-	if(type != ENTRY_STRING) {
+	if(type != ENTRY_DATA) {
 		printf("[ConfigEntry] Trying to read a non-string entry as string\n");
 		abort();
 	}
@@ -196,7 +196,7 @@ const std::string &ConfigEntry::as_string() const {
 }
 
 int ConfigEntry::as_int() const {
-	if(type != ENTRY_STRING) {
+	if(type != ENTRY_DATA) {
 		printf("[ConfigEntry] Trying to read a non-string entry as int\n");
 		abort();
 	}
@@ -204,7 +204,7 @@ int ConfigEntry::as_int() const {
 }
 
 float ConfigEntry::as_float() const {
-	if(type != ENTRY_STRING) {
+	if(type != ENTRY_DATA) {
 		printf("[ConfigEntry] Trying to read a non-string entry as float\n");
 		abort();
 	}
@@ -212,7 +212,7 @@ float ConfigEntry::as_float() const {
 }
 
 glm::vec2 ConfigEntry::as_vec2() const {
-	if(type != ENTRY_STRING) {
+	if(type != ENTRY_DATA) {
 		printf("[ConfigEntry] Trying to read a non-string entry as vec2\n");
 		abort();
 	}
@@ -229,7 +229,7 @@ glm::vec2 ConfigEntry::as_vec2() const {
 }
 
 glm::vec3 ConfigEntry::as_vec3() const {
-	if(type != ENTRY_STRING) {
+	if(type != ENTRY_DATA) {
 		printf("[ConfigEntry] Trying to read a non-string entry as vec3\n");
 		abort();
 	}
@@ -246,7 +246,7 @@ glm::vec3 ConfigEntry::as_vec3() const {
 }
 
 glm::vec4 ConfigEntry::as_vec4() const {
-	if(type != ENTRY_STRING) {
+	if(type != ENTRY_DATA) {
 		printf("[ConfigEntry] Trying to read a non-string entry as vec4\n");
 		abort();
 	}
@@ -263,7 +263,7 @@ glm::vec4 ConfigEntry::as_vec4() const {
 }
 
 Color ConfigEntry::as_color() const {
-	if(type != ENTRY_STRING) {
+	if(type != ENTRY_DATA) {
 		printf("[ConfigEntry] Trying to read a non-string entry as color\n");
 		abort();
 	}

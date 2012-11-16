@@ -15,7 +15,7 @@ class ConfigEntry {
 		const enum entry_type_t {
 			ENTRY_MAP,
 			ENTRY_LIST,
-			ENTRY_STRING
+			ENTRY_DATA,
 		} type;
 
 		~ConfigEntry();
