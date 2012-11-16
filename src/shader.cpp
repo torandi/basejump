@@ -10,6 +10,7 @@
 #include "lights_data.hpp"
 #include "data.hpp"
 #include "material.hpp"
+#include "color.hpp"
 
 #include <sstream>
 #include <stdexcept>
@@ -469,6 +470,50 @@ GLint Shader::uniform_location(const char * uniform_name) const{
 	GLint l = glGetUniformLocation(program_, uniform_name);
 	checkForGLErrors((std::string("uniform_location")+std::string(uniform_name)+" from shader "+name).c_str());
 	return l;
+}
+
+void Shader::uniform_upload(GLint uniform, const glm::ivec4 v) const {
+	bind();
+	glUniform4i(uniform, v.x, v.y, v.z, v.w);
+}
+
+void Shader::uniform_upload(GLint uniform, const glm::ivec3 v) const {
+	bind();
+	glUniform3i(uniform, v.x, v.y, v.z);
+}
+
+void Shader::uniform_upload(GLint uniform, const glm::ivec2 v) const {
+	bind();
+	glUniform2i(uniform, v.x, v.y);
+}
+
+void Shader::uniform_upload(GLint uniform, const glm::vec4 v) const {
+	bind();
+	glUniform4f(uniform, v.x, v.y, v.z, v.w);
+}
+
+void Shader::uniform_upload(GLint uniform, const glm::vec3 v) const {
+	bind();
+	glUniform3f(uniform, v.x, v.y, v.z);
+}
+
+void Shader::uniform_upload(GLint uniform, const glm::vec2 v) const {
+	bind();
+	glUniform2f(uniform, v.x, v.y);
+}
+
+void Shader::uniform_upload(GLint uniform, float f) const {
+	bind();
+	glUniform1f(uniform, f);
+}
+
+void Shader::uniform_upload(GLint uniform, int i) const {
+	bind();
+	glUniform1i(uniform, i);
+}
+
+void Shader::uniform_upload(GLint uniform, const Color &color) const {
+	uniform_upload(uniform, color.to_vec4());
 }
 
 void Shader::push_vertex_attribs(int offset) {

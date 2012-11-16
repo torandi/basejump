@@ -205,7 +205,30 @@ public:
 
 	GLint num_attributes() const;
 
+	/***************************
+	 * Uniform helpers
+	 */
+
+	/*
+	 * Get uniform location in shader from name
+	 */
 	GLint uniform_location(const char * uniform_name) const;
+
+	/*
+	 * Uniform uploaders
+	 */
+
+	void uniform_upload(GLint uniform, const glm::ivec4 v) const;
+	void uniform_upload(GLint uniform, const glm::ivec3 v) const;
+	void uniform_upload(GLint uniform, const glm::ivec2 v) const;
+	void uniform_upload(GLint uniform, const glm::vec4 v) const;
+	void uniform_upload(GLint uniform, const glm::vec3 v) const;
+	void uniform_upload(GLint uniform, const glm::vec2 v) const;
+
+	void uniform_upload(GLint uniform, float f) const;
+	void uniform_upload(GLint uniform, int i) const;
+
+	void uniform_upload(GLint uniform, const Color &color) const;
 
 	/**
 	 * Upload lights
