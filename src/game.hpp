@@ -30,6 +30,7 @@ class Game {
 		Technique::HDR hdr;
 		Technique::DoF dof;
 		Shader * shader_normal, *shader_passthru;
+		Sky * sky;
 
 		Terrain * terrain;
 

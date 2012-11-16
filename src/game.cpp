@@ -14,6 +14,7 @@
 #include "terrain.hpp"
 #include "engine.hpp"
 #include "data.hpp"
+#include "sky.hpp"
 
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
@@ -54,12 +55,14 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	camera.set_position(pos);
 	camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
 
+	sky = new Sky("/sky.cfg");
 
 	Input::movement_speed = 32.f;
 }
 
 Game::~Game() {
 	delete scene;
+	delete sky;
 }
 
 void Game::render_scene(){
@@ -69,13 +72,16 @@ void Game::render_scene(){
 			terrain->render_geometry_cull(camera, aabb);
 	});
 
-	Shader::upload_camera(camera);
 	Shader::upload_lights(lights);
 
 	Shader::upload_fog(fog);
 
 	scene->with([&](){
-			RenderTarget::clear(sky_color);
+			RenderTarget::clear(Color::black);
+			sky->render(camera);
+			Shader::upload_camera(camera);
+
+
 			/* Render scene here */
 			terrain->render_cull(camera);
 	});
@@ -85,9 +91,9 @@ void Game::render_blit(){
 	Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 	Shader::upload_model_matrix(glm::mat4());
 
-	dof.render(scene);
+	//dof.render(scene);
 
-	hdr.render(&dof);
+	hdr.render(scene);
 
 
 	RenderTarget::clear(Color::magenta);
@@ -106,6 +112,7 @@ static void print_values(const Technique::HDR &hdr) {
 void Game::update(float t, float dt) {
 	/* Update game logic */
 
+	sky->set_time_of_day((t / 1000.f + 0.5f));
 
 	//Debug stuff
 	input.update_object(camera, dt);
