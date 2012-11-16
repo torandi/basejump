@@ -48,6 +48,7 @@ libfrob_a_SOURCES = \
 	src/shader.cpp src/shader.hpp \
 	src/sky.cpp src/sky.hpp \
 	src/skybox.cpp src/skybox.hpp \
+	src/cube_vertices.hpp \
 	src/sound.cpp src/sound.hpp \
 	src/terrain.cpp src/terrain.hpp \
 	src/texture.cpp src/texture.hpp \
