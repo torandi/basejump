@@ -55,7 +55,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	camera.set_position(pos);
 	camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
 
-	sky = new Sky("/sky.cfg");
+	sky = new Sky("/sky.cfg", 0.9f);
 
 	Input::movement_speed = 32.f;
 }
@@ -112,16 +112,20 @@ static void print_values(const Technique::HDR &hdr) {
 void Game::update(float t, float dt) {
 	/* Update game logic */
 
-	sky->set_time_of_day((t / 1000.f + 0.5f));
-
 	//Debug stuff
 	input.update_object(camera, dt);
 
 	//Update hdr
 	if(input.down(Input::ACTION_0)) {
-		hdr.set_exposure(hdr.exposure() - 0.1f);
-		print_values(hdr);
+		//hdr.set_exposure(hdr.exposure() - 0.1f);
+		//print_values(hdr);
+
 	}
+
+	if(input.current_value(Input::ACTION_0) > 0.9) {
+		sky->set_time_of_day(sky->time() + (dt / 10.f));
+	}
+
 	if(input.down(Input::ACTION_1)) {
 		hdr.set_exposure(hdr.exposure() + 0.1f);
 		print_values(hdr);

@@ -20,6 +20,8 @@ class Sky {
 		 */
 		void set_time_of_day(float t);
 
+		float time() const { return time_of_day; };
+
 	private:
 		Shader* shader;
 		GLuint vbo;
@@ -31,6 +33,7 @@ class Sky {
 		GLint u_sun_aura_color;
 		GLint u_sun_position;
 		GLint u_sun_radius;
+		GLint u_lerp;
 
 		float time_of_day;
 
@@ -39,6 +42,7 @@ class Sky {
 		struct sky_data_t {
 			float time;
 			Color zenit, horizont, sun, sunlight;
+			float lerp[2]; //Size, offset
 			bool operator<(const sky_data_t & d) const;
 		};
 
