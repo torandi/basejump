@@ -141,6 +141,7 @@ void Sky::set_time_of_day(float t) {
 
 	glm::vec2 sp_sun;
 
+	//TODO: Don't put the sun in the middle of the sky
 	float two_pi = 2.f * static_cast<float>(M_PI);
 	sp_sun.x = two_pi * (1.f - time_of_day) + static_cast<float>(M_PI); 
 	sp_sun.y = 0.f;//two_pi * time_of_day;
@@ -178,6 +179,14 @@ void Sky::configure_light(MovableLight *light) const {
 
 glm::vec3 Sky::ambient_intensity() const {
 		return current_sun_data.ambient_amount * current_sun_data.sunlight.to_vec3();
+}
+
+const Color &Sky::horizont_color() const {
+	return current_sun_data.horizont;
+}
+
+const Color &Sky::zenit_color() const {
+	return current_sun_data.zenit;
 }
 
 const float Sky::vertices[] = {

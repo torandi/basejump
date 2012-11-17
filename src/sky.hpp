@@ -33,6 +33,12 @@ class Sky {
 		 */
 		glm::vec3 ambient_intensity() const;
 
+		//TODO: All of them.
+		const Color &horizont_color() const;
+		const Color &zenit_color() const;
+
+		//TODO: some kind of fog settings and calculations
+
 	private:
 		Shader* shader;
 		GLuint vbo;
