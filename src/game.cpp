@@ -43,10 +43,8 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 
 
-	sky_color = config["/environment/sky_color"]->as_color();
-
-	fog.color = config["/environment/fog/color"]->as_color().to_vec4();
 	fog.density = config["/environment/fog/density"]->as_float();
+	fog.color = sky->zenit_color().to_vec4();
 
 	//TODO: Remove debug hack
 	camera.set_position(glm::vec3(100.f, 32.f, 100.f));
@@ -138,10 +136,12 @@ void Game::update(float t, float dt) {
 	if(input.current_value(Input::ACTION_4) > 0.9) {
 		sky->set_time_of_day(sky->time() + (dt / 10.f));
 		sky->configure_light(lights.lights[0]);
+		fog.color = sky->zenit_color().to_vec4();
 	}
 	if(input.current_value(Input::ACTION_5) > 0.9) {
 		sky->set_time_of_day(sky->time() - (dt / 10.f));
 		sky->configure_light(lights.lights[0]);
+		fog.color = sky->zenit_color().to_vec4();
 	}
 
 	/*if(input.down(Input::ACTION_4)) {
