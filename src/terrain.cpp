@@ -19,6 +19,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include <glm/gtx/norm.hpp>
 
 #define RENDER_DEBUG 0
 
@@ -28,6 +29,9 @@
 
 float Terrain::culling_fov_factor = 1.2f;
 float Terrain::culling_near_padding = 1.5f;
+float Terrain::lod_distance[TERRAIN_LOD_LEVELS];
+
+int Terrain::LOD = 1;
 
 Terrain::~Terrain() {
 	if(map_ != NULL)
@@ -164,24 +168,52 @@ void Terrain::generate_terrain() {
 			map_[i] =  h*vertical_scale_;
 		}
 	}
-	unsigned long indexCount = (size_.y - 1 ) * (size_.x -1) * 6;
+	unsigned long indexCount[TERRAIN_LOD_LEVELS];
+	indexCount[0] = (size_.y - 1 ) * (size_.x -1) * 6;
+
+	glm::ivec2 sizes[TERRAIN_LOD_LEVELS];
+	int scale_factor[TERRAIN_LOD_LEVELS];
+	scale_factor[0] = 1;
+	sizes[0] = size_;
 
 	//build indices
-	std::vector<unsigned int> indices = std::vector<unsigned int>(indexCount);
-	for(int x=0; x<size_.x- 1; ++x) {
-		for(int y=0; y<size_.y- 1; ++y) {
-			int i = y * (size_.x-1) + x;
-			indices[i*6 + 2] = (x + 1) + y*size_.x;
-			indices[i*6 + 1] = x + (y+1)*size_.x;
-			indices[i*6 + 0] = x + y*size_.x;
+	std::vector<unsigned int> indices[TERRAIN_LOD_LEVELS];
+	indices[0] = std::vector<unsigned int>(indexCount[0]);
+	for(int i=1; i<TERRAIN_LOD_LEVELS; ++i) {
+		scale_factor[i] = scale_factor[i - 1] * 2;
+		sizes[i] = sizes[i-1] / 2;
+		indexCount[i] = (sizes[i].y - 1 ) * (sizes[i].x -1) * 6;
+		indices[i] = std::vector<unsigned int>(indexCount[i]);
+	}
 
-			indices[i*6 + 5] = (x + 1) + y*size_.x;
-			indices[i*6 + 4] = (x+1) + (y+1)*size_.x;
-			indices[i*6 + 3] = x + (y+1)*size_.x;
+	/*
+	 * Oh the complexity :(
+	 * Well, it's only loading phase anyway
+	 */
+	for(int lod=0; lod<TERRAIN_LOD_LEVELS; ++lod) {
+		for(int x=0; x<sizes[lod].x- 1; ++x) {
+			for(int y=0; y<sizes[lod].y- 1; ++y) {
+				int i = y * (sizes[lod].x-1) + x;
+				int vx, vy;
+				vx = x * scale_factor[lod];
+				vy = y * scale_factor[lod];
+				indices[lod][6 * i + 0] = vx + vy*size_.x;
+				indices[lod][6 * i + 1] = vx + (vy+scale_factor[lod])*size_.x;
+				indices[lod][6 * i + 2] = (vx + scale_factor[lod]) + vy*size_.x;
+
+				indices[lod][6 * i + 3] = vx + (vy+scale_factor[lod])*size_.x;
+				indices[lod][6 * i + 4] = (vx+scale_factor[lod]) + (vy+scale_factor[lod])*size_.x;
+				indices[lod][6 * i + 5] = (vx + scale_factor[lod]) + vy*size_.x;
+			}
 		}
 	}
 
-	add_indices(indices);
+	Logging::info("[Terrain] Partitioning mesh\n");
+
+	for(int i=0; i<TERRAIN_LOD_LEVELS; ++i) {
+		add_indices(indices[i], i);
+		lod_distance[i] = glm::pow(400.f * static_cast<float>(scale_factor[i]), 2.f);
+	}
 
 	Logging::info("[Terrain] Generate normals.\n");
 	generate_normals();
@@ -191,6 +223,8 @@ void Terrain::generate_terrain() {
 	ortonormalize_tangent_space();
 	Logging::info("[Terrain] Create buffers.\n");
 	generate_vbos();
+	Logging::info("[Terrain] Generating LOD.\n");
+
 	Logging::info("[Terrain] Terrain loaded.\n");
 }
 
@@ -282,10 +316,6 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 	
 	Triangle2D cam_tri = calculate_camera_tri(cam);
 	
-	/*submesh_tree->traverse([&,cam_tri](QuadTree * tree) -> bool {
-			return Terrain::cull_or_render(cam_tri, tree);
-	});*/
-
 	AABB_2D aabb2d;
 	aabb2d.add_point(cam_tri.p1);
 	aabb2d.add_point(cam_tri.p2);
@@ -306,10 +336,6 @@ void Terrain::render_geometry_cull( const Camera &cam, const AABB &aabb, const g
 	AABB_2D aabb2d(glm::vec2(aabb.min.x, aabb.min.z), glm::vec2(aabb.max.x, aabb.max.z));
 
 	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, aabb2d, std::placeholders::_1));
-			
-			/*[&,cam_tri](QuadTree * tree) -> bool {
-			return Terrain::cull_or_render(cam_tri, tree);
-	});*/
 }
 
 Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
@@ -319,9 +345,9 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
 
 	glm::vec2 points[3];
 
-	points[0] = glm::vec2(corners[4].x, corners[4].z);
-	points[1] = glm::vec2(corners[6].x, corners[6].z);
-	points[2] = glm::vec2(cam.position().x, cam.position().z) - glm::normalize(glm::vec2(cam.local_z().x, cam.local_z().z)) * culling_near_padding;
+	points[0] = glm::vec2(cam.position().x, cam.position().z) - glm::normalize(glm::vec2(cam.local_z().x, cam.local_z().z)) * culling_near_padding;
+	points[1] = glm::vec2(corners[4].x, corners[4].z);
+	points[2] = glm::vec2(corners[6].x, corners[6].z);
 	
 	return Triangle2D(
 			points[0],
@@ -332,12 +358,22 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
 }
 
 bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_box, QuadTree * node) {
-	if(intersect2d::aabb_aabb(node->aabb, limiting_box) && intersect2d::aabb_triangle(node->aabb, cam_tri)) {
-		if(node->data != nullptr) {
-			( (SubMesh*) node->data )->render_geometry();
+	//if(intersect2d::aabb_aabb(node->aabb, limiting_box) && intersect2d::aabb_triangle(node->aabb, cam_tri)) {
+		float d = glm::distance2(node->aabb.middle(), cam_tri.p1);
+		int lod = TERRAIN_LOD_LEVELS - 1;
+		for(int i=0; i< TERRAIN_LOD_LEVELS; ++i) {
+			if(d < lod_distance[i]) {
+				lod = i;
+				break;
+			}
+		}
+
+		if(node->level() <= lod) {
+			if(node->data != nullptr) ( (SubMesh*) node->data )->render_geometry();
+			return false;
 		}
 		return true;
-	} else {
+	/*} else {
 		return false;
-	}
+	}*/
 }

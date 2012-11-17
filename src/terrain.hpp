@@ -11,6 +11,8 @@
 #include "material.hpp"
 #include "texture.hpp"
 
+#define TERRAIN_LOD_LEVELS 8
+
 class Terrain : public Mesh {
 	float horizontal_scale_;
 	float vertical_scale_;
@@ -43,7 +45,13 @@ class Terrain : public Mesh {
 
 	static Triangle2D calculate_camera_tri(const Camera& cam);
 
+	static float lod_distance[TERRAIN_LOD_LEVELS];
+
 	public:
+
+	//DAS HACK, debug remove me
+	static int LOD;
+
 		float vertical_scale() { return vertical_scale_; };
 
 		/**
