@@ -11,16 +11,24 @@ AABB_2D::AABB_2D()
 	: min(FLT_MAX)
 	, max(-FLT_MAX)
 	, corners_dirty_(true)
+	, middle_dirty_(true)
 	{ }
 
 AABB_2D::AABB_2D(const glm::vec2 &min_, const glm::vec2 &max_) 
 	: min(min_)
 	, max(max_)
 	, corners_dirty_(true)
+	, middle_dirty_(true)
 	{ }
 
+AABB_2D::AABB_2D(const AABB_2D &aabb)
+		: min(aabb.min)
+		, max(aabb.max)
+		, corners_dirty_(true)
+		, middle_dirty_(true)
+		{ }
+
 AABB_2D AABB_2D::operator+(const AABB_2D &other) const {
-	corners_dirty_ = true;
 	return AABB_2D(
 				glm::min(min, other.min),
 				glm::max(max, other.max)
@@ -29,6 +37,7 @@ AABB_2D AABB_2D::operator+(const AABB_2D &other) const {
 
 AABB_2D &AABB_2D::operator+=(const AABB_2D &other) {
 	corners_dirty_ = true;
+	middle_dirty_ = true;
 	min = glm::min(min, other.min);
 	max = glm::max(max, other.max);
 	return *this;
@@ -36,6 +45,7 @@ AABB_2D &AABB_2D::operator+=(const AABB_2D &other) {
 
 AABB_2D AABB_2D::operator*(const glm::mat4 &matrix) const {
 	corners_dirty_ = true;
+	middle_dirty_ = true;
 	glm::vec4 new_min = matrix * glm::vec4(min.x, 0.f, min.y, 1.f);
 	glm::vec4 new_max = matrix * glm::vec4(max.x, 0.f, min.y, 1.f);
 	return AABB_2D(
@@ -46,6 +56,7 @@ AABB_2D AABB_2D::operator*(const glm::mat4 &matrix) const {
 
 void AABB_2D::add_point(const glm::vec2 &v) {
 	corners_dirty_ = true;
+	middle_dirty_ = true;
 	min = glm::min(min, v);
 	max = glm::max(max, v);
 }
@@ -72,9 +83,19 @@ bool AABB_2D::contains(const glm::vec2 &point) const {
 }
 
 glm::vec2 AABB_2D::middle() const {
-	return (min + max) / 2.f;
+	if(middle_dirty_) {
+		middle_ = (min + max) / 2.f;
+		middle_dirty_ = false;
+	}
+
+	return middle_;
 }
 
 glm::vec2 AABB_2D::size() const {
 	return (max - min);
+}
+
+void AABB_2D::mark_dirty() {
+	corners_dirty_ = true;
+	middle_dirty_ = true;
 }

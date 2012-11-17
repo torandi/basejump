@@ -9,6 +9,7 @@ struct AABB_2D {
 	AABB_2D();
 
 	AABB_2D(const glm::vec2 &min_, const glm::vec2 &max_);
+	AABB_2D(const AABB_2D &aabb);
 
 	glm::vec2 min, max;
 
@@ -50,9 +51,12 @@ struct AABB_2D {
 
 	glm::vec2 size() const;
 
+	void mark_dirty();
+
 private:
 	mutable std::vector<glm::vec2> corners_;
-	mutable bool corners_dirty_;
+	mutable bool corners_dirty_, middle_dirty_;
+	mutable glm::vec2 middle_;
 };
 
 #endif
