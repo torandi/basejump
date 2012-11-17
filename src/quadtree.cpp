@@ -29,12 +29,13 @@ void QuadTree::add_child(QuadTree * node) {
 	}
 }
 
-QuadTree * QuadTree::child(const glm::vec2 &position) {
+QuadTree * QuadTree::child(const glm::vec2 &position, int level) {
+	if(level > level_) return nullptr;
 	if(aabb.contains(position)) {
-		if(level_ == 0) return this; //This is a leaf
+		if(level_ == level) return this; //This is a leaf
 
 		int index = child_index(position);
-		return child(index)->child(position);
+		return child(index)->child(position, level);
 	} else {
 		return nullptr;
 	}

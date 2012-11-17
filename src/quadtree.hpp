@@ -29,8 +29,10 @@ class QuadTree {
 		 * Finds or allocates child that contain the given position, 
 		 * if the position is in this quad tree a quadtree ptr will be returned
 		 * if the position is not in this quad tree, a nullptr will be returned
+		 *
+		 * @param level Find the child at this level
 		 */
-		QuadTree * child(const glm::vec2 &position);
+		QuadTree * child(const glm::vec2 &position, int level=0);
 
 		/*
 		 * Same as above, but from specified index
