@@ -58,7 +58,7 @@ class Mesh : public MovableObject {
 		void activate_tangents_and_bitangents();
 
 		void add_vertices(const std::vector<Shader::vertex_t> &vertices);
-		void add_indices(const std::vector<unsigned int> &indices);
+		void add_indices(const std::vector<unsigned int> &indices, int level=0);
 
 		/*
 		 * Loads vertex data from array of floats (x, y, z, u, v)

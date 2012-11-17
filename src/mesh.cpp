@@ -76,7 +76,7 @@ void Mesh::add_vertices(const std::vector<Shader::vertex_t> &vertices) {
 	 vertices_.insert(vertices_.end(), vertices.begin(), vertices.end());
 }
 
-void Mesh::add_indices(const std::vector<unsigned int> &indices) {
+void Mesh::add_indices(const std::vector<unsigned int> &indices, int level) {
    verify_immutable("set_indices");
 	 if(indices.size() % 3 != 0) {
 		Logging::fatal("Must add indices in groups of 3\n");
@@ -94,7 +94,7 @@ void Mesh::add_indices(const std::vector<unsigned int> &indices) {
 			//Find child:
 			QuadTree * child = nullptr;
 			while(child == nullptr) {
-				child = submesh_tree->child(center_2d);
+				child = submesh_tree->child(center_2d, level);
 				if(child == nullptr) {
 					//The point was outside the quad tree, enlarge!
 					submesh_tree = submesh_tree->grow();
