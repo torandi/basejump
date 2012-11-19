@@ -15,6 +15,7 @@
 #include "engine.hpp"
 #include "data.hpp"
 #include "sky.hpp"
+#include "quad.hpp"
 
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
@@ -47,19 +48,22 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	fog.color = sky->zenit_color().to_vec4();
 
 	//TODO: Remove debug hack
-	camera.set_position(glm::vec3(100.f, 32.f, 100.f));
+	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
 
 	glm::vec3 pos = camera.position();
 	pos.y = terrain->height_at(pos.x, pos.z) + 2.f;
 	camera.set_position(pos);
 	camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
 
-	Input::movement_speed = 32.f;
+	Input::movement_speed = 10.f;
+
+	scene_aabb = terrain->aabb();
 }
 
 Game::~Game() {
 	delete scene;
 	delete sky;
+	delete terrain;
 }
 
 void Game::render_scene(){
@@ -68,6 +72,8 @@ void Game::render_scene(){
 	lights.lights[0]->render_shadow_map(camera, scene_aabb, [&](const AABB &aabb) -> void  {
 			terrain->render_geometry_cull(camera, aabb);
 	});
+	Shader::upload_model_matrix(glm::mat4());
+
 
 	Shader::upload_lights(lights);
 
@@ -77,7 +83,6 @@ void Game::render_scene(){
 			RenderTarget::clear(Color::black);
 			sky->render(camera);
 			Shader::upload_camera(camera);
-
 
 			/* Render scene here */
 			terrain->render_cull(camera);

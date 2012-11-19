@@ -144,7 +144,7 @@ void Sky::set_time_of_day(float t) {
 	//TODO: Don't put the sun in the middle of the sky
 	float two_pi = 2.f * static_cast<float>(M_PI);
 	sp_sun.x = two_pi * (1.f - time_of_day) + static_cast<float>(M_PI); 
-	sp_sun.y = 0.f;//two_pi * time_of_day;
+	sp_sun.y = 0.5f;//two_pi * time_of_day;
 
 	/* Convert to cartesian */
 	sun_position.x = glm::sin(sp_sun.x) * glm::cos(sp_sun.y);

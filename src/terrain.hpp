@@ -47,10 +47,10 @@ class Terrain : public Mesh {
 
 	static float lod_distance[TERRAIN_LOD_LEVELS];
 
+	float lod_base_step;
+
 	public:
 
-	//DAS HACK, debug remove me
-	static int LOD;
 
 		float vertical_scale() { return vertical_scale_; };
 
@@ -76,6 +76,8 @@ class Terrain : public Mesh {
 
 		float height_at(float x, float y) const;
 		glm::vec3 normal_at(float x, float y) const;
+
+		float horizontal_size() const;
 
 		void prepare_shader();
 

@@ -31,8 +31,6 @@ float Terrain::culling_fov_factor = 1.2f;
 float Terrain::culling_near_padding = 1.5f;
 float Terrain::lod_distance[TERRAIN_LOD_LEVELS];
 
-int Terrain::LOD = 1;
-
 Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
@@ -46,6 +44,7 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f) {
 	horizontal_scale_ = config["/horizontal_size"]->as_float() / static_cast<float>(size_.x);
 	vertical_scale_ = config["/vertical_size"]->as_float();;
 	uv_scale_ = config["/uv_repeat"]->as_float();
+	lod_base_step = config["/lod_base_step"]->as_float();
 	set_partition_size(config["/submesh_size"]->as_float());
 	const std::vector<ConfigEntry*> texture_selection = config["/texture_selection"]->as_list();
 	texture_selection_[0] = glm::radians(texture_selection[0]->as_float());
@@ -212,7 +211,7 @@ void Terrain::generate_terrain() {
 
 	for(int i=0; i<TERRAIN_LOD_LEVELS; ++i) {
 		add_indices(indices[i], i);
-		lod_distance[i] = glm::pow(400.f * static_cast<float>(scale_factor[i]), 2.f);
+		lod_distance[i] = glm::pow(lod_base_step * static_cast<float>(scale_factor[i]), 2.f); /* ^2 to avoid sqrt in distance check */
 	}
 
 	Logging::info("[Terrain] Generate normals.\n");
@@ -358,7 +357,7 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
 }
 
 bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_box, QuadTree * node) {
-	//if(intersect2d::aabb_aabb(node->aabb, limiting_box) && intersect2d::aabb_triangle(node->aabb, cam_tri)) {
+	if(intersect2d::aabb_aabb(node->aabb, limiting_box) && intersect2d::aabb_triangle(node->aabb, cam_tri)) {
 		float d = glm::distance2(node->aabb.middle(), cam_tri.p1);
 		int lod = TERRAIN_LOD_LEVELS - 1;
 		for(int i=0; i< TERRAIN_LOD_LEVELS; ++i) {
@@ -373,7 +372,11 @@ bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_
 			return false;
 		}
 		return true;
-	/*} else {
+	} else {
 		return false;
-	}*/
+	}
+}
+
+float Terrain::horizontal_size() const {
+	return size_.x * horizontal_scale_;
 }
