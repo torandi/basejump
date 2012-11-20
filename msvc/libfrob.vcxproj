@@ -81,6 +81,7 @@
     <ClInclude Include="..\src\cl.hpp" />
     <ClInclude Include="..\src\color.hpp" />
     <ClInclude Include="..\src\config.hpp" />
+    <ClInclude Include="..\src\cube_vertices.hpp" />
     <ClInclude Include="..\src\data.hpp" />
     <ClInclude Include="..\src\engine.hpp" />
     <ClInclude Include="..\src\forward.hpp" />
@@ -106,9 +107,11 @@
     <ClInclude Include="..\src\rendertarget.hpp" />
     <ClInclude Include="..\src\render_object.hpp" />
     <ClInclude Include="..\src\shader.hpp" />
+    <ClInclude Include="..\src\sky.hpp" />
     <ClInclude Include="..\src\skybox.hpp" />
     <ClInclude Include="..\src\sound.hpp" />
     <ClInclude Include="..\src\techniques\blur.hpp" />
+    <ClInclude Include="..\src\techniques\dof.hpp" />
     <ClInclude Include="..\src\techniques\hdr.hpp" />
     <ClInclude Include="..\src\techniques\temporalblur.hpp" />
     <ClInclude Include="..\src\terrain.hpp" />
@@ -151,9 +154,11 @@
     <ClCompile Include="..\src\rendertarget.cpp" />
     <ClCompile Include="..\src\render_object.cpp" />
     <ClCompile Include="..\src\shader.cpp" />
+    <ClCompile Include="..\src\sky.cpp" />
     <ClCompile Include="..\src\skybox.cpp" />
     <ClCompile Include="..\src\sound.cpp" />
     <ClCompile Include="..\src\techniques\blur.cpp" />
+    <ClCompile Include="..\src\techniques\dof.cpp" />
     <ClCompile Include="..\src\techniques\hdr.cpp" />
     <ClCompile Include="..\src\techniques\temporalblur.cpp" />
     <ClCompile Include="..\src\terrain.cpp" />
