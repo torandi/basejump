@@ -154,7 +154,7 @@ void Terrain::generate_terrain() {
 			int i = y * size_.x + x;
 
 			float h = 0.f;
-			if(x == 0 || y == 0 || x == size_.x || y == size_.y) {
+			if(x == 0 || y == 0 || x == size_.x-1 || y == size_.y-1) {
 				//On edge, can't run box filter:
 				h = height_from_color(get_pixel_color(x, y, data_map_, size_));
 			} else {
