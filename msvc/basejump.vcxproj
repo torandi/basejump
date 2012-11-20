@@ -79,7 +79,7 @@
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
@@ -90,11 +90,13 @@
     <ClInclude Include="..\..\src\platform.hpp" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\crt.hpp" />
+    <ClInclude Include="..\src\Controller.hpp" />
     <ClInclude Include="..\src\game.hpp" />
     <ClInclude Include="..\src\Kinect.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\basejump.cpp" />
+    <ClCompile Include="..\src\Controller.cpp" />
     <ClCompile Include="..\src\game.cpp" />
     <ClCompile Include="..\src\Kinect.cpp" />
     <ClCompile Include="..\src\main.cpp" />
