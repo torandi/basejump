@@ -35,6 +35,8 @@ Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
 	free_surface();
+	delete normal_textures_;
+	delete diffuse_textures_;
 }
 
 Terrain::Terrain(const std::string &file) : Mesh(32.f) {
