@@ -8,5 +8,5 @@ protected:
 public:
 	virtual ~Controller();
 	void update();
-
+	virtual bool init() = 0;
 };
