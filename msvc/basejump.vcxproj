@@ -75,13 +75,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;ENABLE_INPUT;HAVE_CONFIG_H;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/../vendor/include;$(SolutionDir)/../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAsManaged>true</CompileAsManaged>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Kinect10.lib;OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -89,10 +91,12 @@
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\crt.hpp" />
     <ClInclude Include="..\src\game.hpp" />
+    <ClInclude Include="..\src\Kinect.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\basejump.cpp" />
     <ClCompile Include="..\src\game.cpp" />
+    <ClCompile Include="..\src\Kinect.cpp" />
     <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>

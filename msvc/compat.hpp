@@ -31,11 +31,11 @@ typedef unsigned int useconds_t;
 #define M_SQRT_2 0.707106781186547524401
 
 /* Windows.h must be included early since it defines crap which must be undefined */
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#define NOCOMM
-#define NOSOUND
+//#define VC_EXTRALEAN
+//#define WIN32_LEAN_AND_MEAN
+//#define NOMINMAX
+//#define NOCOMM
+//#define NOSOUND
 #include <Windows.h>
 
 /* Fuck you microsoft, sincerly - me */
