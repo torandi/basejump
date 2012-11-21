@@ -57,7 +57,7 @@ void main() {
 		shadow_coefficient(Lgt.lights[light], position, shadowmap_coord[light]);
 	}
 
-	ocolor = calculate_fog(accumLighting);
+	ocolor = calculate_fog(accumLighting, camera_direction);
 
 	ocolor.a = 1.f;
 }

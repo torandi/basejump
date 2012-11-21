@@ -92,9 +92,9 @@ void Game::render_blit(){
 	Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 	Shader::upload_model_matrix(glm::mat4());
 
-	dof.render(scene);
+	//dof.render(scene);
 
-	hdr.render(&dof);
+	hdr.render(scene);
 
 
 	RenderTarget::clear(Color::magenta);
