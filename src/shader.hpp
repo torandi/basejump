@@ -78,6 +78,7 @@ public:
 		UNIFORM_RESOLUTION,
 		UNIFORM_FRAMEINFO,
 		UNIFORM_FOG,
+		UNIFORM_SKY,
 		NUM_GLOBAL_UNIFORMS
 	};
 
@@ -159,6 +160,18 @@ public:
 	struct __ALIGNED__(16) fog_t {
 		glm::vec4 color;
 		float density;
+	};
+
+	struct sky_data_t {
+		glm::vec4 zenit_color;
+		glm::vec4 horizont_color;
+		glm::vec4 sun_color;
+		glm::vec4 sun_aura_color;
+		glm::vec4 sun_position;
+		float sun_radius;
+		float sun_aura_scale;
+		float lerp_size;
+		float lerp_offset;
 	};
 
 	/**
@@ -270,7 +283,15 @@ public:
 	 */
 	static void upload_frameinfo(float t);
 
+	/**
+	 * Upload fog data
+	 */
 	static void upload_fog(const fog_t &fog);
+
+	/**
+	 * Upload sky data
+	 */
+	static void upload_sky(const sky_data_t  &sky);
 
 	/**
 	 * Upload white material

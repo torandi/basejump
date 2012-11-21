@@ -45,7 +45,6 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 
 	fog.density = config["/environment/fog/density"]->as_float();
-	fog.color = sky->zenit_color().to_vec4();
 
 	//TODO: Remove debug hack
 	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
@@ -93,9 +92,9 @@ void Game::render_blit(){
 	Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 	Shader::upload_model_matrix(glm::mat4());
 
-	//dof.render(scene);
+	dof.render(scene);
 
-	hdr.render(scene);
+	hdr.render(&dof);
 
 
 	RenderTarget::clear(Color::magenta);
@@ -141,12 +140,10 @@ void Game::update(float t, float dt) {
 	if(input.current_value(Input::ACTION_4) > 0.9) {
 		sky->set_time_of_day(sky->time() + (dt / 10.f));
 		sky->configure_light(lights.lights[0]);
-		fog.color = sky->zenit_color().to_vec4();
 	}
 	if(input.current_value(Input::ACTION_5) > 0.9) {
 		sky->set_time_of_day(sky->time() - (dt / 10.f));
 		sky->configure_light(lights.lights[0]);
-		fog.color = sky->zenit_color().to_vec4();
 	}
 
 	/*if(input.down(Input::ACTION_4)) {

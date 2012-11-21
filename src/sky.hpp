@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include "camera.hpp"
+#include "shader.hpp"
 
 class Sky {
 	public:
@@ -33,27 +34,14 @@ class Sky {
 		 */
 		glm::vec3 ambient_intensity() const;
 
-		//TODO: All of them.
-		const Color &horizont_color() const;
-		const Color &zenit_color() const;
+		const Shader::sky_data_t &sky_data() const { return current_sun_data; };
 
-		//TODO: some kind of fog settings and calculations
 
 	private:
 		Shader* shader;
 		GLuint vbo;
 		static const float vertices[2*6*18];
 
-		GLint u_zenit_color;
-		GLint u_horizont_color;
-		GLint u_sun_color;
-		GLint u_sun_aura_color;
-		GLint u_sun_position;
-		GLint u_sun_radius;
-		GLint u_sun_aura_scale;
-		GLint u_lerp;
-
-		glm::vec3 sun_position;
 		float time_of_day;
 
 		float sun_radius;
@@ -61,7 +49,8 @@ class Sky {
 		struct sky_data_t {
 			float time;
 			Color zenit, horizont, sun, sun_aura, sunlight;
-			float lerp[2];
+			float lerp_size;
+			float lerp_offset;
 			float sun_radius;
 			float ambient_amount;
 			float sun_aura_scale;
@@ -70,7 +59,9 @@ class Sky {
 
 		std::vector<sky_data_t> colors;
 
-		sky_data_t current_sun_data;
+		Shader::sky_data_t current_sun_data;
+		float ambient_amount;
+		glm::vec3 sunlight;
 
 };
 

@@ -57,6 +57,7 @@ static const struct UBO ubo[Shader::NUM_GLOBAL_UNIFORMS] = {
 	{"Resolution",             sizeof(struct resolution_data),GL_DYNAMIC_DRAW},
 	{"Frame",                  sizeof(struct frame_data),     GL_DYNAMIC_DRAW},
 	{"Fog",                    sizeof(Shader::fog_t),         GL_DYNAMIC_DRAW},
+	{"Sky",                    sizeof(Shader::sky_data_t),    GL_DYNAMIC_DRAW},
 };
 
 static GLuint global_uniform_buffers_[Shader::NUM_GLOBAL_UNIFORMS];
@@ -458,9 +459,15 @@ void Shader::upload_frameinfo(float t){
 	checkForGLErrors("Shader::upload_frameinfo");
 }
 
-void Shader::upload_fog(const fog_t &fog) {
+void Shader::upload_fog(const Shader::fog_t &fog) {
 	glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[UNIFORM_FOG]);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(fog_t), &fog);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Shader::upload_sky(const Shader::sky_data_t  &sky) {
+	glBindBuffer(GL_UNIFORM_BUFFER, global_uniform_buffers_[UNIFORM_SKY]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(sky_data_t), &sky);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

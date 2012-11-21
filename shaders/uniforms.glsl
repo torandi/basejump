@@ -84,3 +84,15 @@ layout(std140) uniform Fog {
 	vec4 fog_color;
 	float fog_density;
 };
+
+layout(std140) uniform Sky {
+	vec4 zenit_color;
+	vec4 horizont_color;
+	vec4 sun_color;
+	vec4 sun_aura_color;
+	vec4 sun_position;
+	float sun_radius;
+	float sun_aura_scale;
+	float lerp_size;
+	float lerp_offset;
+} sky;
