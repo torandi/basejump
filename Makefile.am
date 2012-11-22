@@ -24,6 +24,7 @@ libfrob_a_SOURCES = \
 	src/aabb2d.cpp src/aabb2d.hpp \
 	src/bindable.hpp \
 	src/camera.cpp src/camera.hpp \
+	src/Controller.cpp src/Controller.hpp \
 	src/cl.cpp src/cl.hpp \
 	src/config.cpp src/config.hpp \
 	src/color.cpp src/color.hpp \

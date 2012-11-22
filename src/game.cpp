@@ -17,10 +17,18 @@
 #include "sky.hpp"
 #include "quad.hpp"
 
+#include "Controller.hpp"
+
+#ifdef WIN32
+#include "Kinect.hpp"
+#endif
+
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
 	,	hdr(resolution, /* exposure = */ 2.5f, /* bright_max = */ 3.6f, /* bloom_amount = */ 1.0f)
 	, dof(resolution, 1, GL_RGBA32F)
+	, controller(nullptr)
+	, got_controller(false)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
 	shader_normal = Shader::create_shader("/shaders/normal");
@@ -59,7 +67,6 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	scene_aabb = terrain->aabb();
 
 	//Check for different controllers and init them if found
-	got_controller = false;
 #ifdef WIN32
 	controller = new Kinect();
 	got_controller = controller->init();
@@ -70,7 +77,7 @@ Game::~Game() {
 	delete scene;
 	delete sky;
 	delete terrain;
-	if(got_controller){
+	if(controller != nullptr){
 		delete controller;
 	}
 }
@@ -125,6 +132,8 @@ void Game::update(float t, float dt) {
 
 
 	//Check Controller for input
+	//We should probably not need to do this check, as the init should fail if no controller can be found
+	//(or simply fall back on keyboard and mouse)
 	if(got_controller){
 		controller->update();
 	}

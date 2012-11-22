@@ -2,6 +2,7 @@ struct AABB;
 struct AABB_2D;
 struct Triangle2D;
 class Camera;
+class Controller;
 class Color;
 class Data;
 struct Light;

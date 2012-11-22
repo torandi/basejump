@@ -6,8 +6,6 @@
 #include "techniques/hdr.hpp"
 #include "techniques/dof.hpp"
 
-#include "Kinect.hpp" //Hmm ska det vara ifdef WIN32 här?
-
 #include <string>
 
 class Game {
