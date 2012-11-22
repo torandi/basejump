@@ -13,7 +13,8 @@ protected:
 	virtual void readWingNormals(/*btVector3 normals[2]*/);
 
 public:
+	Kinect();
 	virtual ~Kinect();
 
-	virtual bool init();
+	virtual void init();
 };

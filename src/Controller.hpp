@@ -1,4 +1,5 @@
-
+#ifndef CONTROLLER_CPP
+#define CONTROLLER_CPP
 
 class Controller
 {
@@ -10,13 +11,16 @@ public:
 	Controller();
 	virtual ~Controller();
 	void update();
+
 	/*
 	 * Call init to active the controller
 	 */
-	virtual bool init() = 0;
+	virtual void init() = 0;
 
 	/*
 	 * Returns true if the controller has been succesfully activated
 	 */
 	bool active() const { return active_; }
 };
+
+#endif 
