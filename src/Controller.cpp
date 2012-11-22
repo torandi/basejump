@@ -1,8 +1,10 @@
 #include "Controller.hpp"
 
-Controller::~Controller()
-{
-}
+Controller::Controller()
+	: active_(false) 
+{ }
+
+Controller::~Controller() {}
 
 void Controller::update(){
 	readWingNormals(/*normals*/);

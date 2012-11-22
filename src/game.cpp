@@ -28,7 +28,6 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	,	hdr(resolution, /* exposure = */ 2.5f, /* bright_max = */ 3.6f, /* bloom_amount = */ 1.0f)
 	, dof(resolution, 1, GL_RGBA32F)
 	, controller(nullptr)
-	, got_controller(false)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
 	shader_normal = Shader::create_shader("/shaders/normal");
@@ -69,8 +68,8 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	//Check for different controllers and init them if found
 #ifdef WIN32
 	controller = new Kinect();
-	got_controller = controller->init();
 #endif
+	//TODO: check controller->active() and if false try other controllers
 }
 
 Game::~Game() {
@@ -134,7 +133,7 @@ void Game::update(float t, float dt) {
 	//Check Controller for input
 	//We should probably not need to do this check, as the init should fail if no controller can be found
 	//(or simply fall back on keyboard and mouse)
-	if(got_controller){
+	if(controller != nullptr && controller->active()){
 		controller->update();
 	}
 

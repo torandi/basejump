@@ -38,7 +38,6 @@ class Game {
 		Shader::fog_t fog;
 
 		Controller* controller;
-		bool got_controller;
 };
 
 #endif

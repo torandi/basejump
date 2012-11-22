@@ -39,7 +39,8 @@ bool Kinect::init()
 			hr = m_pNuiSensor->NuiSkeletonTrackingEnable(m_hNextSkeletonEvent, 0);
 		}
 	}
-	
+
+	active_ = gotKinect;
 	return gotKinect;
 }
 
