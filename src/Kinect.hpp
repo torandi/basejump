@@ -4,7 +4,7 @@
 #include "Controller.hpp"
 #include <iostream>
 
-class Kinect : Controller
+class Kinect : public Controller
 {
 private:
 	INuiSensor* m_pNuiSensor;

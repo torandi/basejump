@@ -6,6 +6,8 @@
 #include "techniques/hdr.hpp"
 #include "techniques/dof.hpp"
 
+#include "Kinect.hpp" //Hmm ska det vara ifdef WIN32 här?
+
 #include <string>
 
 class Game {
@@ -36,6 +38,9 @@ class Game {
 
 		Color sky_color;
 		Shader::fog_t fog;
+
+		Controller* controller;
+		bool got_controller;
 };
 
 #endif

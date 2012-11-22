@@ -57,12 +57,22 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	Input::movement_speed = 10.f;
 
 	scene_aabb = terrain->aabb();
+
+	//Check for different controllers and init them if found
+	got_controller = false;
+#ifdef WIN32
+	controller = new Kinect();
+	got_controller = controller->init();
+#endif
 }
 
 Game::~Game() {
 	delete scene;
 	delete sky;
 	delete terrain;
+	if(got_controller){
+		delete controller;
+	}
 }
 
 void Game::render_scene(){
@@ -112,6 +122,12 @@ static void print_values(const Technique::HDR &hdr) {
 
 void Game::update(float t, float dt) {
 	/* Update game logic */
+
+
+	//Check Controller for input
+	if(got_controller){
+		controller->update();
+	}
 
 	//Debug stuff
 	input.update_object(camera, dt);
