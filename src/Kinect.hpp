@@ -9,6 +9,7 @@ class Kinect : public Controller
 private:
 	INuiSensor* m_pNuiSensor;
 	HANDLE m_hNextSkeletonEvent;
+	int tracked_skeleton;
 protected:
 	virtual void readWingNormals(/*btVector3 normals[2]*/);
 

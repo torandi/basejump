@@ -4,7 +4,7 @@
 
 #include "Kinect.hpp"
 
-Kinect::Kinect()
+Kinect::Kinect() : tracked_skeleton(-1)
 {
 	init();
 }
@@ -61,18 +61,28 @@ void Kinect::readWingNormals()
 			// smooth out the skeleton data
 			m_pNuiSensor->NuiTransformSmooth(&skeletonFrame, NULL);
 
+			
+			// We have lost the tracked person, or not started tracking a person.
+			// Choose the first skeleton we find.
+			if(tracked_skeleton == -1){				
+				for (int i = 0 ; i < NUI_SKELETON_COUNT; ++i)
+				{
+					if(skeletonFrame.SkeletonData[i].eTrackingState == NUI_SKELETON_TRACKED){
+						tracked_skeleton = i;
+						break;
+					}
+				}
+			}
 			// Process the skeleton frame
-			/*
-			 * We might need some smart code to choose which body to track.	
-			 */
-			for (int i = 0 ; i < NUI_SKELETON_COUNT; ++i)
-			{
-				//Notify if we found more than one skeleton
-				NUI_SKELETON_TRACKING_STATE trackingState = skeletonFrame.SkeletonData[i].eTrackingState;
-				float Right_Hand_z = skeletonFrame.SkeletonData[i].SkeletonPositions[NUI_SKELETON_POSITION_HAND_RIGHT].z;
-				if(Right_Hand_z != 0)
-					std::cout << Right_Hand_z << std::endl;
-			}			
+			if(tracked_skeleton != -1){
+				if(skeletonFrame.SkeletonData[tracked_skeleton].eTrackingState == NUI_SKELETON_TRACKED){
+					float Right_Hand_z = skeletonFrame.SkeletonData[tracked_skeleton].SkeletonPositions[NUI_SKELETON_POSITION_HAND_RIGHT].z;
+					if(Right_Hand_z != 0)
+						std::cout << Right_Hand_z << std::endl;	
+				} else{ // We have lost the tracked skeleton
+					tracked_skeleton = -1;
+				}
+			}
         }
     }
 }
