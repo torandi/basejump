@@ -3,9 +3,13 @@
 
 #include <SDL/SDL.h>
 #include <glm/glm.hpp>
-#include "movable_object.hpp"
 
-class Input {
+#include "Controller.hpp"
+
+
+
+
+class Input : public Controller {
 	public:
 	
 		Input();
@@ -45,6 +49,7 @@ class Input {
 		float current_value(input_action_t action) const;
 		
 		void update_object(MovableObject &obj, float dt) const;
+		void update_object(Protagonist & obj, float dt);
 
 		glm::vec3 movement_change() const;
 

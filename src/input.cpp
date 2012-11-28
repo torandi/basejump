@@ -3,6 +3,9 @@
 
 #include <SDL/SDL.h>
 
+#include <iostream>
+
+
 #define AXIS_MAX 32767.f
 #define DEAD_ZONE 0.2f
 
@@ -215,6 +218,29 @@ void Input::update_object(MovableObject &obj, float dt) const {
 	obj.pitch(current_value(ROTATE_X)*dt);
 	obj.yaw(current_value(ROTATE_Y)*dt);
 	obj.roll(current_value(ROTATE_Z)*dt);
+}
+
+
+// axes
+// 0 LSH
+// 1 inverted LSV
+// 2 0->1 LT  +  0->-1 RT
+// 3 inverted RSV
+// 4 RSH
+void Input::update_object(Protagonist & protagonist, float dt)
+{
+	if(!SDL_JoystickOpen(0))
+		return;
+
+	protagonist.lWing.normal(
+		normalized_axis_value(0),
+		normalized_axis_value(1),
+		1-2*std::max(.0f, normalized_axis_value(2)));
+
+	protagonist.rWing.normal(
+		normalized_axis_value(4),
+		normalized_axis_value(3),
+		1+2*std::min(.0f, normalized_axis_value(2)));
 }
 
 bool Input::button_down(int btn) {

@@ -74,16 +74,18 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;ENABLE_INPUT;HAVE_CONFIG_H;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/../vendor/include;$(SolutionDir)/../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/../../bullet-2.81-rev2613\src;$(SolutionDir);$(SolutionDir)/../vendor/include;$(SolutionDir)/../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>true</CompileAsManaged>
       <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Kinect10.lib;OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;Kinect10.lib;OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Andre\Documents\GitHub\bullet-2.81-rev2613\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -93,6 +95,8 @@
     <ClInclude Include="..\src\Controller.hpp" />
     <ClInclude Include="..\src\game.hpp" />
     <ClInclude Include="..\src\Kinect.hpp" />
+    <ClInclude Include="..\src\Protagonist.hpp" />
+    <ClInclude Include="..\src\XboxController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\basejump.cpp" />
@@ -100,6 +104,8 @@
     <ClCompile Include="..\src\game.cpp" />
     <ClCompile Include="..\src\Kinect.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Protagonist.cpp" />
+    <ClCompile Include="..\src\XboxController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libfrob.vcxproj">

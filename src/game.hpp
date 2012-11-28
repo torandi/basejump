@@ -8,6 +8,16 @@
 
 #include <string>
 
+
+#pragma managed(push,off)
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#pragma managed(pop)
+
+#include "Protagonist.hpp"
+
+
+
 class Game {
 	public:
 		Game(const std::string &level, float near, float far, float fov);
@@ -18,6 +28,15 @@ class Game {
 		void render();
 
 	private:
+		btDefaultCollisionConfiguration * collisionConfiguration;
+        btCollisionDispatcher * dispatcher;
+        btBroadphaseInterface * broadphase;
+        btConstraintSolver * solver;
+        btDynamicsWorld * dynamicsWorld;
+
+		void initPhysics();
+		void cleanupPhysics();
+
 		void render_blit();
 		void render_scene();
 
@@ -38,6 +57,7 @@ class Game {
 		Shader::fog_t fog;
 
 		Controller* controller;
+		Protagonist * protagonist;
 };
 
 #endif

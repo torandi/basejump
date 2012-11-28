@@ -10,12 +10,17 @@ private:
 	INuiSensor* m_pNuiSensor;
 	HANDLE m_hNextSkeletonEvent;
 	int tracked_skeleton;
-protected:
-	virtual void readWingNormals(/*btVector3 normals[2]*/);
+
+	void init();
+	void find_skeleton(NUI_SKELETON_FRAME &);
+	void process_skeleton(NUI_SKELETON_FRAME &, Protagonist &, float dt);
+
+	btVector3 vector4_to_btVector3(const Vector4 &) const;
+	inline btScalar clamp(const btScalar &) const;
 
 public:
 	Kinect();
 	virtual ~Kinect();
 
-	virtual void init();
+	virtual void update_object(Protagonist & p, float dt);
 };

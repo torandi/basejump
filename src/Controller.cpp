@@ -6,8 +6,8 @@ Controller::Controller()
 
 Controller::~Controller() {}
 
-void Controller::update(){
-	readWingNormals(/*normals*/);
-    //m_protagonist->leftWing(normals[0]);
-    //m_protagonist->rightWing(normals[1]);
-}
+//void Controller::update_(Protagonist & p){
+//	//readWingNormals(/*normals*/);
+//    //p->leftWing(normals[0]);
+//    //p->rightWing(normals[1]);
+//}

@@ -17,7 +17,9 @@
 #include "sky.hpp"
 #include "quad.hpp"
 
+
 #include "Controller.hpp"
+
 
 #ifdef WIN32
 #include "Kinect.hpp"
@@ -25,7 +27,7 @@
 
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
-	,	hdr(resolution, /* exposure = */ 2.5f, /* bright_max = */ 3.6f, /* bloom_amount = */ 1.0f)
+	, hdr(resolution, /* exposure = */ 2.5f, /* bright_max = */ 3.6f, /* bloom_amount = */ 1.0f)
 	, dof(resolution, 1, GL_RGBA32F)
 	, controller(nullptr)
 {
@@ -65,12 +67,31 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	scene_aabb = terrain->aabb();
 
+
+	initPhysics();
+	protagonist = new Protagonist();
+	dynamicsWorld->addRigidBody(protagonist->rigidBody);
+
+
+
 	//Check for different controllers and init them if found
 #ifdef WIN32
 	controller = new Kinect();
 #endif
 	//TODO: check controller->active() and if false try other controllers
 }
+
+
+void Game::initPhysics()
+{
+	collisionConfiguration = new btDefaultCollisionConfiguration();
+	dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	broadphase = new btDbvtBroadphase();
+	solver = new btSequentialImpulseConstraintSolver();
+	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
+	dynamicsWorld->setGravity(btVector3(0,-10,0));
+}
+
 
 Game::~Game() {
 	delete scene;
@@ -79,7 +100,23 @@ Game::~Game() {
 	if(controller != nullptr){
 		delete controller;
 	}
+
+	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
+	delete protagonist;
+
+	cleanupPhysics();
 }
+
+
+void Game::cleanupPhysics()
+{
+	delete dynamicsWorld;
+	delete solver;
+	delete collisionConfiguration;
+	delete dispatcher;
+	delete broadphase;
+}
+
 
 void Game::render_scene(){
 	Shader::upload_model_matrix(glm::mat4());
@@ -129,16 +166,31 @@ static void print_values(const Technique::HDR &hdr) {
 void Game::update(float t, float dt) {
 	/* Update game logic */
 
+	dynamicsWorld->stepSimulation(1/60.f, 1);
+	protagonist->update();
+
+	// sync camera transform with protagonist transform
+	//camera.set_position(protagonist->position());
+	////camera.set_
+	//camera.look_at(protagonist->position() - (glm::vec3)protagonist->rotation_matrix()[2]);
+	//const glm::mat4 rotM = protagonist->rotation_matrix();
+	//camera.set_rotation(
+	camera.look_at(protagonist->position() - protagonist->local_z());
+	protagonist->syncTransform(&camera);
+	//camera.set_position(protagonist->position());
+	
+
 
 	//Check Controller for input
 	//We should probably not need to do this check, as the init should fail if no controller can be found
 	//(or simply fall back on keyboard and mouse)
 	if(controller != nullptr && controller->active()){
-		controller->update();
+		controller->update_object(*protagonist, dt);
 	}
 
 	//Debug stuff
-	input.update_object(camera, dt);
+	//input.update_object(camera, dt);
+	input.update_object(*protagonist, dt);
 
 	//Update hdr
 	if(input.down(Input::ACTION_0)) {
