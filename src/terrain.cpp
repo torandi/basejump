@@ -247,6 +247,12 @@ void Terrain::generate_terrain() {
 		lod_distance[i] = glm::pow(lod_base_step * static_cast<float>(scale_factor[i]), 2.f); /* ^2 to avoid sqrt in distance check */
 	}
 
+	Logging::info("[Terrain] Generate normals.\n");
+	generate_normals();
+	Logging::info("[Terrain] Generate tangent space.\n");
+	generate_tangents_and_bitangents();
+
+	Logging::info("[Terrain] Generate skirts.\n");
 	//Generate skirts
 	submesh_tree->traverse([&](QuadTree * qt) -> bool {
 		if(qt->data != nullptr) {
@@ -321,10 +327,6 @@ void Terrain::generate_terrain() {
 	
 });
 
-	Logging::info("[Terrain] Generate normals.\n");
-	generate_normals();
-	Logging::info("[Terrain] Generate tangent space.\n");
-	generate_tangents_and_bitangents();
 	Logging::info("[Terrain] Ortonormalize tangent space.\n");
 	ortonormalize_tangent_space();
 	Logging::info("[Terrain] Create buffers.\n");
