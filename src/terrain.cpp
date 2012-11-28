@@ -455,13 +455,19 @@ void Terrain::render_geometry_cull( const Camera &cam, const AABB &aabb, const g
 Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
 	glm::vec3 corners[8];
 
-	cam.frustrum_corners(corners, cam.near(), cam.far(), cam.fov() * culling_fov_factor);
+	cam.frustrum_corners(corners, cam.near(), cam.far(), cam.fov());
 
 	glm::vec2 points[3];
 
-	points[0] = glm::vec2(cam.position().x, cam.position().z) - glm::normalize(glm::vec2(cam.local_z().x, cam.local_z().z)) * culling_near_padding;
-	points[1] = glm::vec2(corners[4].x, corners[4].z);
-	points[2] = glm::vec2(corners[6].x, corners[6].z);
+	glm::vec2 lz = glm::normalize(glm::vec2(cam.local_z().x, cam.local_z().z));
+	glm::vec2 lx = glm::vec2(-lz.y, lz.x);
+	glm::vec3 far_center_3d = cam.position() + cam.local_z() * cam.far();
+	glm::vec2 far_center = glm::vec2(far_center_3d.x, far_center_3d.z);
+	float half_far_split = glm::distance(corners[4], corners[6])/2.f;
+
+	points[0] = glm::vec2(cam.position().x, cam.position().z) - lz * culling_near_padding;
+	points[1] = far_center + lx * half_far_split; 
+	points[2] = far_center - lx * half_far_split; 
 	
 	return Triangle2D(
 			points[0],
