@@ -151,14 +151,15 @@ void Kinect::process_skeleton(NUI_SKELETON_FRAME & skeletonFrame, Protagonist & 
 	btScalar rAngle = rBody.angle(rArm);
 
 	protagonist.lWing.normal(
-		clamp(lNormal.x()/.7f),
-		clamp(lNormal.y()/.5f),
+		-clamp(lNormal.x()/.7f),
+		-clamp(lNormal.y()/.5f),
 		clamp((lAngle-.95f) / .35f));
 
 	protagonist.lWing.normal(
-		clamp(rNormal.x()/.7f),
-		clamp(rNormal.y()/.5f),
+		-clamp(rNormal.x()/.7f),
+		-clamp(rNormal.y()/.5f),
 		clamp((rAngle-.95f) / .35f));
 
 	std::cout << "rAngle: " << clamp((lAngle-.95f) / .35f) << std::endl;
+
 }
