@@ -1,8 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_DEFAULT_SOURCE_EXT = .cpp
 
-engine_CXXFLAGS = ${GL_CFLAGS} ${GLU_CFLAGS} ${GLEW_CFLAGS} ${GLM_CFLAGS} ${SDL_CFLAGS} ${CL_CFLAGS}
-engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${CL_LIBS} -lSDL_image -lfmodex -lassimp
+engine_CXXFLAGS = ${GL_CFLAGS} ${GLU_CFLAGS} ${GLEW_CFLAGS} ${GLM_CFLAGS} ${SDL_CFLAGS} ${CL_CFLAGS} ${BULLET_CFLAGS}
+engine_LIBS = ${VENDOR_LIBS} ${GL_LIBS} ${GLU_LIBS} ${GLEW_LIBS} ${SDL_LIBS} ${CL_LIBS} ${BULLET_LIBS} -lSDL_image -lfmodex -lassimp
 AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src ${engine_CXXFLAGS} ${VENDOR_CFLAGS}
 
 noinst_LIBRARIES = libfrob.a
@@ -57,8 +57,10 @@ libfrob_a_SOURCES = \
 	src/timetable.cpp src/timetable.hpp \
 	src/triangle2d.cpp src/triangle2d.hpp \
 	src/utils.cpp src/utils.hpp \
+	src/Protagonist.cpp src/Protagonist.hpp \
 	src/quad.cpp src/quad.hpp \
 	src/quadtree.cpp src/quadtree.hpp \
+	src/XboxController.cpp src/XboxController.hpp \
 	src/techniques/blur.cpp src/techniques/blur.hpp \
 	src/techniques/dof.cpp src/techniques/dof.hpp \
 	src/techniques/hdr.cpp src/techniques/hdr.hpp \

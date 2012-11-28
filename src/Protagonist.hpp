@@ -5,12 +5,16 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+#ifdef WIN32
 #pragma managed(push,off)
+#endif
+
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
+
+#ifdef WIN32
 #pragma managed(pop)
-
-
+#endif
 
 struct Wing
 {

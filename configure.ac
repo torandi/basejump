@@ -28,8 +28,10 @@ AX_GLEW
 AX_GLM
 AM_PATH_SDL
 
+PKG_CHECK_MODULES(BULLET, [bullet])
+
 AS_IF([test "x$no_gl" == "xyes"], [AC_MSG_ERROR([OpenGL libraries required])])
-AS_IF([test "x$no_cl" == "xyes"], [AC_MSG_ERROR([OpenCL libraries required])])
+#AS_IF([test "x$no_cl" == "xyes"], [AC_MSG_ERROR([OpenCL libraries required])])
 
 AC_CHECK_HEADERS([sys/time.h])
 AC_CHECK_HEADERS([GL/glx.h])
