@@ -89,12 +89,16 @@ void Mesh::add_indices(const std::vector<unsigned int> &indices, int level) {
 	 } else {
 
 		for(auto it = indices.begin(); it != indices.end(); it += 3) {
-			glm::vec3 center = ( vertices_[*it].pos + vertices_[*(it + 1)].pos + vertices_[*(it + 2)].pos ) / 3.f;
-			glm::vec2 center_2d = glm::vec2(center.x, center.z); //Ignore y
+			glm::vec2 min2d = glm::min(glm::min(
+						glm::vec2(vertices_[*it].pos.x, vertices_[*it].pos.z),
+						glm::vec2(vertices_[*(it + 1)].pos.x, vertices_[*(it + 1)].pos.z)
+						), 
+						glm::vec2(vertices_[*(it + 2)].pos.x, vertices_[*(it + 2)].pos.z)
+					);
 			//Find child:
 			QuadTree * child = nullptr;
 			while(child == nullptr) {
-				child = submesh_tree->child(center_2d, level);
+				child = submesh_tree->child(min2d, level);
 				if(child == nullptr) {
 					//The point was outside the quad tree, enlarge!
 					submesh_tree = submesh_tree->grow();

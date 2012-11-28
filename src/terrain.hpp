@@ -47,6 +47,8 @@ class Terrain : public Mesh {
 
 	static float lod_distance[TERRAIN_LOD_LEVELS];
 
+	unsigned int extra_vertex(std::map<glm::vec2, unsigned int, bool(*)(const glm::vec2&, const glm::vec2&)> &extra_vertices, const Shader::vertex_t &v, const glm::vec3 &normal);
+
 	float lod_base_step;
 
 	public:

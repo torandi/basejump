@@ -27,6 +27,8 @@
 	static Shader * debug_shader;
 #endif
 
+#define CALC_UV(xpos,ypos) glm::vec2(static_cast<float>(xpos) / static_cast<float>(size_.x), 1.f - static_cast<float>(ypos) / static_cast<float>(size_.y)) * uv_scale_
+
 float Terrain::culling_fov_factor = 1.2f;
 float Terrain::culling_near_padding = 1.5f;
 float Terrain::lod_distance[TERRAIN_LOD_LEVELS];
@@ -110,6 +112,23 @@ const glm::ivec2 &Terrain::heightmap_size() const {
 	return size_;
 }
 
+unsigned int Terrain::extra_vertex(std::map<glm::vec2, unsigned int, bool(*)(const glm::vec2&, const glm::vec2&)> &extra_vertices, const Shader::vertex_t &v, const glm::vec3 &normal) {
+	glm::vec2 pos2d = glm::vec2(v.pos.x, v.pos.z);
+	auto it = extra_vertices.find(pos2d);
+	if(it != extra_vertices.end()) {
+		return it->second;
+	} else {
+		Shader::vertex_t new_v = v;
+		new_v.pos.y -= vertical_scale_ * 0.05f;
+		new_v.uv = CALC_UV(v.pos.x, v.pos.y + 1.f);
+		new_v.normal = normal;
+		vertices_.push_back(new_v);
+		unsigned int index = static_cast<unsigned int>(vertices_.size() - 1);
+		extra_vertices[pos2d] = index;
+		return index;
+	}
+}
+
 void Terrain::generate_terrain() {
 	unsigned long numVertices = size_.x*size_.y;
 
@@ -164,7 +183,7 @@ void Terrain::generate_terrain() {
 			}
 
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
-			v.uv = glm::vec2(static_cast<float>(x) / static_cast<float>(size_.x), 1.f - static_cast<float>(y) / static_cast<float>(size_.y)) * uv_scale_;
+			v.uv = CALC_UV(x,y);
 			vertices_[i] = v;
 			map_[i] =  h*vertical_scale_;
 		}
@@ -179,7 +198,21 @@ void Terrain::generate_terrain() {
 
 	//build indices
 	std::vector<unsigned int> indices[TERRAIN_LOD_LEVELS];
+
+	std::map<glm::vec2, unsigned int, bool(*)(const glm::vec2&, const glm::vec2&)> skirt_vertices([](const glm::vec2& v1, const glm::vec2& v2) -> bool {
+			if(v1.x < v2.x) {
+				return true;
+			} else if(v1.x > v2.x) {
+				return false;
+			} else if(v1.y < v2.y) {
+				return true;
+			} else {
+				return false;
+			}
+	});
+
 	indices[0] = std::vector<unsigned int>(indexCount[0]);
+
 	for(int i=1; i<TERRAIN_LOD_LEVELS; ++i) {
 		scale_factor[i] = scale_factor[i - 1] * 2;
 		sizes[i] = sizes[i-1] / 2;
@@ -187,10 +220,6 @@ void Terrain::generate_terrain() {
 		indices[i] = std::vector<unsigned int>(indexCount[i]);
 	}
 
-	/*
-	 * Oh the complexity :(
-	 * Well, it's only loading phase anyway
-	 */
 	for(int lod=0; lod<TERRAIN_LOD_LEVELS; ++lod) {
 		for(int x=0; x<sizes[lod].x- 1; ++x) {
 			for(int y=0; y<sizes[lod].y- 1; ++y) {
@@ -198,6 +227,7 @@ void Terrain::generate_terrain() {
 				int vx, vy;
 				vx = x * scale_factor[lod];
 				vy = y * scale_factor[lod];
+
 				indices[lod][6 * i + 0] = vx + vy*size_.x;
 				indices[lod][6 * i + 1] = vx + (vy+scale_factor[lod])*size_.x;
 				indices[lod][6 * i + 2] = (vx + scale_factor[lod]) + vy*size_.x;
@@ -205,6 +235,7 @@ void Terrain::generate_terrain() {
 				indices[lod][6 * i + 3] = vx + (vy+scale_factor[lod])*size_.x;
 				indices[lod][6 * i + 4] = (vx+scale_factor[lod]) + (vy+scale_factor[lod])*size_.x;
 				indices[lod][6 * i + 5] = (vx + scale_factor[lod]) + vy*size_.x;
+
 			}
 		}
 	}
@@ -215,6 +246,80 @@ void Terrain::generate_terrain() {
 		add_indices(indices[i], i);
 		lod_distance[i] = glm::pow(lod_base_step * static_cast<float>(scale_factor[i]), 2.f); /* ^2 to avoid sqrt in distance check */
 	}
+
+	//Generate skirts
+	submesh_tree->traverse([&](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) {
+			SubMesh * m = static_cast<SubMesh*>(qt->data);
+
+			// find bounds
+			AABB_2D bounds;
+			for(const unsigned int &i : m->indices) {
+				bounds.add_point(glm::vec2(vertices_[i].pos.x, vertices_[i].pos.z));
+			}
+
+			std::vector<unsigned int> extra;
+
+			for(auto it = m->indices.begin(); it != m->indices.end(); it += 6) {
+				const Shader::vertex_t v[4] = { vertices_[*it], vertices_[*(it + 1)], vertices_[*(it + 2)], vertices_[*(it + 4)] };
+				if(v[0].pos.z - 0.01f <= bounds.min.y) {
+					unsigned int bottom[2] = { 
+						extra_vertex(skirt_vertices, v[0], glm::vec3(0.f, 0.f, -1.f)),
+						extra_vertex(skirt_vertices, v[2], glm::vec3(0.f, 0.f, -1.f))
+					};
+					extra.push_back(*(it+0));
+					extra.push_back(*(it+2));
+					extra.push_back(bottom[0]);
+
+					extra.push_back(*(it + 2));
+					extra.push_back(bottom[1]);
+					extra.push_back(bottom[0]);
+				} else if(v[1].pos.z + 0.01f >= bounds.max.y) {
+					unsigned int bottom[2] = { 
+						extra_vertex(skirt_vertices, v[1], glm::vec3(0.f, 0.f, 1.f)),
+						extra_vertex(skirt_vertices, v[3], glm::vec3(0.f, 0.f, 1.f))
+					};
+					extra.push_back(*(it+4));
+					extra.push_back(*(it+1));
+					extra.push_back(bottom[0]);
+
+					extra.push_back(bottom[1]);
+					extra.push_back(*(it + 4));
+					extra.push_back(bottom[0]);
+				}
+
+				if(v[0].pos.x - 0.01f <= bounds.min.x) {
+					unsigned int bottom[2] = { 
+						extra_vertex(skirt_vertices, v[0], glm::vec3(-1.f, 0.f, 0.f)),
+						extra_vertex(skirt_vertices, v[1], glm::vec3(-1.f, 0.f, 0.f))
+					};
+					extra.push_back(*(it+1));
+					extra.push_back(*(it+0));
+					extra.push_back(bottom[0]);
+
+					extra.push_back(bottom[1]);
+					extra.push_back(*(it + 1));
+					extra.push_back(bottom[0]);
+				} else if(v[2].pos.x + 0.01f >= bounds.max.x) {
+					unsigned int bottom[2] = { 
+						extra_vertex(skirt_vertices, v[3], glm::vec3(1.f, 0.f, 0.f)),
+						extra_vertex(skirt_vertices, v[2], glm::vec3(1.f, 0.f, 0.f))
+					};
+					extra.push_back(*(it+2));
+					extra.push_back(*(it+4));
+					extra.push_back(bottom[0]);
+
+					extra.push_back(bottom[1]);
+					extra.push_back(*(it + 2));
+					extra.push_back(bottom[0]);
+				}
+			}
+
+			m->indices.insert(m->indices.end(), extra.begin(), extra.end());
+		}
+		return true;
+	
+});
 
 	Logging::info("[Terrain] Generate normals.\n");
 	generate_normals();
@@ -322,7 +427,13 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 	aabb2d.add_point(cam_tri.p2);
 	aabb2d.add_point(cam_tri.p3);
 
+#if RENDER_DEBUG
+	glLineWidth(2.f);
+	debug_shader->bind();
+#endif
+	//glDisable(GL_CULL_FACE);
 	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, aabb2d, std::placeholders::_1));
+	//glEnable(GL_CULL_FACE);
 }
 
 void Terrain::render_geometry_cull( const Camera &cam, const glm::mat4& m) {
@@ -380,5 +491,5 @@ bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_
 }
 
 float Terrain::horizontal_size() const {
-	return size_.x * horizontal_scale_;
+	return static_cast<float>(size_.x) * horizontal_scale_;
 }
