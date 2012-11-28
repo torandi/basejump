@@ -1,5 +1,10 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "input.hpp"
 #include "movable_object.hpp"
+#include "Protagonist.hpp"
 
 #include <SDL/SDL.h>
 

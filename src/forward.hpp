@@ -12,6 +12,7 @@ class Mesh;
 class MovableLight;
 class MovableObject;
 class ParticleSystem;
+class Protagonist;
 class PointTable;
 class Quad;
 class RenderObject;

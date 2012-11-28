@@ -1,4 +1,9 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "Controller.hpp"
+#include "Protagonist.hpp"
 
 Controller::Controller()
 	: active_(false) 

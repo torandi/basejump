@@ -2,14 +2,6 @@
 #define CONTROLLER_CPP
 
 
-#include "Protagonist.hpp"
-
-
-#pragma managed(push,off)
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
-#pragma managed(pop)
-
 
 class Controller
 {
