@@ -1,6 +1,20 @@
+#ifdef HAVE_CONFIG_H
+#	include "config.h"
+#endif
+
 #include "Protagonist.hpp"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#define RENDER_DEBUG 1
+
+#if RENDER_DEBUG
+
+#include "debug_mesh.hpp"
+
+	static DebugMesh * triangle;
+#endif
 
 /*
 	Left and right wings.
@@ -37,9 +51,34 @@ static const btScalar PITCH_FACTOR = 2.f;
 
 
 
-Protagonist::Protagonist() : lWing(L_WING_OFFSET), rWing(R_WING_OFFSET)
+Protagonist::Protagonist(const glm::vec3 &position) : MovableObject(position), lWing(L_WING_OFFSET), rWing(R_WING_OFFSET)
 {
 	initPhysics();
+#if RENDER_DEBUG
+	triangle = new DebugMesh(GL_TRIANGLES);
+	static std::vector<DebugMesh::vertex_t> vertices;
+	DebugMesh::vertex_t v;
+	v.color = glm::vec4(1.f, 0.f, 0.f, 1.f);
+	v.pos = glm::vec3(0.f);
+	vertices.push_back(v);
+
+	v.color = glm::vec4(0.f, 0.f, 1.f, 1.f);
+	v.pos = glm::vec3(0.5f, 0.f, 1.f);
+	vertices.push_back(v);
+
+	v.color = glm::vec4(1.f, 0.f, 0.f, 1.f);
+	v.pos = glm::vec3(1.f, 0.f, 0.f);
+	vertices.push_back(v);
+
+	v.color = glm::vec4(0.f, 1.f, 0.f, 1.f);
+	v.pos = glm::vec3(0.5f, 0.25f, 0.f);
+	vertices.push_back(v);
+
+
+	triangle->set_vertices(vertices);
+	static const unsigned int indices[] = { 0, 1, 2, 0, 2, 3};
+	triangle->set_indices(indices, 6);
+#endif
 }
 
 
@@ -48,13 +87,17 @@ Protagonist::~Protagonist()
 	delete rigidBody->getMotionState();
 	delete rigidBody;
 	delete shape;
+
+#if RENDER_DEBUG
+	delete triangle;
+#endif
 }
 
 
 void Protagonist::initPhysics()
 {
 	shape = new btSphereShape(.5f);//new btBoxShape(btVector3(.5f,.5f,.5f));
-	motionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1),btVector3(100,1200,100)));
+	motionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0),btVector3(position_.x, position_.y, position_.z)));
 		
 	btScalar mass = MASS;
 	btVector3 inertia(0,0,0);
@@ -138,10 +181,13 @@ void Protagonist::applyWingAerodynamics(Wing & wing)
 
 void Protagonist::syncTransform(MovableObject * obj)
 {
-	//float angle = glm::degrees(trans_.getRotation().getAngle());
-	btVector3 axis = trans_.getRotation().getAxis();
-	btQuaternion rot = trans_.getRotation();
-	obj->set_position(glm::vec3(pos_.x(), pos_.y(), pos_.z()));
-	obj->set_orientation(glm::fquat(glm::degrees(rot.getAngle()), glm::vec3(axis.x(), axis.y(), axis.z())));
-	//obj->set_rotation(glm::vec3(axis.x(), axis.y(), axis.z()), angle);	
+	float m[16];
+	trans_.getOpenGLMatrix(m);
+	obj->set_matrix(glm::make_mat4(m));
+}
+
+void Protagonist::draw() {
+#if RENDER_DEBUG
+	triangle->render(matrix());
+#endif
 }

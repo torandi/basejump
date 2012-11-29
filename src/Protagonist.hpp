@@ -112,7 +112,6 @@ protected:
 	void applyAerodynamics();
 	void applyWingAerodynamics(Wing &);
 
-
 public:
 	btRigidBody* rigidBody;
 
@@ -132,8 +131,7 @@ public:
 	btScalar speed;
 	btScalar aoa;
 
-
-	Protagonist();
+	Protagonist(const glm::vec3 &position);
 	virtual ~Protagonist();
 
 	void update();
