@@ -56,12 +56,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>HAVE_CONFIG_H;ENABLE_INPUT;NAME="basejump";TITLE="Basejump";WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/../vendor/include;$(SolutionDir)/../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;BulletDynamics_vs2010.lib;BulletCollision_vs2010.lib;LinearMath_vs2010.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -75,7 +75,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;ENABLE_INPUT;HAVE_CONFIG_H;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)/../../bullet-2.81-rev2613\src;$(SolutionDir);$(SolutionDir)/../vendor/include;$(SolutionDir)/../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <CompileAsManaged>true</CompileAsManaged>
+      <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -84,8 +84,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;Kinect10.lib;OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Andre\Documents\GitHub\bullet-2.81-rev2613\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Kinect10.lib;BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;Kinect10.lib;OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

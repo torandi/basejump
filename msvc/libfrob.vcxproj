@@ -55,6 +55,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>HAVE_CONFIG_H;ENABLE_INPUT;WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)/../vendor/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -68,6 +69,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;ENABLE_INPUT;WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)/../../bullet-2.81-rev2613\src;$(SolutionDir);$(SolutionDir)/../vendor/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -85,6 +87,7 @@
     <ClInclude Include="..\src\config.hpp" />
     <ClInclude Include="..\src\cube_vertices.hpp" />
     <ClInclude Include="..\src\data.hpp" />
+    <ClInclude Include="..\src\debug_mesh.hpp" />
     <ClInclude Include="..\src\engine.hpp" />
     <ClInclude Include="..\src\forward.hpp" />
     <ClInclude Include="..\src\globals.hpp" />
@@ -133,6 +136,7 @@
     <ClCompile Include="..\src\color.cpp" />
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\data.cpp" />
+    <ClCompile Include="..\src\debug_mesh.cpp" />
     <ClCompile Include="..\src\engine.cpp" />
     <ClCompile Include="..\src\globals.cpp" />
     <ClCompile Include="..\src\input.cpp" />
