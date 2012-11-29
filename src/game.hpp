@@ -40,6 +40,8 @@ class Game {
 		void render_blit();
 		void render_scene();
 
+		void run_particles(float dt);
+
 		LightsData lights;
 
 		Camera camera;
@@ -52,12 +54,14 @@ class Game {
 		Sky * sky;
 
 		Terrain * terrain;
+		TextureArray * particle_textures;
 
 		Color sky_color;
 		Shader::fog_t fog;
 
 		Controller* controller;
 		Protagonist * protagonist;
+		ParticleSystem * particles;
 
 		Sound* wind_sound;
 };
