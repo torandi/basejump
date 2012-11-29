@@ -66,7 +66,7 @@ void DebugMesh::render(const glm::mat4& m) const {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	Shader::push_vertex_attribs(2);
-	glPushAttrib(GL_CULL_FACE);
+	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_CULL_FACE);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const GLvoid*) offsetof(vertex_t, pos));
