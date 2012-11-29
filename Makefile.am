@@ -7,7 +7,7 @@ AM_CXXFLAGS = -Wall -Woverloaded-virtual -Wvla -Wconversion -I${top_srcdir}/src 
 
 noinst_LIBRARIES = libfrob.a
 bin_PROGRAMS = basejump
-noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain examples_hdr
+#noinst_PROGRAMS = examples_mrt examples_blur examples_shadowmaps examples_particles examples_terrain examples_hdr
 TESTS = test/utils test/data test/aabb test/quadtree
 
 if BUILD_EDITOR
@@ -76,29 +76,29 @@ basejump_SOURCES = src/main.cpp src/basejump.cpp \
 									 src/game.cpp src/game.hpp
 basejump_LDFLAGS = -pthread
 
-examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
-examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
-examples_mrt_LDADD = libfrob.a ${engine_LIBS}
+#examples_mrt_CXXFLAGS = ${AM_CXXFLAGS}
+#examples_mrt_SOURCES = src/main.cpp examples/mrt/mrt.cpp
+#examples_mrt_LDADD = libfrob.a ${engine_LIBS}
 
-examples_shadowmaps_CXXFLAGS = ${AM_CXXFLAGS}
-examples_shadowmaps_SOURCES = src/main.cpp examples/shadowmaps/shadowmaps.cpp
-examples_shadowmaps_LDADD = libfrob.a ${engine_LIBS}
+#examples_shadowmaps_CXXFLAGS = ${AM_CXXFLAGS}
+#examples_shadowmaps_SOURCES = src/main.cpp examples/shadowmaps/shadowmaps.cpp
+#examples_shadowmaps_LDADD = libfrob.a ${engine_LIBS}
 
-examples_particles_CXXFLAGS = ${AM_CXXFLAGS}
-examples_particles_SOURCES = src/main.cpp examples/particles/particles.cpp
-examples_particles_LDADD = libfrob.a ${engine_LIBS}
+#examples_particles_CXXFLAGS = ${AM_CXXFLAGS}
+#examples_particles_SOURCES = src/main.cpp examples/particles/particles.cpp
+#examples_particles_LDADD = libfrob.a ${engine_LIBS}
 
-examples_blur_CXXFLAGS = ${AM_CXXFLAGS}
-examples_blur_SOURCES = src/main.cpp examples/blur/blur.cpp
-examples_blur_LDADD = libfrob.a ${engine_LIBS}
+#examples_blur_CXXFLAGS = ${AM_CXXFLAGS}
+#examples_blur_SOURCES = src/main.cpp examples/blur/blur.cpp
+#examples_blur_LDADD = libfrob.a ${engine_LIBS}
 
-examples_terrain_CXXFLAGS = ${AM_CXXFLAGS}
-examples_terrain_SOURCES = src/main.cpp examples/terrain/terrain.cpp
-examples_terrain_LDADD = libfrob.a ${engine_LIBS}
+#examples_terrain_CXXFLAGS = ${AM_CXXFLAGS}
+#examples_terrain_SOURCES = src/main.cpp examples/terrain/terrain.cpp
+#examples_terrain_LDADD = libfrob.a ${engine_LIBS}
 
-examples_hdr_CXXFLAGS = ${AM_CXXFLAGS}
-examples_hdr_SOURCES = src/main.cpp examples/hdr/hdr.cpp
-examples_hdr_LDADD = libfrob.a ${engine_LIBS}
+#examples_hdr_CXXFLAGS = ${AM_CXXFLAGS}
+#examples_hdr_SOURCES = src/main.cpp examples/hdr/hdr.cpp
+#examples_hdr_LDADD = libfrob.a ${engine_LIBS}
 
 editor_CXXFLAGS = ${AM_CXXFLAGS} $(gtk3_CFLAGS)
 editor_LDFLAGS = -Wl,--export-dynamic -pthread
