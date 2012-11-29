@@ -12,7 +12,6 @@ public:
 	virtual ~Camera() {};
 
 	const glm::vec3 look_at() const;
-	void look_at(const glm::vec3 &look_t);
 
 	const glm::mat4 view_matrix() const;
 	const glm::mat4 projection_matrix() const;
@@ -27,18 +26,6 @@ public:
 	void set_aspect(float aspect);
 	void set_fov(float fov);
 	void set_near_far(float near, float far);
-
-	virtual void roll(const float angle);
-	void set_roll(const float angle);
-
-	virtual void set_position(const glm::vec3 &pos);
-
-	virtual void absolute_rotate(const glm::vec3 &axis, const float &angle);
-	virtual void absolute_move(const glm::vec3 &move);
-	virtual void relative_move(const glm::vec3 &move);
-	virtual void relative_rotate(const glm::vec3 &axis, const float &angle);
-
-	virtual const glm::vec3 &position() const;
 
 	/*
 	 * Get a list of all frustrum corners
@@ -55,12 +42,9 @@ public:
 	void render_frustrum(GLuint buffer) const;
 
 private:
-	void recalculate();
-
-	float fov_, roll_;
+	float fov_;
 	float aspect_, near_, far_;
 
-	glm::vec3 look_at_;
 	glm::mat4 projection_matrix_;
 };
 
