@@ -13,7 +13,9 @@ __kernel void run_particles (
 	uint id = get_global_id(0);
 	if(particles[id].dead == 0) {
 		particles[id].ttl -= dt;
-		if(particles[id].ttl > 0) {
+		if(particles[id].ttl > 0
+				&& all(isgreater(vertices[id].position.xyz,config->bounds_min))
+				&& all(isless(vertices[id].position.xyz, config->bounds_max))) {
 			float life_progression = 1.0 - (particles[id].ttl/particles[id].org_ttl);
 
 			particles[id].velocity += config->gravity * particles[id].gravity_influence * dt;
@@ -25,7 +27,6 @@ __kernel void run_particles (
 			vertices[id].color = mix(config->birth_color, config->death_color, life_progression);
 			vertices[id].scale = mix(particles[id].initial_scale, particles[id].final_scale, life_progression);
 
-			//TODO: Collision detection (ground and enemies)
 		} else {
 			//Dead!
 			vertices[id].color.w = 0.0;
