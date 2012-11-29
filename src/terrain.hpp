@@ -41,9 +41,12 @@ class Terrain : public Mesh {
 
 	const glm::ivec2& heightmap_size() const;
 
-	static bool cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_box, QuadTree * node);
+	static bool cull_or_render(const Triangle2D &cam_tri, const AABB_2D &near_aabb, const AABB_2D &limiting_box, QuadTree * node);
 
-	static Triangle2D calculate_camera_tri(const Camera& cam);
+	/**
+	 * Calculates camera 2d triangle approximation, and fills near_aabb aabb for near
+	 */
+	static Triangle2D calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb);
 
 	static float lod_distance[TERRAIN_LOD_LEVELS];
 
