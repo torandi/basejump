@@ -47,7 +47,7 @@ Sound::Sound(const char * file, int loops) : delay(-0.1f) {
 	info.cbsize = sizeof(info);
 	info.length = static_cast<unsigned int>(source->size());
 
-	result_ = system_->createSound((const char*) source->data(), FMOD_OPENMEMORY, &info, &sound_);
+	result_ = system_->createSound((const char*) source->data(), FMOD_OPENMEMORY | FMOD_LOOP_NORMAL, &info, &sound_);
 	errcheck("create sound");
 	result_ = system_->playSound(FMOD_CHANNEL_FREE, sound_, true /* paused */, &channel_);
 	errcheck("start sound (paused)");

@@ -58,6 +58,8 @@ class Game {
 
 		Controller* controller;
 		Protagonist * protagonist;
+
+		Sound* wind_sound;
 };
 
 #endif

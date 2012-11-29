@@ -16,7 +16,7 @@
 #include "data.hpp"
 #include "sky.hpp"
 #include "quad.hpp"
-
+#include "sound.hpp"
 
 #include "Controller.hpp"
 
@@ -72,6 +72,8 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	protagonist = new Protagonist();
 	dynamicsWorld->addRigidBody(protagonist->rigidBody);
 
+	wind_sound = new Sound("/../sound/34338__erh__wind.wav",1);
+	wind_sound->play();
 
 
 	//Check for different controllers and init them if found
