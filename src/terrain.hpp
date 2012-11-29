@@ -11,9 +11,46 @@
 #include "material.hpp"
 #include "texture.hpp"
 
+#pragma managed(push,off)
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
+#pragma managed(pop)
+
+#include "PerlinNoise.hpp"
+
+
+
 #define TERRAIN_LOD_LEVELS 8
 
-class Terrain : public Mesh {
+
+
+class Terrain : public Mesh
+{
+	PerlinNoise perlin;
+
+	btTransform trans_;
+	btMatrix3x3 & rot_;
+	btVector3 & pos_;
+
+	btHeightfieldTerrainShape * shape;
+	btDefaultMotionState * motionState;
+	btRigidBody * rigidBody;
+	btCollisionObject * collisionObject;
+
+	float * collision_map_data;
+
+	double H, lacunarity, octaves, offset, gain;
+	double amplitude, density, offsetX, offsetY;
+
+	void init_physics();
+	void cleanup_physics();
+
+	inline int clamp(int x, int min, int max);
+	void update_collision_map(const btVector3 & protagonist_position);
+
+
+
 	float horizontal_scale_;
 	float vertical_scale_;
 	SDL_Surface * data_map_;

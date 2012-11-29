@@ -54,10 +54,10 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	fog.density = config["/environment/fog/density"]->as_float();
 
 	//TODO: Remove debug hack
-	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
+	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f-1000));
 
 	glm::vec3 pos = camera.position();
-	pos.y = terrain->height_at(pos.x, pos.z) + 500.f;
+	pos.y = terrain->height_at(pos.x, pos.z) + 100.f;
 
 	camera.set_position(pos);
 	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
@@ -90,7 +90,7 @@ void Game::initPhysics()
 	broadphase = new btDbvtBroadphase();
 	solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0,-10,0));
+	dynamicsWorld->setGravity(btVector3(0,-9.82f,0));
 }
 
 
