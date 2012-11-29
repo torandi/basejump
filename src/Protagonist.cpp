@@ -59,19 +59,19 @@ Protagonist::Protagonist(const glm::vec3 &position) : MovableObject(position), l
 	static std::vector<DebugMesh::vertex_t> vertices;
 	DebugMesh::vertex_t v;
 	v.color = glm::vec4(1.f, 0.f, 0.f, 1.f);
-	v.pos = glm::vec3(0.f);
+	v.pos = glm::vec3(-0.5f, 0.f, -0.5f);
 	vertices.push_back(v);
 
 	v.color = glm::vec4(0.f, 0.f, 1.f, 1.f);
-	v.pos = glm::vec3(0.5f, 0.f, 1.f);
+	v.pos = glm::vec3(0.0f, 0.f, 0.5f);
 	vertices.push_back(v);
 
 	v.color = glm::vec4(1.f, 0.f, 0.f, 1.f);
-	v.pos = glm::vec3(1.f, 0.f, 0.f);
+	v.pos = glm::vec3(0.5f, 0.f, -0.5f);
 	vertices.push_back(v);
 
 	v.color = glm::vec4(0.f, 1.f, 0.f, 1.f);
-	v.pos = glm::vec3(0.5f, 0.25f, 0.f);
+	v.pos = glm::vec3(0.f, 0.25f, -0.5f);
 	vertices.push_back(v);
 
 
