@@ -51,16 +51,15 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	lights.ambient_intensity() = sky->ambient_intensity();
 	sky->configure_light(lights.lights[0]);
 
-
-
 	fog.density = config["/environment/fog/density"]->as_float();
 
 	//TODO: Remove debug hack
 	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
 
 	glm::vec3 pos = camera.position();
-	pos.y = terrain->height_at(pos.x, pos.z) + 2.f;
-	//camera.set_position(pos);
+	pos.y = terrain->height_at(pos.x, pos.z) + 500.f;
+
+	camera.set_position(pos);
 	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
 
 	Input::movement_speed = 10.f;
@@ -69,10 +68,10 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 
 	initPhysics();
-	protagonist = new Protagonist();
+	protagonist = new Protagonist(pos);
 	dynamicsWorld->addRigidBody(protagonist->rigidBody);
 
-	wind_sound = new Sound("/../sound/34338__erh__wind.wav",1);
+	wind_sound = new Sound("/sound/34338__erh__wind.wav",1);
 	wind_sound->play();
 
 
@@ -140,6 +139,8 @@ void Game::render_scene(){
 
 			/* Render scene here */
 			terrain->render_cull(camera);
+
+			protagonist->draw();
 	});
 }
 
@@ -174,10 +175,11 @@ void Game::update(float t, float dt) {
 	// sync camera transform with protagonist transform
 	//camera.set_position(protagonist->position());
 	////camera.set_
-	//camera.look_at(protagonist->position() - (glm::vec3)protagonist->rotation_matrix()[2]);
+	camera.set_position(protagonist->position() - glm::vec3(0.f, -1.f, 3.f));
+	camera.look_at(protagonist->position());
 	//const glm::mat4 rotM = protagonist->rotation_matrix();
 //	camera.set_position(protagonist->position());
-	protagonist->syncTransform(&camera);
+//	protagonist->syncTransform(&camera);
 	//camera.set_position(protagonist->position());
 	
 
@@ -190,7 +192,7 @@ void Game::update(float t, float dt) {
 	}
 
 	//Debug stuff
-	//input.update_object(camera, dt);
+//	input.update_object(camera, dt);
 	input.update_object(*protagonist, dt);
 
 	//Update hdr
