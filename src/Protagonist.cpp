@@ -1,5 +1,7 @@
 #include "Protagonist.hpp"
 
+#include <glm/glm.hpp>
+
 /*
 	Left and right wings.
 	 
@@ -140,6 +142,6 @@ void Protagonist::syncTransform(MovableObject * obj)
 	btVector3 axis = trans_.getRotation().getAxis();
 	btQuaternion rot = trans_.getRotation();
 	obj->set_position(glm::vec3(pos_.x(), pos_.y(), pos_.z()));
-	obj->set_orientation(glm::fquat(degrees(rot.getAngle()), glm::vec3(axis.x(), axis.y(), axis.z())));
+	obj->set_orientation(glm::fquat(glm::degrees(rot.getAngle()), glm::vec3(axis.x(), axis.y(), axis.z())));
 	//obj->set_rotation(glm::vec3(axis.x(), axis.y(), axis.z()), angle);	
 }

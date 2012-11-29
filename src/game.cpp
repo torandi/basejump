@@ -60,8 +60,8 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	glm::vec3 pos = camera.position();
 	pos.y = terrain->height_at(pos.x, pos.z) + 2.f;
-	camera.set_position(pos);
-	camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
+	//camera.set_position(pos);
+	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
 
 	Input::movement_speed = 10.f;
 
