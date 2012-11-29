@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_access.hpp>
 
 #include "movable_object.hpp"
 
@@ -118,6 +119,17 @@ void MovableObject::set_orientation(const glm::fquat &orientation) {
 	rotation_matrix_dirty_ = true;
 	orientation_ = orientation;
 	orientation_changed();
+
+	matrix_becomes_dirty();
+}
+
+void MovableObject::set_matrix(const glm::mat4 &mat) {
+	rotation_matrix_dirty_ = true;
+	translation_matrix_dirty_ = true;
+	orientation_ = glm::quat_cast(mat);
+	orientation_changed();
+	position_ = glm::vec3(glm::column(mat, 3));
+	position_changed();
 
 	matrix_becomes_dirty();
 }
