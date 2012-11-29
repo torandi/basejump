@@ -138,7 +138,7 @@ void Camera::frustrum_corners(glm::vec3 * points, float near, float far, float f
 	if(far < 0.f) far = far_;
 	if(fov < 0.f) fov = fov_;
 	//Near plane:
-	float y = near * tanf(fov / 2.f);
+	float y = near * tanf(glm::radians(fov) / 2.f);
 	float x = y * aspect();
 
 	glm::vec3 lx, ly, lz;
@@ -154,7 +154,7 @@ void Camera::frustrum_corners(glm::vec3 * points, float near, float far, float f
 	points[2] = near_center +  x * lx +  y * ly;
 	points[3] = near_center +  x * lx + -y * ly;
 
-	y = far * tanf(fov / 2.f);
+	y = far * tanf(glm::radians(fov) / 2.f);
 	x = y * aspect();
 
 	points[4] = far_center + -x * lx + -y * ly;
