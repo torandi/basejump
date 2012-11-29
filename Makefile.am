@@ -29,6 +29,7 @@ libfrob_a_SOURCES = \
 	src/config.cpp src/config.hpp \
 	src/color.cpp src/color.hpp \
 	src/data.cpp src/data.hpp \
+	src/debug_mesh.cpp src/debug_mesh.hpp \
 	src/engine.cpp src/engine.hpp \
 	src/globals.cpp src/globals.hpp \
 	src/intersect2d.cpp src/intersect2d.hpp \
