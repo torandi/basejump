@@ -136,8 +136,10 @@ void Protagonist::applyWingAerodynamics(Wing & wing)
 
 void Protagonist::syncTransform(MovableObject * obj)
 {
-	float angle = glm::degrees(trans_.getRotation().getAngle());
+	//float angle = glm::degrees(trans_.getRotation().getAngle());
 	btVector3 axis = trans_.getRotation().getAxis();
+	btQuaternion rot = trans_.getRotation();
 	obj->set_position(glm::vec3(pos_.x(), pos_.y(), pos_.z()));
-	obj->set_rotation(glm::vec3(axis.x(), axis.y(), axis.z()), angle);	
+	obj->set_orientation(glm::fquat(degrees(rot.getAngle()), glm::vec3(axis.x(), axis.y(), axis.z())));
+	//obj->set_rotation(glm::vec3(axis.x(), axis.y(), axis.z()), angle);	
 }

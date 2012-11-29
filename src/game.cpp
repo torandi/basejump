@@ -176,8 +176,7 @@ void Game::update(float t, float dt) {
 	////camera.set_
 	//camera.look_at(protagonist->position() - (glm::vec3)protagonist->rotation_matrix()[2]);
 	//const glm::mat4 rotM = protagonist->rotation_matrix();
-	//camera.set_rotation(
-	camera.look_at(protagonist->position() - protagonist->local_z());
+//	camera.set_position(protagonist->position());
 	protagonist->syncTransform(&camera);
 	//camera.set_position(protagonist->position());
 	
