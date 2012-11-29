@@ -42,6 +42,9 @@ typedef struct config_t {
 	float3 wind_velocity;	//Speed
 	float3 gravity;			//Acceleration
 
+	float3 bounds_min;
+	float3 bounds_max;
+
 	float avg_ttl;
 	float ttl_var;
 	float avg_scale;

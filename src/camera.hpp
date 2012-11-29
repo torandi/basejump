@@ -35,6 +35,8 @@ public:
 	 */
 	void frustrum_corners(glm::vec3 * points, float near = -1.f, float far = -1.f, float fov=-1.f) const;
 
+	AABB aabb(float near = -1.f, float far = -1.f, float fov=-1.f) const;
+
 	/*
 	 * Debug function for rendering the view frustrum
 	 * Expects /shaders/simple to be bound

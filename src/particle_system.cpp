@@ -15,8 +15,9 @@
 #include "cl.hpp"
 #include "globals.hpp"
 #include "utils.hpp"
+#include "aabb.hpp"
 
-ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* texture, bool _auto_spawn)
+ParticleSystem::ParticleSystem(const int max_num_particles, const AABB &bounds, TextureArray* texture, bool _auto_spawn)
 	: avg_spawn_rate(static_cast<float>(max_num_particles)/10.f)
 	, spawn_rate_var(avg_spawn_rate/100.f)
 	, auto_spawn(_auto_spawn)
@@ -117,6 +118,8 @@ ParticleSystem::ParticleSystem(const int max_num_particles, TextureArray* textur
 	CL::check_error(err, "[ParticleSystem] spawn: Set arg 4");
 
 	//Set default values in config:
+
+	set_bounds(bounds);
 
 	config.birth_color = glm::vec4(0.f, 1.f, 1.f, 1.f);;
 	config.death_color = glm::vec4(1.f, 0.f, 0.f, 1.f);;
@@ -301,7 +304,7 @@ void ParticleSystem::render(const glm::mat4&  m) {
 
 	shader_->bind();
 
-	Shader::push_vertex_attribs();
+	Shader::push_vertex_attribs(4);
 
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
 
@@ -331,11 +334,6 @@ void ParticleSystem::render(const glm::mat4&  m) {
 
 
 	//END DEBUG
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
 
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (GLvoid*) sizeof(glm::vec4));
@@ -395,4 +393,9 @@ void ParticleSystem::read_config(const ConfigEntry * cfg) {
 	config.gravity_influence_var = cfg->find("gravity_influence_var", true)->as_float();
 	config.start_texture = cfg->find("start_texture", true)->as_int();
 	config.num_textures = cfg->find("num_textures", true)->as_int();
+}
+
+void ParticleSystem::set_bounds(const AABB &bounds) {
+	config.bounds_min = glm::vec4(bounds.min, 0.f);
+	config.bounds_max = glm::vec4(bounds.max, 0.f);
 }

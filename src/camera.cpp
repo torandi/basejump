@@ -5,6 +5,7 @@
 #include "camera.hpp"
 #include "utils.hpp"
 #include "shader.hpp"
+#include "aabb.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -142,4 +143,16 @@ void Camera::render_frustrum(GLuint buffer) const{
 	glDrawElements(GL_LINE_STRIP, 16, GL_UNSIGNED_INT, indices);
 
 	Shader::pop_vertex_attribs();
+}
+
+AABB Camera::aabb( float near, float far, float fov) const {
+	glm::vec3 corners[8];
+	frustrum_corners(corners, near, far, fov);
+
+	AABB aabb;
+
+	for(const glm::vec3 &c : corners) {
+		aabb.add_point(c);
+	}
+	return aabb;
 }

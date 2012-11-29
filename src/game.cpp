@@ -17,6 +17,7 @@
 #include "sky.hpp"
 #include "quad.hpp"
 #include "sound.hpp"
+#include "particle_system.hpp"
 
 #include "Controller.hpp"
 
@@ -47,6 +48,12 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	sky = new Sky("/sky.cfg", 0.5f);
 
+	std::vector<std::string> texture_paths;
+	for(const ConfigEntry * entry : config["/particles/textures"]->as_list()) {
+		texture_paths.push_back(entry->as_string());
+	}
+
+
 	lights.num_lights() = 1;
 	lights.ambient_intensity() = sky->ambient_intensity();
 	sky->configure_light(lights.lights[0]);
@@ -74,6 +81,16 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	wind_sound = new Sound("/sound/34338__erh__wind.wav",1);
 	wind_sound->play();
 
+	particle_textures = TextureArray::from_filename(texture_paths);
+
+	particles = new ParticleSystem(config["/particles/count"]->as_int(), scene_aabb, particle_textures);
+	particles->read_config(config["/particles"]);
+	particles->update_config();
+
+	//Prerun particles a bit:
+	for(int i = 0; i < 100; ++i) {
+		run_particles(0.1f);
+	}
 
 	//Check for different controllers and init them if found
 #ifdef WIN32
@@ -101,6 +118,9 @@ Game::~Game() {
 	if(controller != nullptr){
 		delete controller;
 	}
+
+	delete particles;
+	delete particle_textures;
 
 	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
 	delete protagonist;
@@ -145,6 +165,8 @@ void Game::render_scene(){
 			terrain->render_cull(camera);
 
 			protagonist->draw();
+
+			particles->render();
 	});
 }
 
@@ -170,6 +192,24 @@ static void print_values(const Technique::HDR &hdr) {
 	printf("Exposure: %f\n, bloom: %f\n, bright_max: %f\n", hdr.exposure(), hdr.bloom_factor(), hdr.bright_max());
 }
 
+void Game::run_particles(float dt) {
+	AABB cam_aabb = camera.aabb(camera.near(), 300.f);
+	AABB cam_bounds = camera.aabb();
+
+	cam_aabb.min.y = scene_aabb.min.y;
+	cam_bounds.min.y = scene_aabb.min.y;
+
+	particles->config.spawn_position = glm::vec4(cam_aabb.min, 1.f);
+	particles->config.spawn_area = glm::vec4(cam_aabb.max - cam_aabb.min , 1.f);
+	//particles->config.spawn_position = glm::vec4(camera.position() + camera.local_z(), 1.f);
+	//particles->config.spawn_area = glm::vec4(1.f, 1.f, 1.f, 0.f);
+	particles->set_bounds(cam_bounds);
+	particles->update_config();
+
+	particles->update(dt);
+
+}
+
 void Game::update(float t, float dt) {
 	/* Update game logic */
 
@@ -185,8 +225,8 @@ void Game::update(float t, float dt) {
 //	camera.set_position(protagonist->position());
 //	protagonist->syncTransform(&camera);
 	//camera.set_position(protagonist->position());
-	
 
+	run_particles(dt);
 
 	//Check Controller for input
 	//We should probably not need to do this check, as the init should fail if no controller can be found

@@ -31,7 +31,7 @@
 #define CALC_UV(xpos,ypos) glm::vec2(static_cast<float>(xpos) / static_cast<float>(size_.x), 1.f - static_cast<float>(ypos) / static_cast<float>(size_.y)) * uv_scale_
 
 float Terrain::culling_fov_factor = 1.2f;
-float Terrain::culling_near_padding = 1.5f;
+float Terrain::culling_near_padding = 1.f;
 float Terrain::lod_distance[TERRAIN_LOD_LEVELS];
 
 Terrain::~Terrain() {
@@ -555,20 +555,24 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 
 	prepare_submesh_rendering(m);
 	//We assume no roll (we could widen the frustrum a bit to take some roll into account)
-	
-	Triangle2D cam_tri = calculate_camera_tri(cam);
+
+	AABB_2D near_aabb;
+
+	Triangle2D cam_tri = calculate_camera_tri(cam, near_aabb);
 	
 	AABB_2D aabb2d;
 	aabb2d.add_point(cam_tri.p1);
 	aabb2d.add_point(cam_tri.p2);
 	aabb2d.add_point(cam_tri.p3);
 
+	aabb2d += near_aabb;
+
 #if RENDER_DEBUG
 	glLineWidth(2.f);
 	debug_shader->bind();
 #endif
 	//glDisable(GL_CULL_FACE);
-	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, aabb2d, std::placeholders::_1));
+	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
 	//glEnable(GL_CULL_FACE);
 }
 
@@ -579,17 +583,22 @@ void Terrain::render_geometry_cull( const Camera &cam, const glm::mat4& m) {
 void Terrain::render_geometry_cull( const Camera &cam, const AABB &aabb, const glm::mat4& m) {
 	prepare_submesh_rendering(m);
 
-	Triangle2D cam_tri = calculate_camera_tri(cam);
+	AABB_2D near_aabb;
+
+	Triangle2D cam_tri = calculate_camera_tri(cam, near_aabb);
 
 	AABB_2D aabb2d(glm::vec2(aabb.min.x, aabb.min.z), glm::vec2(aabb.max.x, aabb.max.z));
 
-	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, aabb2d, std::placeholders::_1));
+	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
 }
 
-Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
+Triangle2D Terrain::calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb) {
 	glm::vec3 corners[8];
 
 	cam.frustrum_corners(corners);
+	for(int i=4;i<8;++i) {
+		near_aabb.add_point(glm::vec2(corners[i].x, corners[i].z));
+	}
 
 	glm::vec2 points[3];
 
@@ -611,8 +620,13 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam) {
 
 }
 
-bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D &limiting_box, QuadTree * node) {
-	if(intersect2d::aabb_aabb(node->aabb, limiting_box) && intersect2d::aabb_triangle(node->aabb, cam_tri)) {
+bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D & near_aabb, const AABB_2D &limiting_box, QuadTree * node) {
+	if(intersect2d::aabb_aabb(node->aabb, limiting_box) 
+			&& (
+					intersect2d::aabb_aabb(node->aabb, near_aabb)
+			||	intersect2d::aabb_triangle(node->aabb, cam_tri)
+				)
+			) {
 		float d = glm::distance2(node->aabb.middle(), cam_tri.p1);
 		int lod = TERRAIN_LOD_LEVELS - 1;
 		for(int i=0; i< TERRAIN_LOD_LEVELS; ++i) {

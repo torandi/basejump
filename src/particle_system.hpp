@@ -12,7 +12,7 @@
 class ParticleSystem : public MovableObject {
 	public:
 
-		ParticleSystem(const int max_num_particles, TextureArray* texture, bool _auto_spawn = true);
+		ParticleSystem(const int max_num_particles, const AABB &bounds, TextureArray* texture, bool _auto_spawn = true);
 		~ParticleSystem();
 
 		void update(float dt);
@@ -38,6 +38,9 @@ class ParticleSystem : public MovableObject {
 
 				glm::vec4 wind_velocity;	//Speed
 				glm::vec4 gravity;			//Acceleration
+
+				glm::vec4 bounds_min;
+				glm::vec4 bounds_max;
 
 				//Time to live
 				cl_float avg_ttl;
@@ -77,6 +80,8 @@ class ParticleSystem : public MovableObject {
 		};
 
 		virtual void callback_position(const glm::vec3 &position);
+
+		void set_bounds(const AABB &bounds);
 
 		void push_config();
 		void pop_config();
