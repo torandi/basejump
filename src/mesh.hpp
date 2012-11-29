@@ -20,8 +20,6 @@ class SubMesh {
 		SubMesh(Mesh &mesh);
 		virtual ~SubMesh();
 
-		void generate_vbos();
-
 		std::vector<unsigned int> indices;
 
 		unsigned long num_faces;
@@ -32,11 +30,15 @@ class SubMesh {
 	protected:
 		void generate_normals();
 		void generate_tangents_and_bitangents();
-
-		GLuint index_buffer;
-		bool vbo_generated;
+		/*
+		 * Buffer the buffer bound to GL_ELEMENT_ARRAY_BUFFER from start to size,
+		 * return start + size
+		 */
+		size_t buffer_data(size_t start);
 
 		Mesh &parent;
+
+		size_t indices_start; //Where in the index buffer our data is located
 };
 
 class Mesh : public MovableObject {
@@ -44,7 +46,7 @@ class Mesh : public MovableObject {
 		friend class SubMesh;
 		/*
 		 * partition size is how large each submesh is (in x and z), not considering any matrices.
-		 * Negative number meens dont partition
+		 * Negative number means dont partition
 		 */
 		Mesh(float partition_size=-1.f);
 		Mesh(const std::vector<Shader::vertex_t> &vertices, const std::vector<unsigned int> &indices, float partition_size=-1.f);
@@ -102,7 +104,7 @@ class Mesh : public MovableObject {
 
 		glm::vec3 scale_;
 
-		GLuint vertex_buffer;
+		GLuint buffers[2];
 
 		void verify_immutable(const char * where); //Checks that vbos_generated == false
 

@@ -59,17 +59,13 @@ Mesh::~Mesh() {
 	free_submesh_tree();
 
 	if(vbos_generated_) {
-		glDeleteBuffers(1, &vertex_buffer);
+		glDeleteBuffers(2, buffers);
 	}
 }
 
-SubMesh::SubMesh(Mesh &mesh) : vbo_generated(false), parent(mesh) { }
+SubMesh::SubMesh(Mesh &mesh) : parent(mesh) { }
 
-SubMesh::~SubMesh() {
-	if(vbo_generated) {
-		glDeleteBuffers(1, &index_buffer);
-	}
-}
+SubMesh::~SubMesh() { }
 
 void Mesh::add_vertices(const std::vector<Shader::vertex_t> &vertices) {
    verify_immutable("set_vertices");
@@ -230,18 +226,33 @@ void Mesh::verify_immutable(const char * where) {
 void Mesh::generate_vbos() {
 	verify_immutable("generate_vbos()");
 
-	glGenBuffers(1, &vertex_buffer);
+	glGenBuffers(2, buffers);
 	checkForGLErrors("Mesh::generate_vbos(): gen buffers");
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Shader::vertex_t)*vertices_.size(), vertices_.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	checkForGLErrors("Mesh::generate_vbos(): fill vertex buffer");
 
-	submesh_tree->traverse([](QuadTree * qt) -> bool {
-		if(qt->data != nullptr) ( (SubMesh*) qt->data )->generate_vbos();
+	size_t num_indices = 0;
+
+	//Iterate subtree to find the total number of indices
+	submesh_tree->traverse([&num_indices](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) num_indices += ( (SubMesh*) qt->data )->indices.size();
 		return true;
 	});
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices * sizeof(unsigned int), nullptr, GL_STATIC_DRAW);
+
+	size_t cur_pos = 0;
+
+	submesh_tree->traverse([&cur_pos](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) cur_pos = ( (SubMesh*) qt->data )->buffer_data(cur_pos);
+		return true;
+	});
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	raw_aabb_.min = vertices_[0].pos;
 	raw_aabb_.max = vertices_[0].pos;
@@ -255,24 +266,29 @@ void Mesh::generate_vbos() {
 	vbos_generated_ = true;
 }
 
-void SubMesh::generate_vbos() {
+size_t SubMesh::buffer_data(size_t start) {
 	//Upload data:
-	glGenBuffers(1, &index_buffer);
-	checkForGLErrors("SubMesh::generate_vbos(): gen buffers");
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*indices.size(), indices.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	indices_start = start;
+
+	glBufferSubData(
+			GL_ELEMENT_ARRAY_BUFFER, 
+			static_cast<GLintptr>(sizeof(unsigned int) * start),
+			static_cast<GLsizeiptr>(sizeof(unsigned int)*indices.size()),
+			static_cast<const GLvoid*>(indices.data())
+		);
 	checkForGLErrors("SubMesh::generate_vbos(): fill index buffer");
 
 	num_faces = static_cast<unsigned int>( static_cast<float>(indices.size()) / 3.f );
-	vbo_generated = true;
+
+	return start + indices.size();
 }
 
 void Mesh::prepare_submesh_rendering(const glm::mat4& m) {
 	Shader::upload_model_matrix(m * matrix());
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
 }
 
 void Mesh::render(const glm::mat4& m) {
@@ -299,11 +315,6 @@ void SubMesh::render() {
 }
 
 void SubMesh::render_geometry() {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-
-	checkForGLErrors("SubMesh::render(): Bind buffers");
-
-	Shader::push_vertex_attribs(6);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, pos));
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Shader::vertex_t), (const GLvoid*) offsetof(Shader::vertex_t, uv));
@@ -314,15 +325,9 @@ void SubMesh::render_geometry() {
 
 	checkForGLErrors("SubMesh::render(): Set vertex attribs");
 
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(num_faces * 3), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(num_faces * 3), GL_UNSIGNED_INT, (void*)(indices_start * sizeof(GLuint)));
 
 	checkForGLErrors("SubMesh::render(): glDrawElements()");
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	Shader::pop_vertex_attribs();
-	checkForGLErrors("SubMesh::render(): Teardown ");
 }
 
 void Mesh::calculate_aabb() {
