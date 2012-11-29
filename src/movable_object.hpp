@@ -67,6 +67,8 @@ class MovableObject : public Bindable {
 		virtual void callback_rotation(const glm::fquat &rotation);
 		virtual void callback_scale(const glm::vec3 &scale);
 
+		virtual void set_orientation(const glm::fquat &orientation);
+
 		/**
 		 * Add callback for position changes. Offset are added before the call
 		 */

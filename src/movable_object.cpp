@@ -114,6 +114,15 @@ void MovableObject::set_position(const glm::vec3 &pos) {
 	matrix_becomes_dirty();
 }
 
+void MovableObject::set_orientation(const glm::fquat &orientation) {
+	rotation_matrix_dirty_ = true;
+	orientation_ = orientation;
+	orientation_changed();
+
+	matrix_becomes_dirty();
+}
+
+
 void MovableObject::set_rotation(const glm::vec3 &axis, const float angle) {
 	rotation_matrix_dirty_ = true;
 	orientation_ = glm::rotate(glm::fquat(1.f, 0.f, 0.f, 0.f), angle, axis);
