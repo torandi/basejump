@@ -1,7 +1,8 @@
 #include <cmath>
+#include <algorithm>
 
-#include "Prng.h"
-#include "PerlinNoise.h"
+#include "Prng.hpp"
+#include "PerlinNoise.hpp"
 
 
 

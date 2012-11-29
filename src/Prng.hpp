@@ -1,7 +1,7 @@
 #ifndef PRNG_H
 #define PRNG_H
 
-#include <iostream>
+#include <cstring>
 
 
 
@@ -18,7 +18,7 @@ class Prng
 	long _hash(const char* str)
 	{
 		long h = 0;
-		for (int i = 0; i < strlen(str); ++i)
+		for (size_t i = 0; i < strlen(str); ++i)
 			h = h * 31 + str[i];
 		return h;
 	}

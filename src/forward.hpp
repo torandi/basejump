@@ -12,6 +12,7 @@ class Mesh;
 class MovableLight;
 class MovableObject;
 class ParticleSystem;
+class PerlinNoise;
 class Protagonist;
 class PointTable;
 class Quad;

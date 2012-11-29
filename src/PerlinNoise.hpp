@@ -15,7 +15,7 @@ class PerlinNoise
 	double m_H;
 	
 	static inline int fastfloor(double x) {
-		return x>0 ? x : x-1; }
+		return x>0.0 ? static_cast<int>(x) : static_cast<int>(x-1.0); }
 	
 	static inline double blend(double t) {
 		return t*t*(3-2*t); }

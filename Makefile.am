@@ -58,6 +58,7 @@ libfrob_a_SOURCES = \
 	src/timetable.cpp src/timetable.hpp \
 	src/triangle2d.cpp src/triangle2d.hpp \
 	src/utils.cpp src/utils.hpp \
+	src/PerlinNoise.cpp src/PerlinNoise.hpp \
 	src/Protagonist.cpp src/Protagonist.hpp \
 	src/quad.cpp src/quad.hpp \
 	src/quadtree.cpp src/quadtree.hpp \
