@@ -85,6 +85,7 @@
     <ClInclude Include="..\src\config.hpp" />
     <ClInclude Include="..\src\cube_vertices.hpp" />
     <ClInclude Include="..\src\data.hpp" />
+    <ClInclude Include="..\src\debug_mesh.hpp" />
     <ClInclude Include="..\src\engine.hpp" />
     <ClInclude Include="..\src\forward.hpp" />
     <ClInclude Include="..\src\globals.hpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="..\src\color.cpp" />
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\data.cpp" />
+    <ClCompile Include="..\src\debug_mesh.cpp" />
     <ClCompile Include="..\src\engine.cpp" />
     <ClCompile Include="..\src\globals.cpp" />
     <ClCompile Include="..\src\input.cpp" />

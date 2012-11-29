@@ -106,6 +106,10 @@ Game::~Game() {
 	delete protagonist;
 
 	cleanupPhysics();
+
+	if(wind_sound->is_playing())
+		wind_sound->stop();
+	delete wind_sound;
 }
 
 
