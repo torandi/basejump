@@ -20,12 +20,12 @@ public:
 	float aspect() const;
 	float near() const;
 	float far() const;
-	float roll() const;
 	const glm::vec3 up() const;
 
 	void set_aspect(float aspect);
 	void set_fov(float fov);
 	void set_near_far(float near, float far);
+	void look_at(const glm::vec3 &pos);
 
 	/*
 	 * Get a list of all frustrum corners

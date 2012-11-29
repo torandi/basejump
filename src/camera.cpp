@@ -64,6 +64,23 @@ void Camera::set_near_far(float near, float far) {
 	projection_matrix_ = glm::perspective(fov_, aspect_, near_, far_);
 }
 
+void Camera::look_at(const glm::vec3 &look_at_) {
+	orientation_ = glm::fquat(1.f, 0.f, 0.f, 0.f); //Reset rotation
+
+	glm::vec3 direction = look_at_ - position_;
+	glm::vec2 xz_projection = glm::vec2(direction.x,direction.z);
+	float dot = glm::dot(xz_projection, glm::vec2(0.f, 1.f));
+
+	float rotation = acosf(glm::clamp(dot / glm::length(xz_projection), -1.f, 1.f));
+	MovableObject::absolute_rotate(glm::vec3(0.f, 1.f, 0.f), rotation*glm::sign(direction.x));
+
+	glm::vec3 lz = local_z();
+
+	rotation = acosf(glm::clamp(glm::dot(direction, lz) / (glm::length(direction) * glm::length(lz)), -1.f, 1.f));
+
+	MovableObject::relative_rotate(glm::vec3(1.f, 0.f, 0.f),-rotation*glm::sign(direction.y));
+}
+
 void Camera::frustrum_corners(glm::vec3 * points, float near, float far, float fov) const {
 	if(near < 0.f) near = near_;
 	if(far < 0.f) far = far_;
