@@ -221,7 +221,6 @@ void Game::update(float t, float dt) {
 
 	// sync camera transform with protagonist transform
 	camera.set_matrix(protagonist->matrix());
-	camera.relative_rotate(glm::vec3(0,1,0), M_PI);
 
 	run_particles(dt);
 
