@@ -64,7 +64,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
 
 	glm::vec3 pos = camera.position();
-	pos.y = terrain->height_at(pos.x, pos.z) + 500.f;
+	pos.y = terrain->height_at(pos.x, pos.z) + 1000.f;
 
 	camera.set_position(pos);
 	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
@@ -84,6 +84,9 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	particles = new ParticleSystem(config["/particles/count"]->as_int(), scene_aabb, particle_textures);
 	particles->read_config(config["/particles"]);
+
+	particle_spawn_far = config["/particles/spawn_far"]->as_float();
+
 	particles->update_config();
 
 	//Prerun particles a bit:
@@ -192,7 +195,7 @@ static void print_values(const Technique::HDR &hdr) {
 }
 
 void Game::run_particles(float dt) {
-	AABB cam_aabb = camera.aabb(camera.near(), 300.f);
+	AABB cam_aabb = camera.aabb(camera.near(), particle_spawn_far);
 	AABB cam_bounds = camera.aabb();
 
 	cam_aabb.min.y = scene_aabb.min.y;

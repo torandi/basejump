@@ -16,8 +16,6 @@
 
 #include "Protagonist.hpp"
 
-
-
 class Game {
 	public:
 		Game(const std::string &level, float near, float far, float fov);
@@ -64,6 +62,8 @@ class Game {
 		Controller* controller;
 		Protagonist * protagonist;
 		ParticleSystem * particles;
+
+		float particle_spawn_far;
 
 		Sound* wind_sound;
 };
