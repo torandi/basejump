@@ -35,7 +35,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	, controller(nullptr)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
-	shader_normal = Shader::create_shader("/shaders/normal");
+	//shader_normal = Shader::create_shader("/shaders/normal");
 	shader_passthru = Shader::create_shader("/shaders/passthru");
 
 	printf("Loading level %s\n", level.c_str());
