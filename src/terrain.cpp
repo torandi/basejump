@@ -37,7 +37,6 @@ float Terrain::lod_distance[TERRAIN_LOD_LEVELS];
 Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
-	free_surface();
 	delete normal_textures_;
 	delete diffuse_textures_;
 
@@ -56,9 +55,8 @@ void Terrain::cleanup_physics()
 
 Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez"), rot_(trans_.getBasis()), pos_(trans_.getOrigin()) {
 	Config config = Config::parse(file);
-
-	data_map_  = TextureBase::load_image(config["/heightmap"]->as_string() , &size_);
-	horizontal_scale_ = config["/horizontal_size"]->as_float() / static_cast<float>(size_.x);
+	size_ = config["/size"]->as_vec2();
+	horizontal_scale_ = config["/horizontal_scale"]->as_float();
 	vertical_scale_ = config["/vertical_size"]->as_float();;
 	uv_scale_ = config["/uv_repeat"]->as_float();
 	lod_base_step = config["/lod_base_step"]->as_float();
@@ -73,24 +71,20 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez"), r
 	diffuse_textures_ = TextureArray::from_filename(
 			config["/materials/flat/diffuse"]->as_string().c_str(),
 			config["/materials/steep/diffuse"]->as_string().c_str(),
-			config["/materials/override/diffuse"]->as_string().c_str(),
 			nullptr
 		);
 
 	normal_textures_ = TextureArray::from_filename(
 			config["/materials/flat/normal"]->as_string().c_str(),
 			config["/materials/steep/normal"]->as_string().c_str(),
-			config["/materials/override/normal"]->as_string().c_str(),
 			nullptr
 		);
 
 	material_shininess_[0] = config["/materials/flat/shininess"]->as_float();
 	material_shininess_[1] = config["/materials/steep/shininess"]->as_float();
-	material_shininess_[2] = config["/materials/override/shininess"]->as_float();
 
 	material_specular_[0] = config["/materials/flat/specular"]->as_color().to_vec4();
 	material_specular_[1] = config["/materials/steep/specular"]->as_color().to_vec4();
-	material_specular_[2] = config["/materials/override/specular"]->as_color().to_vec4();
 
 	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -113,13 +107,6 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez"), r
 #if RENDER_DEBUG
 	debug_shader = Shader::create_shader("/shaders/debug");
 #endif
-}
-
-void Terrain::free_surface() {
-	if(data_map_ != nullptr) {
-		SDL_FreeSurface(data_map_);
-		data_map_ = nullptr;
-	}
 }
 
 const glm::ivec2 &Terrain::heightmap_size() const {
@@ -187,14 +174,6 @@ void Terrain::generate_terrain() {
 			int i = y * size_.x + x;
 
 			float h = 0.f;
-			//if(x == 0 || y == 0 || x == size_.x-1 || y == size_.y-1) {
-			//	//On edge, can't run box filter:
-			//	h = height_from_color(get_pixel_color(x, y, data_map_, size_));
-			//} else {
-			//	for(int f = 0; f<filter_size; ++f) {
-			//		h += height_from_color(get_pixel_color(x + filter_offset_x[f], y + filter_offset_y[f], data_map_, size_)) * filter_kernel[f] * inverse_filter_sum;
-			//	}
-			//}
 			static const double density = 500.0,
 				H = 1.5,
 				lacunarity = 2.0,
@@ -511,17 +490,6 @@ glm::vec3 Terrain::normal_at(float x_, float y_) const {
 	normal += (1.f-dx) * dy * normal_at((y+1),x);
 	normal += dx * dy * normal_at((y+1), (x+1));
 	return normal;
-}
-
-glm::vec4 Terrain::get_pixel_color(int x, int y, SDL_Surface * surface, const glm::ivec2 &size) {
-	glm::ivec4 c = TextureBase::get_pixel_color(x, y, surface, size);
-	glm::vec4 color;
-	color.r = (float)c.x/0xFF;
-	color.g = (float)c.y/0xFF;
-	color.b = (float)c.z/0xFF;
-	color.a = (float)c.w/0xFF;
-
-	return color;
 }
 
 void Terrain::render(const glm::mat4& m) {

@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include <SDL/SDL.h>
 
 #include "shader.hpp"
 #include "mesh.hpp"
@@ -21,7 +20,7 @@
 
 
 
-#define TERRAIN_LOD_LEVELS 8
+#define TERRAIN_LOD_LEVELS 4
 
 
 
@@ -53,7 +52,6 @@ class Terrain : public Mesh
 
 	float horizontal_scale_;
 	float vertical_scale_;
-	SDL_Surface * data_map_;
 	float uv_scale_;
 	Shader * shader_;
 	glm::ivec2 size_;
@@ -114,19 +112,12 @@ class Terrain : public Mesh
 		void render_geometry_cull( const Camera &cam, const glm::mat4& m = glm::mat4());
 		void render_geometry_cull( const Camera &cam, const AABB &aabb, const glm::mat4& m = glm::mat4());
 
-		static glm::vec4 get_pixel_color(int x, int y, SDL_Surface * surface, const glm::ivec2 &size);
-
 		float height_at(float x, float y) const;
 		glm::vec3 normal_at(float x, float y) const;
 
 		float horizontal_size() const;
 
 		void prepare_shader();
-
-		/*
-		 * Once this has been called get_pixel_color can not be called
-		 */
-		void free_surface();
 
 
 		/*

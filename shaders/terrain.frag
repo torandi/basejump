@@ -11,7 +11,6 @@ in vec3 normal;
 in vec3 tangent;
 in vec3 bitangent;
 in vec2 texcoord;
-in float texture_override;
 in vec4 shadowmap_coord[maxNumberOfLights];
 
 #include "light_calculations.glsl"
