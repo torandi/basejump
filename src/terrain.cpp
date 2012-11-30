@@ -21,6 +21,7 @@
 #include <vector>
 #include <glm/gtx/norm.hpp>
 
+
 #define RENDER_DEBUG 0
 
 #if RENDER_DEBUG
@@ -39,9 +40,21 @@ Terrain::~Terrain() {
 	free_surface();
 	delete normal_textures_;
 	delete diffuse_textures_;
+
+	cleanup_physics();
 }
 
-Terrain::Terrain(const std::string &file) : Mesh(32.f) {
+
+void Terrain::cleanup_physics()
+{
+	delete[] collision_map_data;
+	delete rigidBody->getMotionState();
+	delete rigidBody;
+	delete shape;
+}
+
+
+Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez"), rot_(trans_.getBasis()), pos_(trans_.getOrigin()) {
 	Config config = Config::parse(file);
 
 	data_map_  = TextureBase::load_image(config["/heightmap"]->as_string() , &size_);
@@ -95,6 +108,7 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f) {
 	u_material_specular_ = shader_->uniform_location("material_specular");
 
 	generate_terrain();
+	init_physics();
 
 #if RENDER_DEBUG
 	debug_shader = Shader::create_shader("/shaders/debug");
@@ -173,14 +187,36 @@ void Terrain::generate_terrain() {
 			int i = y * size_.x + x;
 
 			float h = 0.f;
-			if(x == 0 || y == 0 || x == size_.x-1 || y == size_.y-1) {
-				//On edge, can't run box filter:
-				h = height_from_color(get_pixel_color(x, y, data_map_, size_));
-			} else {
-				for(int f = 0; f<filter_size; ++f) {
-					h += height_from_color(get_pixel_color(x + filter_offset_x[f], y + filter_offset_y[f], data_map_, size_)) * filter_kernel[f] * inverse_filter_sum;
-				}
-			}
+			//if(x == 0 || y == 0 || x == size_.x-1 || y == size_.y-1) {
+			//	//On edge, can't run box filter:
+			//	h = height_from_color(get_pixel_color(x, y, data_map_, size_));
+			//} else {
+			//	for(int f = 0; f<filter_size; ++f) {
+			//		h += height_from_color(get_pixel_color(x + filter_offset_x[f], y + filter_offset_y[f], data_map_, size_)) * filter_kernel[f] * inverse_filter_sum;
+			//	}
+			//}
+			static const double density = 500.0,
+				H = 1.5,
+				lacunarity = 2.0,
+				octaves = 20.0,
+				offset = 2.5,
+				gain = 2.0;
+
+			// get inverse distance from center of world in range [0,1]
+			float x_ = 1 - (float) abs(size_.x / 2 - x) / (size_.x / 2);
+			float y_ = 1 - (float) abs(size_.y / 2 - y) / (size_.y / 2);
+
+			// huge pointy cone
+			//h += (x_) * (y_) * 10;
+
+			// large ridges
+			h += 0;
+
+			// medium large realistic ridged mountain terrain
+			h += perlin.ridgedMultifractalNoise(x/density, y/density, H, lacunarity, octaves, offset, gain);
+
+			// scale
+			h *= 1.f;
 
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
 			v.uv = CALC_UV(x,y);
@@ -335,6 +371,104 @@ void Terrain::generate_terrain() {
 
 	Logging::info("[Terrain] Terrain loaded.\n");
 }
+
+
+void Terrain::init_physics()
+{
+	AABB aabb_ = aabb();
+
+	// collision map values
+	// bullet centers height around zero, so find max height diff from 0 and use as pos/neg height extremes
+	static const btScalar max_height = std::max(abs(aabb_.min.y), abs(aabb_.max.y));
+	static const btScalar min_height = -max_height;
+	static const btScalar grid_height_scale = 1.f;
+	static const int up_axis = 1;// 1 == y axis
+	static const int size = 32;
+	static const int overlap = 4;
+	static const int oversize = size + overlap * 2;
+	static const PHY_ScalarType phy_scalar_type = PHY_FLOAT;
+	static const bool flip_quad_edges = false;
+
+	collision_map_data = new float[oversize * oversize];
+
+	shape = new btHeightfieldTerrainShape(
+		size, size, collision_map_data, grid_height_scale,
+		min_height, max_height, up_axis,
+		phy_scalar_type, flip_quad_edges);
+
+	// scale the shape
+	btVector3 localScaling = btVector3(horizontal_scale_, vertical_scale_, horizontal_scale_);
+	shape->setLocalScaling(localScaling);
+
+	// set origin to middle of heightfield
+	trans_.setIdentity();
+	glm::vec3 pos_ = position();
+	trans_.setOrigin(btVector3(pos_.x, pos_.y, pos_.z));
+
+	btVector3 inertia_(.0f, .0f, .0f);
+	motionState = new btDefaultMotionState(trans_);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(0.f, motionState, shape, inertia_);
+	rigidBody = new btRigidBody(cInfo);
+}
+
+
+inline int Terrain::clamp(int x, int min, int max) {
+	return x < min ? min : x > max ? max : x;
+}
+
+
+void Terrain::update_collision_map(const btVector3 & protagonist_position)
+{
+	//// map center is 0,0,0
+	//// transform protagonist position to collision_map_data array coordinates
+	//int _x = protagonist_position.x() / horizontal_scale_ + HALF_SIZE_X;
+	//int _y = protagonist_position.z() / horizontal_scale_ + HALF_SIZE_Y;
+
+	//if (_x != x || _y != y)
+	//{
+	//x = _x;
+	//y = _y;
+	//std::cout << x << "::" << y << std::endl;
+	//}
+
+	//// calc collision map top-left corner coordinates
+	//int cm_x = x / collision_map.SIZE * collision_map.SIZE;
+	//int cm_y = y / collision_map.SIZE * collision_map.SIZE;
+
+	//cm_x = clamp(cm_x, collision_map.OVERLAP, SIZE_X - collision_map.SIZE - collision_map.OVERLAP);
+	//cm_y = clamp(cm_y, collision_map.OVERLAP, SIZE_Y - collision_map.SIZE - collision_map.OVERLAP);
+
+	//// early exit if still same chunk
+	//if(cm_x == collision_map.x && cm_y == collision_map.y)
+	//// if (x > collision_map.x+1 && x < collision_map.x+collision_map.SIZE-1 && y > collision_map.y+1 && y < collision_map.y+collision_map.SIZE-1)
+	//return;
+
+	//// std::cout << (y > collision_map.y+1) << "::" << (y < collision_map.y+collision_map.SIZE-1) << "::" << collision_map.x+collision_map.SIZE << "::" << cm_y << std::endl;
+
+	//// early exit if protagonist is outside map
+	//if(x < 0 || x > SIZE_X ||
+	//y < 0 || y > SIZE_Y)
+	//return;
+
+	//// update collision map
+
+	//collision_map.x = cm_x;
+	//collision_map.y = cm_y;
+
+	//std::cout << "CHUNK: " << cm_x << "::" << cm_y << std::endl;
+
+	//for (int y_=0; y_<collision_map.OVERSIZE; ++y_)
+	//for (int x_=0; x_<collision_map.OVERSIZE; ++x_)
+	//collision_map.data[y_*collision_map.OVERSIZE + x_] = heightfieldData[(cm_y-collision_map.OVERLAP+y_)*SIZE_X + cm_x-collision_map.OVERLAP+x_];
+
+	//trans.setOrigin(btVector3(
+	//(cm_x-collision_map.OVERLAP+collision_map.OVERSIZE/2-HALF_SIZE_X)*GRID_SPACING,
+	//HEIGHT,
+	//(cm_y-collision_map.OVERLAP+collision_map.OVERSIZE/2-HALF_SIZE_Y)*GRID_SPACING
+	//));
+	//rigidBody->setWorldTransform(trans);
+}
+
 
 float Terrain::height_from_color(const glm::vec4 &color) const {
 	return color.r + color.g;

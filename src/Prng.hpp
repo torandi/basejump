@@ -36,8 +36,13 @@ public:
 	 */
 	double random()
 	{
+#ifdef WIN32
+		hash = hash * 134775813 + 1 & 0xffffffff;
+		return 0.5 + (double) hash / 0x100000000;
+#else
 		hash = hash * 134775813 + 1 & 0xffffffff;
 		return (double) hash / 0x100000000;
+#endif
 	}
 };
 

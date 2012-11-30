@@ -3,6 +3,13 @@
 #include <NuiSensor.h>
 #include "Controller.hpp"
 #include <iostream>
+#include "Protagonist.hpp"
+
+#pragma managed(push,off)
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#pragma managed(pop)
+
 
 #ifdef WIN32
 #pragma managed(push,off)

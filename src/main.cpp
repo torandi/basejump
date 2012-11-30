@@ -420,10 +420,10 @@ int main(int argc, char* argv[]){
 	} else {
 		program_name = argv[0];
 	}
-
+	
 	parse_argv(argc, argv);
 
-	if(verbose_flag) setup_fps_timer();
+//	if(verbose_flag) setup_fps_timer();
 
 	/* proper termination */
 	signal(SIGINT, handle_sigint);

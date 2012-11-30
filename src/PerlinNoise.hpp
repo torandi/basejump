@@ -10,10 +10,6 @@ class PerlinNoise
 	
 	const char * m_seed;
 	
-	double m_lacunarity;
-	double m_octaves;
-	double m_H;
-	
 	static inline int fastfloor(double x) {
 		return x>0.0 ? static_cast<int>(x) : static_cast<int>(x-1.0); }
 	

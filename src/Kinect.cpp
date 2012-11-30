@@ -7,6 +7,7 @@
 
 
 
+
 Kinect::Kinect() : tracked_skeleton(-1)
 {
 	init();
@@ -117,7 +118,7 @@ btVector3 Kinect::vector4_to_btVector3(const Vector4 & v) const
 
 inline btScalar Kinect::clamp(const btScalar & x) const
 {
-	return std::max(-1.f, std::min(1.f, x));
+	return x < -1.f ? -1.f : x > 1.f ? 1.f : x;
 }
 
 /*

@@ -61,7 +61,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	fog.density = config["/environment/fog/density"]->as_float();
 
 	//TODO: Remove debug hack
-	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
+	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f-1000));
 
 	glm::vec3 pos = camera.position();
 	pos.y = terrain->height_at(pos.x, pos.z) + 2000.f;
@@ -85,7 +85,8 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	particles = new ParticleSystem(config["/particles/count"]->as_int(), scene_aabb, particle_textures);
 	particles->read_config(config["/particles"]);
 
-	particle_spawn_far = config["/particles/spawn_far"]->as_float();
+	particle_spawn_far = glm::min(config["/particles/spawn_far"]->as_float(), far);
+	particle_keep_far = glm::min(config["/particles/keep_far"]->as_float(), far);
 
 	particles->update_config();
 
@@ -113,7 +114,7 @@ void Game::initPhysics()
 	broadphase = new btDbvtBroadphase();
 	solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0,-10,0));
+	dynamicsWorld->setGravity(btVector3(0,-9.82f,0));
 }
 
 
@@ -132,6 +133,10 @@ Game::~Game() {
 	delete protagonist;
 
 	cleanupPhysics();
+
+	if(wind_sound->is_playing())
+		wind_sound->stop();
+	delete wind_sound;
 }
 
 
@@ -196,7 +201,7 @@ static void print_values(const Technique::HDR &hdr) {
 
 void Game::run_particles(float dt) {
 	AABB cam_aabb = camera.aabb(camera.near(), particle_spawn_far);
-	AABB cam_bounds = camera.aabb();
+	AABB cam_bounds = camera.aabb(camera.near(), particle_keep_far);
 
 	cam_aabb.min.y = scene_aabb.min.y;
 	cam_bounds.min.y = scene_aabb.min.y;
@@ -216,15 +221,7 @@ void Game::update(float t, float dt) {
 	dynamicsWorld->stepSimulation(1/60.f, 1);
 	protagonist->update();
 
-	// sync camera transform with protagonist transform
-	//camera.set_position(protagonist->position());
-	////camera.set_
-	//camera.set_position(protagonist->position() - glm::vec3(0.f, -1.f, 3.f));
-	//camera.look_at(protagonist->position());
-	//const glm::mat4 rotM = protagonist->rotation_matrix();
-	//camera.set_position(protagonist->position());
-	protagonist->syncTransform(&camera);
-	//camera.set_position(protagonist->position());
+	camera.set_matrix(protagonist->matrix());
 
 	run_particles(dt);
 
