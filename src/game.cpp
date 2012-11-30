@@ -64,7 +64,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
 
 	glm::vec3 pos = camera.position();
-	pos.y = terrain->height_at(pos.x, pos.z) + 1000.f;
+	pos.y = terrain->height_at(pos.x, pos.z) + 2000.f;
 
 	camera.set_position(pos);
 	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
@@ -166,7 +166,7 @@ void Game::render_scene(){
 			/* Render scene here */
 			terrain->render_cull(camera);
 
-			protagonist->draw();
+			//protagonist->draw();
 
 			particles->render();
 	});
@@ -203,8 +203,6 @@ void Game::run_particles(float dt) {
 
 	particles->config.spawn_position = glm::vec4(cam_aabb.min, 1.f);
 	particles->config.spawn_area = glm::vec4(cam_aabb.max - cam_aabb.min , 1.f);
-	//particles->config.spawn_position = glm::vec4(camera.position() + camera.local_z(), 1.f);
-	//particles->config.spawn_area = glm::vec4(1.f, 1.f, 1.f, 0.f);
 	particles->set_bounds(cam_bounds);
 	particles->update_config();
 
@@ -221,11 +219,11 @@ void Game::update(float t, float dt) {
 	// sync camera transform with protagonist transform
 	//camera.set_position(protagonist->position());
 	////camera.set_
-	camera.set_position(protagonist->position() - glm::vec3(0.f, -1.f, 3.f));
-	camera.look_at(protagonist->position());
+	//camera.set_position(protagonist->position() - glm::vec3(0.f, -1.f, 3.f));
+	//camera.look_at(protagonist->position());
 	//const glm::mat4 rotM = protagonist->rotation_matrix();
-//	camera.set_position(protagonist->position());
-//	protagonist->syncTransform(&camera);
+	//camera.set_position(protagonist->position());
+	protagonist->syncTransform(&camera);
 	//camera.set_position(protagonist->position());
 
 	run_particles(dt);

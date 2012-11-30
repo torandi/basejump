@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define RENDER_DEBUG 1
+#define RENDER_DEBUG 0
 
 #if RENDER_DEBUG
 
