@@ -256,8 +256,11 @@ void Game::update(float t, float dt) {
 	//Debug stuff
 //	input.update_object(camera, dt);
 	
+	if(input.current_value(Input::ACTION_0) > 0.9f) {
+		protagonist->applyThrust();
+	}
 
-	if(input.down(Input::ACTION_0)) {
+	if(input.down(Input::ACTION_3)) {
 		restart();
 	}
 	

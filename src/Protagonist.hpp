@@ -137,6 +137,8 @@ public:
 	void update();
 	void draw();
 	void syncTransform(MovableObject * obj);
+
+	void applyThrust();
 };
 
 #endif

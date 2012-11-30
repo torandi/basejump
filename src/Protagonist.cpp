@@ -192,3 +192,7 @@ void Protagonist::draw() {
 	triangle->render(matrix());
 #endif
 }
+
+void Protagonist::applyThrust() {
+	//TODO
+}
