@@ -1,3 +1,14 @@
+#ifdef HAVE_CONFIG_H
+#	include "config.h"
+#endif
+
+#include <iostream>
+#include "shader.hpp"
+
+#include "GLDebugDrawer.hpp"
+
+
+
 GLDebugDrawer::GLDebugDrawer() : m_debugMode(0), numVerts(0)
 {
 	shader_ = Shader::create_shader("/shaders/simple");
@@ -32,15 +43,15 @@ void GLDebugDrawer::addVertex(const btVector3& v, const btVector3& c)
 {
 	int _n = ITEM_SIZE * numVerts;
 	
-	verts[_n]   = v.getX();
-	verts[_n+1] = v.getY();
-	verts[_n+2] = v.getZ();
-	
-	verts[_n+3] = c.getX();
-	verts[_n+4] = c.getY();
-	verts[_n+5] = c.getZ();
+	verts[_n] = v.x();
+	verts[_n+1] = v.y();
+	verts[_n+2] = v.z();
+
+	verts[_n+3] = c.x();
+	verts[_n+4] = c.y();
+	verts[_n+5] = c.z();
 	verts[_n+6] = 1.f;
-	
+
 	++numVerts;
 }
 
@@ -48,7 +59,7 @@ void GLDebugDrawer::addVertex(const btVector3& v, const btVector3& c)
 void GLDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
 	addVertex(from, color);
-	addVertex(to, color);
+	//addVertex(to, color);
 }
 
 
@@ -73,7 +84,7 @@ void GLDebugDrawer::reportErrorWarning(const char* warningString)
 }
 
 
-void GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
+void GLDebugDrawer::drawContactPoint(const btVector3 & pointOnB,const btVector3 & normalOnB,btScalar distance,int lifeTime,const btVector3& color)
 {
 //			btVector3 to=pointOnB+normalOnB*1;//distance;
 //			const btVector3&from = pointOnB;

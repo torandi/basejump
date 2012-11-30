@@ -96,6 +96,7 @@
     <ClInclude Include="..\crt.hpp" />
     <ClInclude Include="..\src\Controller.hpp" />
     <ClInclude Include="..\src\game.hpp" />
+    <ClInclude Include="..\src\GLDebugDrawer.hpp" />
     <ClInclude Include="..\src\Kinect.hpp" />
     <ClInclude Include="..\src\Protagonist.hpp" />
     <ClInclude Include="..\src\XboxController.h" />
@@ -104,6 +105,7 @@
     <ClCompile Include="..\src\basejump.cpp" />
     <ClCompile Include="..\src\Controller.cpp" />
     <ClCompile Include="..\src\game.cpp" />
+    <ClCompile Include="..\src\GLDebugDrawer.cpp" />
     <ClCompile Include="..\src\Kinect.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Protagonist.cpp" />

@@ -2,7 +2,10 @@
 #define GL_DEBUG_DRAWER_H
 
 
+
+#pragma managed(push,off)
 #include <LinearMath/btIDebugDraw.h>
+#pragma managed(pop)
 
 
 
@@ -23,7 +26,7 @@ class GLDebugDrawer : public btIDebugDraw
 	static const GLsizei CLR_STRIDE = sizeof(GLfloat) * CLR_SIZE;
 	static const GLsizei ITEM_STRIDE = VERT_STRIDE + CLR_STRIDE;
 	
-	static const int MAX_VERTS = 1e6;
+	static const int MAX_VERTS = 1e4;
 	
 	GLfloat verts[ITEM_SIZE * MAX_VERTS];
 	GLuint numVerts;
@@ -43,7 +46,7 @@ public:
 	virtual void setDebugMode(int debugMode);
 	virtual int	getDebugMode() const;
 
-	virtual void drawContactPoint(const btVector3 & PointOnB,const btVector3 & normalOnB,btScalar & distance,int lifeTime,const btVector3 & color);
+	virtual void drawContactPoint(const btVector3 & PointOnB,const btVector3 & normalOnB,btScalar distance,int lifeTime,const btVector3 & color);
 
 	virtual void reportErrorWarning(const char* warningString);
 

@@ -62,7 +62,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	scene_aabb = terrain->aabb();
 
 	initPhysics();
-	
+
 	wind_sound = new Sound("/sound/34338__erh__wind.wav",1);
 
 	particle_textures = TextureArray::from_filename(texture_paths);
@@ -107,6 +107,7 @@ void Game::setup() {
 
 	protagonist = new Protagonist(pos);
 	dynamicsWorld->addRigidBody(protagonist->rigidBody);
+	dynamicsWorld->addRigidBody(terrain->rigidBody);
 }
 
 void Game::start() {
@@ -136,10 +137,18 @@ void Game::initPhysics()
 	solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(0,-9.82f,0));
+
+	glDebugDrawer = new GLDebugDrawer();
+	glDebugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+	((btSoftRigidDynamicsWorld*) dynamicsWorld)->setDebugDrawer(glDebugDrawer);
 }
 
 
 Game::~Game() {
+	cleanupPhysics();
+
+	delete protagonist;
+
 	delete scene;
 	delete sky;
 	delete terrain;
@@ -150,11 +159,6 @@ Game::~Game() {
 	delete particles;
 	delete particle_textures;
 
-	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
-	delete protagonist;
-
-	cleanupPhysics();
-
 	if(wind_sound->is_playing())
 		wind_sound->stop();
 	delete wind_sound;
@@ -163,6 +167,10 @@ Game::~Game() {
 
 void Game::cleanupPhysics()
 {
+	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
+	dynamicsWorld->removeRigidBody(terrain->rigidBody);
+	
+	delete glDebugDrawer;
 	delete dynamicsWorld;
 	delete solver;
 	delete collisionConfiguration;
@@ -216,6 +224,9 @@ void Game::render_blit(){
 void Game::render(){
 	render_scene();
 	render_blit();
+
+	glDebugDrawer->drawLine(btVector3(0,0,0), btVector3(1000,1000,1000), btVector3(.5f,1.f,.5f));
+	glDebugDrawer->commit();
 }
 
 void Game::run_particles(float dt) {
@@ -237,7 +248,7 @@ void Game::run_particles(float dt) {
 void Game::update(float t, float dt) {
 	/* Update game logic */
 
-	dynamicsWorld->stepSimulation(1/60.f, 1);
+	dynamicsWorld->stepSimulation(dt, 30, 1/300.f);
 	protagonist->update();
 
 	camera.set_matrix(protagonist->matrix());

@@ -37,19 +37,19 @@
 	
 static const btScalar MASS = 80.f;// kg
 
-static const btVector3 THRUSTER_FORCE = MASS * btVector3(0, 0, -50);
+static const btVector3 THRUSTER_FORCE = MASS * btVector3(0, 0, -100);
 	
-static const btScalar OFFSET_X = .2f;
+static const btScalar OFFSET_X = .3f;
 static const btVector3 L_WING_OFFSET(-OFFSET_X, 0, 0);// m
 static const btVector3 R_WING_OFFSET(OFFSET_X, 0, 0);// m
 	
 // warn: TARGET_ROTATION_FACTOR and ANGULAR_VELOCITY_FACTOR dampens angular velocity, if factors are too high we will get inverse damping
-static const btScalar TARGET_ROTATION_FACTOR = .2f;// strength of auto rotation towards target direction
-static const btScalar ANGULAR_VELOCITY_FACTOR = .7f;// dampens current angular velocity
+static const btScalar TARGET_ROTATION_FACTOR = .1f;// strength of auto rotation towards target direction
+static const btScalar ANGULAR_VELOCITY_FACTOR = .8f;// dampens current angular velocity
 	
-static const btScalar ROLL_FACTOR = 3.0f;// controls roll force magnitude
-static const btScalar YAW_FACTOR = .3f;
-static const btScalar PITCH_FACTOR = 2.f;
+static const btScalar ROLL_FACTOR = 3.f;// controls roll force magnitude
+static const btScalar YAW_FACTOR = .4f;
+static const btScalar PITCH_FACTOR = 3.f;
 
 
 
@@ -118,6 +118,7 @@ void Protagonist::update()
 
 	rotateTowardsTargetDirection();
 	applyAerodynamics();
+	applyThrust();
 	syncTransform(this);
 }
 
@@ -181,11 +182,12 @@ void Protagonist::applyWingAerodynamics(Wing & wing)
 }
 
 
-void Protagonist::applyThrust() {
+void Protagonist::applyThrust()
+{
 	if(!m_thrusterActive)
 		return;
 	m_thrusterActive = false;
-	rigidBody->applyCentralForce(rot_ * THRUSTER_FORCE); }
+	rigidBody->applyCentralForce(rot_ * THRUSTER_FORCE);
 }
 
 

@@ -46,7 +46,7 @@ Terrain::~Terrain() {
 
 void Terrain::cleanup_physics()
 {
-	delete[] collision_map_data;
+	//delete[] collision_map_data;
 	delete rigidBody->getMotionState();
 	delete rigidBody;
 	delete shape;
@@ -185,7 +185,8 @@ void Terrain::generate_terrain() {
 			//float x_ = 1 - (float) abs(size_.x / 2 - x) / (size_.x / 2);
 			//float y_ = 1 - (float) abs(size_.y / 2 - y) / (size_.y / 2);
 
-			// huge pointy cone
+
+			// previous huge pointy cone
 			//int c_x = 300;
 			//int c_y = 300;
    //         x_ = 0;
@@ -196,39 +197,37 @@ void Terrain::generate_terrain() {
 			//	y_ = 1 - (y + c_y - half_size_y) / c_y;
    //         }
 
+
+			// huge pointy cone
 			static const double cone_amplitude = 4.f;
 			x_ = (x - half_size_x) / half_size_x;
 			y_ = (y - half_size_y) / half_size_y;
 			r_ = std::max(0.f, 1.f - sqrtf(x_*x_ + y_*y_));
-			h += cone_amplitude * r_ * r_;
+			h += cone_amplitude * r_;
 
 
-			// large ridges
-			static const double offsetX = 200.0,
-				offsetY = -280.0,
-				ridge_density = 100.0,
-				ridge_amplitude = 1.0;
-			x_ = 1 - abs(half_size_x - x) / half_size_x;
-			y_ = 1 - abs(half_size_y - y) / half_size_y;
-			h += -ridge_amplitude * std::abs(perlin.noise((x-offsetX)/ridge_density, (y-offsetY)/ridge_density));
-
-
-			// medium large realistic ridged mountain terrain
-			static const double density = 300.0,
+			// large realistic ridged mountain terrain
+			static const double density = 250.0,
 				H = 1.5,
 				lacunarity = 2.0,
 				octaves = 20.0,
-				offset = 2.0,
+				offset = 1.5,
 				gain = 2.0;
 			h += perlin.ridgedMultifractalNoise(x/density, y/density, H, lacunarity, octaves, offset, gain);
 
 
-			// detail bumps
-			h += 0.02 * abs(perlin.noise(x/8.0, y/8.0));
+			// medium smooth ridges
+			static const double offsetX = 200.0,
+				offsetY = -280.0,
+				ridge_density = 100.0,
+				ridge_amplitude = 0.5;
+			x_ = 1.f - abs(half_size_x - x) / half_size_x;
+			y_ = 1.f - abs(half_size_y - y) / half_size_y;
+			h += -1.0 * ridge_amplitude * std::abs(perlin.noise((x-offsetX)/ridge_density, (y-offsetY)/ridge_density));
 
 
-			// scale
-			h *= 1.f;
+			// low profile detail bumps
+			h += 0.01 * abs(perlin.noise(x/16.0, y/16.0));
 
 
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
@@ -402,12 +401,17 @@ void Terrain::init_physics()
 	static const PHY_ScalarType phy_scalar_type = PHY_FLOAT;
 	static const bool flip_quad_edges = false;
 
-	collision_map_data = new float[oversize * oversize];
+	//collision_map_data = new float[oversize * oversize];
 
 	shape = new btHeightfieldTerrainShape(
-		size, size, collision_map_data, grid_height_scale,
+		size_.x, size_.y, map_, grid_height_scale,
 		min_height, max_height, up_axis,
 		phy_scalar_type, flip_quad_edges);
+
+	//shape = new btHeightfieldTerrainShape(
+	//	size, size, collision_map_data, grid_height_scale,
+	//	min_height, max_height, up_axis,
+	//	phy_scalar_type, flip_quad_edges);
 
 	// scale the shape
 	btVector3 localScaling = btVector3(horizontal_scale_, vertical_scale_, horizontal_scale_);

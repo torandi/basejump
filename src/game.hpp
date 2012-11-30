@@ -8,12 +8,16 @@
 
 #include <string>
 
-
 #pragma managed(push,off)
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
+#include <BulletSoftBody/btSoftBody.h>
+#include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
+#include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
+#include <BulletSoftBody/btSoftBodyHelpers.h>
 #pragma managed(pop)
 
+#include "GLDebugDrawer.hpp"
 #include "Protagonist.hpp"
 
 class Game {
@@ -36,6 +40,8 @@ class Game {
         btBroadphaseInterface * broadphase;
         btConstraintSolver * solver;
         btDynamicsWorld * dynamicsWorld;
+
+		GLDebugDrawer * glDebugDrawer;
 
 		void initPhysics();
 		void cleanupPhysics();

@@ -26,6 +26,9 @@
 
 class Terrain : public Mesh
 {
+public:
+	btRigidBody * rigidBody;
+private:
 	PerlinNoise perlin;
 
 	btTransform trans_;
@@ -34,7 +37,7 @@ class Terrain : public Mesh
 
 	btHeightfieldTerrainShape * shape;
 	btDefaultMotionState * motionState;
-	btRigidBody * rigidBody;
+	
 	btCollisionObject * collisionObject;
 
 	float * collision_map_data;
