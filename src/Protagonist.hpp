@@ -111,6 +111,7 @@ protected:
 	void rotateTowardsTargetDirection();
 	void applyAerodynamics();
 	void applyWingAerodynamics(Wing &);
+	void applyThrust();
 
 public:
 	btRigidBody* rigidBody;
@@ -118,6 +119,8 @@ public:
 
 	Wing lWing;
 	Wing rWing;
+	
+	bool m_thrusterActive;
 	
 	btTransform trans_;
 	btMatrix3x3 rot_;
@@ -138,7 +141,7 @@ public:
 	void draw();
 	void syncTransform(MovableObject * obj);
 
-	void applyThrust();
+	void activateThruster();
 };
 
 #endif

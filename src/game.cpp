@@ -257,7 +257,7 @@ void Game::update(float t, float dt) {
 //	input.update_object(camera, dt);
 	
 	if(input.current_value(Input::ACTION_0) > 0.9f) {
-		protagonist->applyThrust();
+		protagonist->activateThruster();
 	}
 
 	if(input.down(Input::ACTION_3)) {

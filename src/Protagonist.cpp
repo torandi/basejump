@@ -36,6 +36,8 @@
 */
 	
 static const btScalar MASS = 80.f;// kg
+
+static const btVector3 THRUSTER_FORCE = MASS * btVector3(0, 0, -50);
 	
 static const btScalar OFFSET_X = .2f;
 static const btVector3 L_WING_OFFSET(-OFFSET_X, 0, 0);// m
@@ -179,6 +181,14 @@ void Protagonist::applyWingAerodynamics(Wing & wing)
 }
 
 
+void Protagonist::applyThrust() {
+	if(!m_thrusterActive)
+		return;
+	m_thrusterActive = false;
+	rigidBody->applyCentralForce(rot_ * THRUSTER_FORCE); }
+}
+
+
 void Protagonist::syncTransform(MovableObject * obj)
 {
 	float m[16];
@@ -193,6 +203,6 @@ void Protagonist::draw() {
 #endif
 }
 
-void Protagonist::applyThrust() {
-	//TODO
+void Protagonist::activateThruster() {
+	m_thrusterActive = true;
 }
