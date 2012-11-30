@@ -19,6 +19,7 @@
 #include "sound.hpp"
 #include "particle_system.hpp"
 #include "Prng.hpp"
+#include "utils.hpp"
 
 #include "Controller.hpp"
 
@@ -47,44 +48,21 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	Config config = Config::parse("/level.cfg");
 	terrain = new Terrain("/terrain.cfg");
 
-	char seed[64];
-	for(int i=0; i<64; ++i) {
-		seed[i] = time(0) + i;
-	}
-
-	Prng prng(seed);
-
-	float time = static_cast<float>(prng.random());
-
-	sky = new Sky("/sky.cfg", time);
-	printf("Time of day: %f\n", sky->time());
-
 	std::vector<std::string> texture_paths;
 	for(const ConfigEntry * entry : config["/particles/textures"]->as_list()) {
 		texture_paths.push_back(entry->as_string());
 	}
-
-
-	lights.num_lights() = 1;
-	lights.ambient_intensity() = sky->ambient_intensity();
-	sky->configure_light(lights.lights[0]);
-
+	
 	fog.density = config["/environment/fog/density"]->as_float();
 
-	//TODO: Remove debug hack
-
-	glm::vec3 pos = glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f-1000);
-	pos.y = terrain->height_at(pos.x, pos.z) + 2000.f;
+	lights.num_lights() = 1;
 
 	Input::movement_speed = 10.f;
 
 	scene_aabb = terrain->aabb();
 
-
 	initPhysics();
-	protagonist = new Protagonist(pos);
-	dynamicsWorld->addRigidBody(protagonist->rigidBody);
-
+	
 	wind_sound = new Sound("/sound/34338__erh__wind.wav",1);
 
 	particle_textures = TextureArray::from_filename(texture_paths);
@@ -97,22 +75,58 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	particles->update_config();
 
-	//Prerun particles a bit:
-	for(int i = 0; i < 100; ++i) {
-		run_particles(0.1f);
-	}
-
 	//Check for different controllers and init them if found
 #ifdef WIN32
 	controller = new Kinect();
 #endif
 	//TODO: check controller->active() and if false try other controllers
+
+	setup();
+
+	state = STATE_GAME;
+}
+
+void Game::setup() {
+	char seed[16];
+	for(int i=0; i<16; ++i) {
+		seed[i] = time(0) * frand() + i;
+	}
+
+	Prng prng(seed);
+
+	float time = static_cast<float>(prng.random());
+
+	sky = new Sky("/sky.cfg", time);
+
+	lights.ambient_intensity() = sky->ambient_intensity();
+	sky->configure_light(lights.lights[0]);
+
+
+	glm::vec3 pos = glm::vec3(0.f);
+	pos.y = terrain->height_at(pos.x, pos.z) + 2000.f;
+
+	protagonist = new Protagonist(pos);
+	dynamicsWorld->addRigidBody(protagonist->rigidBody);
 }
 
 void Game::start() {
 	wind_sound->play();
 }
 
+void Game::restart() {
+	delete sky;
+	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
+	delete protagonist;
+
+	/* clear particles */
+	particles->set_bounds(AABB());
+	particles->update_config();
+
+	particles->update(0.1f);
+
+	setup();
+	start();
+}
 
 void Game::initPhysics()
 {
@@ -204,10 +218,6 @@ void Game::render(){
 	render_blit();
 }
 
-static void print_values(const Technique::HDR &hdr) {
-	printf("Exposure: %f\n, bloom: %f\n, bright_max: %f\n", hdr.exposure(), hdr.bloom_factor(), hdr.bright_max());
-}
-
 void Game::run_particles(float dt) {
 	AABB cam_aabb = camera.aabb(camera.near(), particle_spawn_far);
 	AABB cam_bounds = camera.aabb(camera.near(), particle_keep_far);
@@ -245,36 +255,12 @@ void Game::update(float t, float dt) {
 
 	//Debug stuff
 //	input.update_object(camera, dt);
-	/*
-	//Update hdr
+	
+
 	if(input.down(Input::ACTION_0)) {
-		hdr.set_exposure(hdr.exposure() - 0.1f);
-		print_values(hdr);
+		restart();
 	}
-
-
-	if(input.down(Input::ACTION_1)) {
-		hdr.set_exposure(hdr.exposure() + 0.1f);
-		print_values(hdr);
-	}
-
-	if(input.down(Input::ACTION_2)) {
-		hdr.set_bright_max(hdr.bright_max() - 0.1f);
-		print_values(hdr);
-	}
-	if(input.down(Input::ACTION_3)) {
-		hdr.set_bright_max(hdr.bright_max() + 0.1f);
-		print_values(hdr);
-	}
-	*/
-	if(input.current_value(Input::ACTION_4) > 0.9) {
-		sky->set_time_of_day(sky->time() + (dt / 10.f));
-		sky->configure_light(lights.lights[0]);
-	}
-	if(input.current_value(Input::ACTION_5) > 0.9) {
-		sky->set_time_of_day(sky->time() - (dt / 10.f));
-		sky->configure_light(lights.lights[0]);
-	}
+	
 	
 	/*if(input.down(Input::ACTION_4)) {
 		hdr.set_bloom_factor(hdr.bloom_factor() - 0.1f);

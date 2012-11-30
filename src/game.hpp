@@ -25,7 +25,10 @@ class Game {
 
 		void render();
 
+		void setup();
+
 		void start();
+		void restart();
 
 	private:
 		btDefaultCollisionConfiguration * collisionConfiguration;
@@ -67,6 +70,11 @@ class Game {
 		float particle_keep_far;
 
 		Sound* wind_sound;
+
+		enum {
+			STATE_MENU,
+			STATE_GAME
+		} state;
 };
 
 #endif
