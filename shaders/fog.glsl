@@ -13,6 +13,8 @@ vec4 calculate_fog(in vec4 original_color , in vec3 camera_dir) {
 	vec4 color = fog_color;
 #ifdef FOG_USE_SKY_COLOR
 	color = sky_color(-camera_dir);
+	color.rgb *= color.a;
+	color.a = 1.f;
 #endif
 	return mix(original_color, color, fogFactor);
 }
