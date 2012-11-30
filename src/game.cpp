@@ -230,11 +230,12 @@ void Game::update(float t, float dt) {
 	//(or simply fall back on keyboard and mouse)
 	if(controller != nullptr && controller->active()){
 		controller->update_object(*protagonist, dt);
+	} else {
+		input.update_object(*protagonist, dt);
 	}
 
 	//Debug stuff
 //	input.update_object(camera, dt);
-	input.update_object(*protagonist, dt);
 
 	//Update hdr
 	if(input.down(Input::ACTION_0)) {
