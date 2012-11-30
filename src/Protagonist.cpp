@@ -184,6 +184,7 @@ void Protagonist::syncTransform(MovableObject * obj)
 	float m[16];
 	trans_.getOpenGLMatrix(m);
 	obj->set_matrix(glm::make_mat4(m));
+	obj->relative_rotate(glm::vec3(0,1,0), M_PI);
 }
 
 void Protagonist::draw() {
