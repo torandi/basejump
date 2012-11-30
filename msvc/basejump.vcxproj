@@ -81,7 +81,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Kinect10.lib;BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;Kinect10.lib;OpenGL32.lib;OpenCL.lib;glu32.lib;SDL.lib;SDLmain.lib;SDL_image.lib;glew32.lib;fmodex_vc.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
