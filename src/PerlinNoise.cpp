@@ -4,6 +4,7 @@
 #include "Prng.hpp"
 #include "PerlinNoise.hpp"
 
+#include <iostream>
 
 
 const char PerlinNoise::m_grad3[32][3] = {
@@ -53,10 +54,11 @@ PerlinNoise::PerlinNoise(const char * seed) : m_seed(seed)
 	// build sorted permutation array
 	for (short i=0; i<256; ++i)
 		m_ps[i] = i;
-	
+
 	// shuffle permutation array, Fisher-Yates style
 	// simultaneously put copy of array after the array
-	for (short i=255, j, k; i>0; --i) {
+	for (int i=255, j, k; i>0; --i)
+	{
 		j = fastfloor(prng.random() * (double)(i+1));
 		k = m_ps[i];
 		m_ps[i] = m_ps[i+256] = m_ps[j];
@@ -190,7 +192,7 @@ double PerlinNoise::ridgedMultifractalNoise(double x, double y, double H, double
 	
 	// compute spectral weights
 	// TODO: exponent_array can/should be cached
-	double exponent_array[(int) octaves+1];
+	double * exponent_array = new double[(int) octaves+1];
 	for (int i=0; i<=octaves; ++i)
 	{
 		// compute weight for each frequency
@@ -216,5 +218,7 @@ double PerlinNoise::ridgedMultifractalNoise(double x, double y, double H, double
 		result += signal * exponent_array[i];
 	}
 	
+	delete[] exponent_array;
+
 	return result;
 }

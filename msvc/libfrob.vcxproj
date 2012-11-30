@@ -103,7 +103,9 @@
     <ClInclude Include="..\src\movable_object.hpp" />
     <ClInclude Include="..\src\particle_system.hpp" />
     <ClInclude Include="..\src\path.hpp" />
+    <ClInclude Include="..\src\PerlinNoise.hpp" />
     <ClInclude Include="..\src\platform.hpp" />
+    <ClInclude Include="..\src\Prng.hpp" />
     <ClInclude Include="..\src\quad.hpp" />
     <ClInclude Include="..\src\quadtree.hpp" />
     <ClInclude Include="..\src\rendertarget.hpp" />
@@ -151,6 +153,7 @@
     <ClCompile Include="..\src\movable_object.cpp" />
     <ClCompile Include="..\src\particle_system.cpp" />
     <ClCompile Include="..\src\path.cpp" />
+    <ClCompile Include="..\src\PerlinNoise.cpp" />
     <ClCompile Include="..\src\quad.cpp" />
     <ClCompile Include="..\src\quadtree.cpp" />
     <ClCompile Include="..\src\rendertarget.cpp" />

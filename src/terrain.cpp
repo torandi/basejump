@@ -420,9 +420,9 @@ inline int Terrain::clamp(int x, int min, int max) {
 void Terrain::update_collision_map(const btVector3 & protagonist_position)
 {
 	//// map center is 0,0,0
-	//// transform protagonist position to map array coordinates
-	//int _x = protagonist_position.x() / GRID_SPACING + HALF_SIZE_X;
-	//int _y = protagonist_position.z() / GRID_SPACING + HALF_SIZE_Y;
+	//// transform protagonist position to collision_map_data array coordinates
+	//int _x = protagonist_position.x() / horizontal_scale_ + HALF_SIZE_X;
+	//int _y = protagonist_position.z() / horizontal_scale_ + HALF_SIZE_Y;
 
 	//if (_x != x || _y != y)
 	//{

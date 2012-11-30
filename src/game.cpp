@@ -64,7 +64,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f-1000));
 
 	glm::vec3 pos = camera.position();
-	pos.y = terrain->height_at(pos.x, pos.z) + 100.f;
+	pos.y = terrain->height_at(pos.x, pos.z) + 900.f;
 
 	camera.set_position(pos);
 	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
@@ -217,14 +217,8 @@ void Game::update(float t, float dt) {
 	protagonist->update();
 
 	// sync camera transform with protagonist transform
-	//camera.set_position(protagonist->position());
-	////camera.set_
-	camera.set_position(protagonist->position() - glm::vec3(0.f, -1.f, 3.f));
-	camera.look_at(protagonist->position());
-	//const glm::mat4 rotM = protagonist->rotation_matrix();
-//	camera.set_position(protagonist->position());
-//	protagonist->syncTransform(&camera);
-	//camera.set_position(protagonist->position());
+	camera.set_matrix(protagonist->matrix());
+	camera.relative_rotate(glm::vec3(0,1,0), M_PI);
 
 	run_particles(dt);
 
