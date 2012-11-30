@@ -64,6 +64,7 @@ class Game {
 		ParticleSystem * particles;
 
 		float particle_spawn_far;
+		float particle_keep_far;
 
 		Sound* wind_sound;
 };
