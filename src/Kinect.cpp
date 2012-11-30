@@ -3,6 +3,7 @@
 #endif
 
 #include "Kinect.hpp"
+#include "Protagonist.hpp"
 
 
 

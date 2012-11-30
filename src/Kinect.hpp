@@ -11,6 +11,17 @@
 #pragma managed(pop)
 
 
+#ifdef WIN32
+#pragma managed(push,off)
+#endif
+
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+
+#ifdef WIN32
+#pragma managed(pop)
+#endif
+
 class Kinect : public Controller
 {
 private:
