@@ -57,6 +57,15 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	lights.num_lights() = 1;
 
+	//TODO: Remove debug hack
+	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f));
+
+	glm::vec3 pos = camera.position();
+	pos.y = terrain->height_at(pos.x, pos.z) + 500.f;
+
+	camera.set_position(pos);
+	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
+
 	Input::movement_speed = 10.f;
 
 	scene_aabb = terrain->aabb();
@@ -103,7 +112,7 @@ void Game::setup() {
 
 
 	glm::vec3 pos = glm::vec3(0.f);
-	pos.y = terrain->height_at(pos.x, pos.z) + 2000.f;
+	pos.y = terrain->height_at(pos.x, pos.z) + 500.f;
 
 	protagonist = new Protagonist(pos);
 	dynamicsWorld->addRigidBody(protagonist->rigidBody);

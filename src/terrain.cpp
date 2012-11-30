@@ -173,29 +173,63 @@ void Terrain::generate_terrain() {
 			Shader::vertex_t v;
 			int i = y * size_.x + x;
 
+			float x_ = 0.f;
+			float y_ = 0.f;
+			float r_ = 0.f;
 			float h = 0.f;
-			static const double density = 500.0,
+
+			float half_size_x = size_.x / 2.f;
+			float half_size_y = size_.y / 2.f;
+
+			// get inverse distance from center of world in range [0,1]
+			//float x_ = 1 - (float) abs(size_.x / 2 - x) / (size_.x / 2);
+			//float y_ = 1 - (float) abs(size_.y / 2 - y) / (size_.y / 2);
+
+			// huge pointy cone
+			//int c_x = 300;
+			//int c_y = 300;
+   //         x_ = 0;
+   //         y_ = 0;
+   //         if(x > half_size_x-c_x && x < half_size_x+c_x &&
+   //            y > half_size_y-c_y && y < half_size_y+c_y){
+   //             x_ = 1 - (x + c_x - half_size_x) / c_x;
+			//	y_ = 1 - (y + c_y - half_size_y) / c_y;
+   //         }
+
+			static const double cone_amplitude = 4.f;
+			x_ = (x - half_size_x) / half_size_x;
+			y_ = (y - half_size_y) / half_size_y;
+			r_ = std::max(0.f, 1.f - sqrtf(x_*x_ + y_*y_));
+			h += cone_amplitude * r_ * r_;
+
+
+			// large ridges
+			static const double offsetX = 200.0,
+				offsetY = -280.0,
+				ridge_density = 100.0,
+				ridge_amplitude = 1.0;
+			x_ = 1 - abs(half_size_x - x) / half_size_x;
+			y_ = 1 - abs(half_size_y - y) / half_size_y;
+			h += -ridge_amplitude * std::abs(perlin.noise((x-offsetX)/ridge_density, (y-offsetY)/ridge_density));
+
+
+			// medium large realistic ridged mountain terrain
+			static const double density = 300.0,
 				H = 1.5,
 				lacunarity = 2.0,
 				octaves = 20.0,
-				offset = 2.5,
+				offset = 2.0,
 				gain = 2.0;
-
-			// get inverse distance from center of world in range [0,1]
-			float x_ = 1 - (float) abs(size_.x / 2 - x) / (size_.x / 2);
-			float y_ = 1 - (float) abs(size_.y / 2 - y) / (size_.y / 2);
-
-			// huge pointy cone
-			//h += (x_) * (y_) * 10;
-
-			// large ridges
-			h += 0;
-
-			// medium large realistic ridged mountain terrain
 			h += perlin.ridgedMultifractalNoise(x/density, y/density, H, lacunarity, octaves, offset, gain);
+
+
+			// detail bumps
+			h += 0.02 * abs(perlin.noise(x/8.0, y/8.0));
+
 
 			// scale
 			h *= 1.f;
+
 
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
 			v.uv = CALC_UV(x,y);
