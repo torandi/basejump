@@ -1,6 +1,8 @@
 #version 330
 #include "uniforms.glsl"
 
+#define USE_SHADOWMAPS 0
+
 uniform float texture_fade_start;
 uniform float texture_fade_length;
 uniform float  material_shininess[3];
@@ -11,7 +13,9 @@ in vec3 normal;
 in vec3 tangent;
 in vec3 bitangent;
 in vec2 texcoord;
-in vec4 shadowmap_coord[maxNumberOfLights];
+#if USE_SHADOWMAPS
+	in vec4 shadowmap_coord[maxNumberOfLights];
+#endif
 
 #include "light_calculations.glsl"
 #include "fog.glsl"
@@ -62,8 +66,13 @@ void main() {
 				Lgt.lights[light], originalColor,
 				pos_tangent_space, normal_map, camera_dir,
 				norm_normal, norm_tangent, norm_bitangent,
-					shininess, specular) * 
+					shininess, specular)
+#if USE_SHADOWMAPS
+					* 
 				shadow_coefficient(Lgt.lights[light], position, shadowmap_coord[light]);
+#else
+	;
+#endif
 	}
 
 	ocolor = calculate_fog(accumLighting, camera_direction);

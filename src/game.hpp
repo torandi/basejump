@@ -49,7 +49,7 @@ class Game {
 
 		AABB scene_aabb;
 		Technique::HDR hdr;
-		Technique::DoF dof;
+		//Technique::DoF dof;
 		Shader * shader_normal, *shader_passthru;
 		Sky * sky;
 

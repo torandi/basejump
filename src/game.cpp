@@ -18,6 +18,7 @@
 #include "quad.hpp"
 #include "sound.hpp"
 #include "particle_system.hpp"
+#include "Prng.hpp"
 
 #include "Controller.hpp"
 
@@ -28,8 +29,8 @@
 
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
-	, hdr(resolution, /* exposure = */ 2.5f, /* bright_max = */ 3.6f, /* bloom_amount = */ 1.0f)
-	, dof(resolution, 1, GL_RGBA32F)
+	, hdr(resolution, /* exposure = */ 2.0f, /* bright_max = */ 3.0f, /* bloom_amount = */ 2.0f)
+	//, dof(resolution, 1, GL_RGBA32F)
 	, controller(nullptr)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
@@ -46,7 +47,17 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	Config config = Config::parse("/level.cfg");
 	terrain = new Terrain("/terrain.cfg");
 
-	sky = new Sky("/sky.cfg", 0.5f);
+	char seed[64];
+	for(int i=0; i<64; ++i) {
+		seed[i] = time(0) + i;
+	}
+
+	Prng prng(seed);
+
+	float time = static_cast<float>(prng.random());
+
+	sky = new Sky("/sky.cfg", time);
+	printf("Time of day: %f\n", sky->time());
 
 	std::vector<std::string> texture_paths;
 	for(const ConfigEntry * entry : config["/particles/textures"]->as_list()) {
@@ -61,13 +72,9 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	fog.density = config["/environment/fog/density"]->as_float();
 
 	//TODO: Remove debug hack
-	camera.set_position(glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f-1000));
 
-	glm::vec3 pos = camera.position();
+	glm::vec3 pos = glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f-1000);
 	pos.y = terrain->height_at(pos.x, pos.z) + 2000.f;
-
-	camera.set_position(pos);
-	//camera.look_at(camera.position() + glm::vec3(0.f, 0.f, 1.f));
 
 	Input::movement_speed = 10.f;
 
@@ -152,10 +159,12 @@ void Game::cleanupPhysics()
 
 void Game::render_scene(){
 	Shader::upload_model_matrix(glm::mat4());
-
+	/*
 	lights.lights[0]->render_shadow_map(camera, scene_aabb, [&](const AABB &aabb) -> void  {
 			terrain->render_geometry_cull(camera, aabb);
-	});
+
+			protagonist->draw();
+	});*/
 	Shader::upload_model_matrix(glm::mat4());
 
 
@@ -236,7 +245,7 @@ void Game::update(float t, float dt) {
 
 	//Debug stuff
 //	input.update_object(camera, dt);
-
+	/*
 	//Update hdr
 	if(input.down(Input::ACTION_0)) {
 		hdr.set_exposure(hdr.exposure() - 0.1f);
@@ -257,7 +266,7 @@ void Game::update(float t, float dt) {
 		hdr.set_bright_max(hdr.bright_max() + 0.1f);
 		print_values(hdr);
 	}
-
+	*/
 	if(input.current_value(Input::ACTION_4) > 0.9) {
 		sky->set_time_of_day(sky->time() + (dt / 10.f));
 		sky->configure_light(lights.lights[0]);
@@ -266,7 +275,7 @@ void Game::update(float t, float dt) {
 		sky->set_time_of_day(sky->time() - (dt / 10.f));
 		sky->configure_light(lights.lights[0]);
 	}
-
+	
 	/*if(input.down(Input::ACTION_4)) {
 		hdr.set_bloom_factor(hdr.bloom_factor() - 0.1f);
 		print_values(hdr);

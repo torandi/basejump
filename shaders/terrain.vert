@@ -1,6 +1,8 @@
 #version 330
 #include "uniforms.glsl"
 
+#define USE_SHADOWMAPS 0
+
 layout (location = 0) in vec4 in_position;
 layout (location = 1) in vec2 in_texcoord;
 layout (location = 2) in vec4 in_normal;
@@ -13,7 +15,10 @@ out vec3 normal;
 out vec3 tangent;
 out vec3 bitangent;
 out vec2 texcoord;
+
+#if USE_SHADOWMAPS
 out vec4 shadowmap_coord[maxNumberOfLights];
+#endif
 
 void main() {
 	vec4 w_pos = modelMatrix * in_position;
@@ -23,9 +28,10 @@ void main() {
 	normal = (normalMatrix * in_normal).xyz;
 	tangent = (normalMatrix * in_tangent).xyz;
 	bitangent = (normalMatrix * in_bitangent).xyz;
-
+#if USE_SHADOWMAPS
 	for(int i=0; i < Lgt.num_lights; ++i) {
 		shadowmap_coord[i] = Lgt.lights[i].matrix * w_pos;
 	}
+#endif
 }
 
