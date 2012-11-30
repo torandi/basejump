@@ -27,6 +27,8 @@ class Game {
 
 		void render();
 
+		void start();
+
 	private:
 		btDefaultCollisionConfiguration * collisionConfiguration;
         btCollisionDispatcher * dispatcher;

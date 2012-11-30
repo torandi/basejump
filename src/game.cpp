@@ -79,7 +79,6 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	dynamicsWorld->addRigidBody(protagonist->rigidBody);
 
 	wind_sound = new Sound("/sound/34338__erh__wind.wav",1);
-	wind_sound->play();
 
 	particle_textures = TextureArray::from_filename(texture_paths);
 
@@ -97,6 +96,10 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	controller = new Kinect();
 #endif
 	//TODO: check controller->active() and if false try other controllers
+}
+
+void Game::start() {
+	wind_sound->play();
 }
 
 
