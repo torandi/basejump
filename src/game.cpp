@@ -20,6 +20,7 @@
 #include "particle_system.hpp"
 #include "Prng.hpp"
 #include "utils.hpp"
+#include "logging.hpp"
 
 #include "Controller.hpp"
 
@@ -101,6 +102,7 @@ void Game::setup() {
 	lights.ambient_intensity() = sky->ambient_intensity();
 	sky->configure_light(lights.lights[0]);
 
+	Logging::debug("Sky done\n");
 
 	glm::vec3 pos = glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f);
 	pos.y = terrain->height_at(pos.x, pos.z) + 600.f;
@@ -137,10 +139,10 @@ void Game::initPhysics()
 	solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(0,-9.82f,0));
-
+/*
 	glDebugDrawer = new GLDebugDrawer();
 	glDebugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-	((btSoftRigidDynamicsWorld*) dynamicsWorld)->setDebugDrawer(glDebugDrawer);
+	((btSoftRigidDynamicsWorld*) dynamicsWorld)->setDebugDrawer(glDebugDrawer);*/
 }
 
 
@@ -170,7 +172,7 @@ void Game::cleanupPhysics()
 	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
 	dynamicsWorld->removeRigidBody(terrain->rigidBody);
 	
-	delete glDebugDrawer;
+	//delete glDebugDrawer;
 	delete dynamicsWorld;
 	delete solver;
 	delete collisionConfiguration;
@@ -225,8 +227,8 @@ void Game::render(){
 	render_scene();
 	render_blit();
 
-	glDebugDrawer->drawLine(btVector3(0,0,0), btVector3(1000,1000,1000), btVector3(.5f,1.f,.5f));
-	glDebugDrawer->commit();
+/*	glDebugDrawer->drawLine(btVector3(0,0,0), btVector3(1000,1000,1000), btVector3(.5f,1.f,.5f));
+	glDebugDrawer->commit();*/
 }
 
 void Game::run_particles(float dt) {
