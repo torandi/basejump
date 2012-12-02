@@ -21,9 +21,8 @@ Time::Time(int delta)
 	set_paused(false);
 }
 
-void Time::update(){
-	const long usec = update_delta();
-	move(usec);
+void Time::update(time_t delta){
+	move(delta);
 }
 
 long Time::update_delta(){

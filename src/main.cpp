@@ -248,21 +248,22 @@ static void magic_stuff(){
 		/* calculate dt */
 		const long cur = util_utime();
 		const long delta = cur - t;
-		const long delay = per_frame - delta;
+		t = cur;
+		//const long delay = per_frame - delta;
 
 		poll();
-		global_time.update();
+		global_time.update(delta);
 		update(global_time.dt());
 		render();
 
 		/* move time forward */
-		frames++;
+		/*frames++;
 		t += per_frame;
-
+		*/
 		/* fixed framerate */
-		if ( delay > 0 ){
+		/*if ( delay > 0 ){
 			util_usleep(static_cast<useconds_t>(delay));
-		}
+		}*/
 	}
 }
 

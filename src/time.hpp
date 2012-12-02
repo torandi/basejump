@@ -17,7 +17,7 @@ public:
 	/**
 	 * Move time forward (or backwards if speed is negative)
 	 */
-	void update();
+	void update(time_t delta);
 
 	/**
 	 * Single step time.
