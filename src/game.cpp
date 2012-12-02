@@ -160,6 +160,9 @@ Game::~Game() {
 	if(wind_sound->is_playing())
 		wind_sound->stop();
 	delete wind_sound;
+	if(strong_wind_sound->is_playing())
+		strong_wind_sound->stop();
+	delete strong_wind_sound;
 }
 
 
