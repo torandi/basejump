@@ -13,6 +13,7 @@
 #include "triangle2d.hpp"
 #include "line2d.hpp"
 #include "intersect2d.hpp"
+#include "render_object.hpp"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -20,7 +21,7 @@
 #include <string>
 #include <vector>
 #include <glm/gtx/norm.hpp>
-
+#include <glm/gtc/matrix_transform.hpp>
 
 #define RENDER_DEBUG 0
 
@@ -34,11 +35,30 @@ float Terrain::culling_fov_factor = 1.2f;
 float Terrain::culling_near_padding = 1.f;
 float Terrain::lod_distance[TERRAIN_LOD_LEVELS];
 
+RenderObject * Terrain::tree = nullptr;
+
 Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
 	delete normal_textures_;
 	delete diffuse_textures_;
+
+	
+	submesh_tree->traverse([](QuadTree * qt) -> bool {
+		if(qt->data != nullptr) {
+			SubMesh * mesh = (SubMesh*) qt->data;
+			if(mesh->extra != nullptr) {
+				delete (std::vector<glm::mat4>*) mesh->extra;
+				mesh->extra = nullptr;
+			}
+		};
+		return true;
+	});
+
+	if(tree != nullptr) {
+		delete tree;
+		tree = nullptr;
+	}
 }
 
 Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez") {
@@ -83,6 +103,7 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez") {
 	normal_textures_->texture_unbind();
 
 	shader_ = Shader::create_shader("/shaders/terrain");
+	normal_shader = Shader::create_shader("/shaders/normal");
 	u_texture_selection_[0] = shader_->uniform_location("texture_fade_start");
 	u_texture_selection_[1] = shader_->uniform_location("texture_fade_length");
 
@@ -127,33 +148,6 @@ void Terrain::generate_terrain() {
 	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
 
 	vertices_ = std::vector<Shader::vertex_t>(numVertices);
-
-
-	int filter_offset_x[] = {
-		-1, 0, 1,
-		-1, 0, 1,
-		-1, 0, 1,
-	};
-
-	int filter_offset_y[] = {
-		-1, -1, -1,
-		 0,  0,  0,
-		 1,  1,  1,
-	};
-
-	float filter_kernel[] = {
-		1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f,
-	};
-
-	int filter_size = sizeof(filter_offset_x) / sizeof(int);
-
-	float inverse_filter_sum = 0.f;
-	for(int i=0; i<filter_size; ++i) {
-		inverse_filter_sum += filter_kernel[i];
-	}
-	inverse_filter_sum = 1.f/inverse_filter_sum;
 
 	for(int y=0; y<size_.y; ++y) {
 		for(int x=0; x<size_.x; ++x) {
@@ -293,6 +287,10 @@ void Terrain::generate_terrain() {
 		if(qt->data != nullptr) {
 			SubMesh * m = static_cast<SubMesh*>(qt->data);
 
+			if(qt->level() == 0) {
+				m->extra = new std::vector<glm::mat4>();
+			}
+
 			// find bounds
 			AABB_2D bounds;
 			for(const unsigned int &i : m->indices) {
@@ -361,6 +359,30 @@ void Terrain::generate_terrain() {
 		return true;
 	
 });
+
+	Logging::info("[Terrain] Adding trees\n");
+	tree = new RenderObject("/models/tree1.obj");
+
+	int c = 0;
+	for(int y=0; y<size_.y; ++y) {
+		for(int x=0; x<size_.x; ++x) {
+			if(glm::acos(glm::abs(glm::dot(glm::normalize(normal_at(x, y)), glm::vec3(0.f, 1.f, 0.f)))) < glm::radians(20.f)) {
+				glm::vec2 pos = glm::vec2(static_cast<float>(x) * horizontal_scale_, static_cast<float>(y) * horizontal_scale_);
+				QuadTree * child = submesh_tree->child(pos);
+				if(child != nullptr) {
+					SubMesh * mesh = (SubMesh*) child->data;
+					std::vector<glm::mat4> * trees = static_cast< std::vector<glm::mat4>* > ( mesh->extra );
+					++c;
+					//float scale = frand(0.8, 1.2);
+					glm::mat4 m;
+					//glm::rotate(m, frand(
+					glm::translate(m, glm::vec3(pos.x, height_at(x, y) ,pos.y) );
+					trees->push_back(m);
+				}
+			}
+		}
+	}
+	printf("[Terrain] %d trees added\n", c);
 
 	Logging::info("[Terrain] Ortonormalize tangent space.\n");
 	ortonormalize_tangent_space();
@@ -465,9 +487,7 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 	glLineWidth(2.f);
 	debug_shader->bind();
 #endif
-	//glDisable(GL_CULL_FACE);
-	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
-	//glEnable(GL_CULL_FACE);
+	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, this, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
 }
 
 void Terrain::render_geometry_cull( const Camera &cam, const glm::mat4& m) {
@@ -483,7 +503,7 @@ void Terrain::render_geometry_cull( const Camera &cam, const AABB &aabb, const g
 
 	AABB_2D aabb2d(glm::vec2(aabb.min.x, aabb.min.z), glm::vec2(aabb.max.x, aabb.max.z));
 
-	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
+	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, this, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
 }
 
 Triangle2D Terrain::calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb) {
@@ -505,7 +525,7 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb) 
 	points[0] = glm::vec2(cam.position().x, cam.position().z) - lz * culling_near_padding;
 	points[1] = far_center + lx * half_far_split; 
 	points[2] = far_center - lx * half_far_split; 
-	
+
 	return Triangle2D(
 			points[0],
 			points[1],
@@ -517,10 +537,10 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb) 
 bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D & near_aabb, const AABB_2D &limiting_box, QuadTree * node) {
 	if(intersect2d::aabb_aabb(node->aabb, limiting_box) 
 			&& (
-					intersect2d::aabb_aabb(node->aabb, near_aabb)
-			||	intersect2d::aabb_triangle(node->aabb, cam_tri)
+				intersect2d::aabb_aabb(node->aabb, near_aabb)
+				||	intersect2d::aabb_triangle(node->aabb, cam_tri)
 				)
-			) {
+		) {
 		float d = glm::distance2(node->aabb.middle(), cam_tri.p1);
 		int lod = TERRAIN_LOD_LEVELS - 1;
 		for(int i=0; i< TERRAIN_LOD_LEVELS; ++i) {
@@ -531,7 +551,19 @@ bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D & near_aab
 		}
 
 		if(node->level() <= lod) {
-			if(node->data != nullptr) ( (SubMesh*) node->data )->render_geometry();
+			if(node->data != nullptr) {
+				SubMesh * mesh = (SubMesh*) node->data;
+				mesh->render_geometry();
+				if(mesh->extra != nullptr) {
+					std::vector<glm::mat4> * trees = (std::vector<glm::mat4>*) mesh->extra;
+					for(glm::mat4 & m : *trees) {
+						normal_shader->bind();
+						tree->render(m);
+						prepare_shader();
+						prepare_submesh_rendering();
+					}
+				}
+			}
 			return false;
 		}
 		return true;
