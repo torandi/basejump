@@ -10,12 +10,6 @@
 #include "material.hpp"
 #include "texture.hpp"
 
-#pragma managed(push,off)
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
-#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
-#pragma managed(pop)
-
 #include "PerlinNoise.hpp"
 
 
@@ -26,32 +20,11 @@
 
 class Terrain : public Mesh
 {
-public:
-	btRigidBody * rigidBody;
 private:
 	PerlinNoise perlin;
 
-	btTransform trans_;
-	btMatrix3x3 & rot_;
-	btVector3 & pos_;
-
-	btHeightfieldTerrainShape * shape;
-	btDefaultMotionState * motionState;
-	
-	btCollisionObject * collisionObject;
-
-	float * collision_map_data;
-
 	double H, lacunarity, octaves, offset, gain;
 	double amplitude, density, offsetX, offsetY;
-
-	void init_physics();
-	void cleanup_physics();
-
-	inline int clamp(int x, int min, int max);
-	void update_collision_map(const btVector3 & protagonist_position);
-
-
 
 	float horizontal_scale_;
 	float vertical_scale_;

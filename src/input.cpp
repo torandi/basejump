@@ -250,13 +250,13 @@ void Input::update_object(Protagonist & protagonist, float dt)
 		1+2*std::min(.0f, normalized_axis_value(2)));
 #else
 	protagonist.lWing.normal(
-		-normalized_axis_value(0),
-		-normalized_axis_value(1),
+		normalized_axis_value(0),
+		normalized_axis_value(1),
 		1.f - normalized_axis_value(5));
 
 	protagonist.rWing.normal(
-		-normalized_axis_value(3),
-		-normalized_axis_value(4),
+		normalized_axis_value(3),
+		normalized_axis_value(4),
 		1.f - normalized_axis_value(2));
 #endif
 }

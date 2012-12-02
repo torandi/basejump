@@ -39,21 +39,9 @@ Terrain::~Terrain() {
 		delete map_;
 	delete normal_textures_;
 	delete diffuse_textures_;
-
-	cleanup_physics();
 }
 
-
-void Terrain::cleanup_physics()
-{
-	//delete[] collision_map_data;
-	delete rigidBody->getMotionState();
-	delete rigidBody;
-	delete shape;
-}
-
-
-Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez"), rot_(trans_.getBasis()), pos_(trans_.getOrigin()) {
+Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez") {
 	Config config = Config::parse(file);
 	size_ = config["/size"]->as_vec2();
 	horizontal_scale_ = config["/horizontal_scale"]->as_float();
@@ -102,7 +90,6 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez"), r
 	u_material_specular_ = shader_->uniform_location("material_specular");
 
 	generate_terrain();
-	init_physics();
 
 #if RENDER_DEBUG
 	debug_shader = Shader::create_shader("/shaders/debug");
@@ -385,108 +372,6 @@ void Terrain::generate_terrain() {
 }
 
 
-void Terrain::init_physics()
-{
-	AABB aabb_ = aabb();
-
-	// collision map values
-	// bullet centers height around zero, so find max height diff from 0 and use as pos/neg height extremes
-	static const btScalar max_height = std::max(abs(aabb_.min.y), abs(aabb_.max.y));
-	static const btScalar min_height = -max_height;
-	static const btScalar grid_height_scale = 1.f;
-	static const int up_axis = 1;// 1 == y axis
-	static const int size = 32;
-	static const int overlap = 4;
-	static const int oversize = size + overlap * 2;
-	static const PHY_ScalarType phy_scalar_type = PHY_FLOAT;
-	static const bool flip_quad_edges = false;
-
-	//collision_map_data = new float[oversize * oversize];
-
-	shape = new btHeightfieldTerrainShape(
-		size_.x, size_.y, map_, grid_height_scale,
-		min_height, max_height, up_axis,
-		phy_scalar_type, flip_quad_edges);
-
-	//shape = new btHeightfieldTerrainShape(
-	//	size, size, collision_map_data, grid_height_scale,
-	//	min_height, max_height, up_axis,
-	//	phy_scalar_type, flip_quad_edges);
-
-	// scale the shape
-	btVector3 localScaling = btVector3(horizontal_scale_, vertical_scale_, horizontal_scale_);
-	shape->setLocalScaling(localScaling);
-
-	// set origin to middle of heightfield
-	trans_.setIdentity();
-	glm::vec3 pos_ = position();
-	trans_.setOrigin(btVector3(pos_.x, pos_.y, pos_.z));
-
-	btVector3 inertia_(.0f, .0f, .0f);
-	motionState = new btDefaultMotionState(trans_);
-	btRigidBody::btRigidBodyConstructionInfo cInfo(0.f, motionState, shape, inertia_);
-	rigidBody = new btRigidBody(cInfo);
-}
-
-
-inline int Terrain::clamp(int x, int min, int max) {
-	return x < min ? min : x > max ? max : x;
-}
-
-
-void Terrain::update_collision_map(const btVector3 & protagonist_position)
-{
-	//// map center is 0,0,0
-	//// transform protagonist position to collision_map_data array coordinates
-	//int _x = protagonist_position.x() / horizontal_scale_ + HALF_SIZE_X;
-	//int _y = protagonist_position.z() / horizontal_scale_ + HALF_SIZE_Y;
-
-	//if (_x != x || _y != y)
-	//{
-	//x = _x;
-	//y = _y;
-	//std::cout << x << "::" << y << std::endl;
-	//}
-
-	//// calc collision map top-left corner coordinates
-	//int cm_x = x / collision_map.SIZE * collision_map.SIZE;
-	//int cm_y = y / collision_map.SIZE * collision_map.SIZE;
-
-	//cm_x = clamp(cm_x, collision_map.OVERLAP, SIZE_X - collision_map.SIZE - collision_map.OVERLAP);
-	//cm_y = clamp(cm_y, collision_map.OVERLAP, SIZE_Y - collision_map.SIZE - collision_map.OVERLAP);
-
-	//// early exit if still same chunk
-	//if(cm_x == collision_map.x && cm_y == collision_map.y)
-	//// if (x > collision_map.x+1 && x < collision_map.x+collision_map.SIZE-1 && y > collision_map.y+1 && y < collision_map.y+collision_map.SIZE-1)
-	//return;
-
-	//// std::cout << (y > collision_map.y+1) << "::" << (y < collision_map.y+collision_map.SIZE-1) << "::" << collision_map.x+collision_map.SIZE << "::" << cm_y << std::endl;
-
-	//// early exit if protagonist is outside map
-	//if(x < 0 || x > SIZE_X ||
-	//y < 0 || y > SIZE_Y)
-	//return;
-
-	//// update collision map
-
-	//collision_map.x = cm_x;
-	//collision_map.y = cm_y;
-
-	//std::cout << "CHUNK: " << cm_x << "::" << cm_y << std::endl;
-
-	//for (int y_=0; y_<collision_map.OVERSIZE; ++y_)
-	//for (int x_=0; x_<collision_map.OVERSIZE; ++x_)
-	//collision_map.data[y_*collision_map.OVERSIZE + x_] = heightfieldData[(cm_y-collision_map.OVERLAP+y_)*SIZE_X + cm_x-collision_map.OVERLAP+x_];
-
-	//trans.setOrigin(btVector3(
-	//(cm_x-collision_map.OVERLAP+collision_map.OVERSIZE/2-HALF_SIZE_X)*GRID_SPACING,
-	//HEIGHT,
-	//(cm_y-collision_map.OVERLAP+collision_map.OVERSIZE/2-HALF_SIZE_Y)*GRID_SPACING
-	//));
-	//rigidBody->setWorldTransform(trans);
-}
-
-
 float Terrain::height_from_color(const glm::vec4 &color) const {
 	return color.r + color.g;
 }
@@ -496,11 +381,13 @@ float Terrain::height_at(int x, int y) const {
 }
 
 float Terrain::height_at(float x_, float y_) const {
-	printf("%f, %f\n", x_, y_);
 	int x = (int) (x_/horizontal_scale_);
 	int y = (int) (y_/horizontal_scale_);
+	
 	if(x > size_.x || x < 0 || y > size_.y || y_ < 0)
 		return 0.f;
+	return height_at(x, y);
+	/*
 	float dx = (x_/horizontal_scale_) - (float)x;
 	float dy = (y_/horizontal_scale_) - (float)y;
 	float height=0;
@@ -509,6 +396,7 @@ float Terrain::height_at(float x_, float y_) const {
 	height += (1.f-dx) * dy * height_at((y+1),x);
 	height += dx * dy * height_at((y+1), (x+1));
 	return height;
+	*/
 }
 
 const glm::vec3 &Terrain::normal_at(int x, int y) const {

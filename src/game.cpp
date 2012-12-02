@@ -22,8 +22,11 @@
 #include "utils.hpp"
 #include "logging.hpp"
 
+#include "debug_mesh.hpp"
+
 #include "Controller.hpp"
 
+static DebugMesh * debug;
 
 #ifdef WIN32
 #include "Kinect.hpp"
@@ -48,6 +51,15 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	Config config = Config::parse("/level.cfg");
 	terrain = new Terrain("/terrain.cfg");
+
+	debug = new DebugMesh(GL_POINTS);
+	static unsigned int indices[16*16];
+	for(int y=0; y<16; ++y) {
+		for(int x=0;x<16; ++x) {
+			indices[y*16 + x ] = y*16 + x;
+		}
+	}
+	debug->set_indices(indices, 16*16);
 
 	std::vector<std::string> texture_paths;
 	for(const ConfigEntry * entry : config["/particles/textures"]->as_list()) {
@@ -90,26 +102,24 @@ Game::Game(const std::string &level, float near, float far, float fov)
 void Game::setup() {
 	char seed[16];
 	for(int i=0; i<16; ++i) {
-		seed[i] = time(0) * frand() + i;
+		seed[i] = static_cast<char>(static_cast<float>(time(0)) * frand()) % 256 + i;
 	}
 
 	Prng prng(seed);
 
-	float time = static_cast<float>(prng.random());
+	float time = 0.1f + static_cast<float>(prng.random()) * 0.8f;
 
 	sky = new Sky("/sky.cfg", time);
 
 	lights.ambient_intensity() = sky->ambient_intensity();
 	sky->configure_light(lights.lights[0]);
 
-	Logging::debug("Sky done\n");
-
 	glm::vec3 pos = glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f);
 	pos.y = terrain->height_at(pos.x, pos.z) + 600.f;
 
 	protagonist = new Protagonist(pos);
 	dynamicsWorld->addRigidBody(protagonist->rigidBody);
-	dynamicsWorld->addRigidBody(terrain->rigidBody);
+	protagonist->syncTransform(&camera);
 }
 
 void Game::start() {
@@ -170,7 +180,6 @@ Game::~Game() {
 void Game::cleanupPhysics()
 {
 	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
-	dynamicsWorld->removeRigidBody(terrain->rigidBody);
 	
 	//delete glDebugDrawer;
 	delete dynamicsWorld;
@@ -206,7 +215,11 @@ void Game::render_scene(){
 
 			//protagonist->draw();
 
-			particles->render();
+//			glPointSize(2.f);
+
+//			debug->render();
+
+			//particles->render();
 	});
 }
 
@@ -250,9 +263,29 @@ void Game::run_particles(float dt) {
 void Game::update(float t, float dt) {
 	/* Update game logic */
 
-	dynamicsWorld->stepSimulation(dt, 30, 1/300.f);
+	dynamicsWorld->stepSimulation(dt, 30, 1.f/300.f);
 	protagonist->update();
 
+	glm::vec3 body_pos = protagonist->position();
+
+	if(terrain->height_at(body_pos.x, body_pos.z) > body_pos.y) {
+		restart();
+	}
+/*
+	std::vector<DebugMesh::vertex_t> vertices;
+	DebugMesh::vertex_t v;
+	v.color = glm::vec4(1.f, 0, 0, 1.f);
+	for(int y=0; y<16; ++y) {
+		for(int x=0; x < 16; ++x) {
+			v.pos.x = 4.f * (x - 8) + body_pos.x;
+			v.pos.z = 4.f * (y - 8) + body_pos.z;
+			v.pos.y = terrain->height_at(v.pos.x, v.pos.z);
+			vertices.push_back(v);
+		}
+	}
+
+	debug->set_vertices(vertices);
+*/
 	camera.set_matrix(protagonist->matrix());
 
 	run_particles(dt);
