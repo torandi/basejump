@@ -116,6 +116,7 @@ void Game::setup() {
 	sky->configure_light(lights.lights[0]);
 
 	glm::vec3 pos = glm::vec3(terrain->horizontal_size()/2.f, 32.f, terrain->horizontal_size()/2.f);
+	pos = glm::vec3(0.f);
 	pos.y = terrain->height_at(pos.x, pos.z) + 600.f;
 
 	protagonist = new Protagonist(pos);

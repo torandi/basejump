@@ -13,12 +13,14 @@
 #include "triangle2d.hpp"
 #include "line2d.hpp"
 #include "intersect2d.hpp"
+#include "threading.hpp"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include <functional>
 #include <glm/gtx/norm.hpp>
 
 
@@ -121,48 +123,14 @@ unsigned int Terrain::extra_vertex(std::map<glm::vec2, unsigned int, bool(*)(con
 	}
 }
 
-void Terrain::generate_terrain() {
-	unsigned long numVertices = size_.x*size_.y;
-
-	map_ = new float[numVertices];
-
-	Logging::verbose("Generating terrain...\n"
-	                 "  - World size: %dx%d\n"
-	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
-
-	vertices_ = std::vector<Shader::vertex_t>(numVertices);
-
-
-	int filter_offset_x[] = {
-		-1, 0, 1,
-		-1, 0, 1,
-		-1, 0, 1,
-	};
-
-	int filter_offset_y[] = {
-		-1, -1, -1,
-		 0,  0,  0,
-		 1,  1,  1,
-	};
-
-	float filter_kernel[] = {
-		1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f,
-	};
-
-	int filter_size = sizeof(filter_offset_x) / sizeof(int);
-
-	float inverse_filter_sum = 0.f;
-	for(int i=0; i<filter_size; ++i) {
-		inverse_filter_sum += filter_kernel[i];
-	}
-	inverse_filter_sum = 1.f/inverse_filter_sum;
-
-	for(int y=0; y<size_.y; ++y) {
+unsigned int Terrain::generate_vertices(void * data) {
+	thread_data_t * d = (thread_data_t*) data;
+	Shader::vertex_t * tmp_vertices = d->tmp_vertices;
+	printf("%d: %d, %d\n", d->id, d->start, d->end);
+	for(int y=d->start ; y < d->end ; ++y) {
 		for(int x=0; x<size_.x; ++x) {
 			Shader::vertex_t v;
-			int i = y * size_.x + x;
+			int i = y * size_.x + x - d->start * size_.x;
 
 			float x_ = 0.f;
 			float y_ = 0.f;
@@ -172,24 +140,6 @@ void Terrain::generate_terrain() {
 			float half_size_x = size_.x / 2.f;
 			float half_size_y = size_.y / 2.f;
 
-			// get inverse distance from center of world in range [0,1]
-			//float x_ = 1 - (float) abs(size_.x / 2 - x) / (size_.x / 2);
-			//float y_ = 1 - (float) abs(size_.y / 2 - y) / (size_.y / 2);
-
-
-			// previous huge pointy cone
-			//int c_x = 300;
-			//int c_y = 300;
-   //         x_ = 0;
-   //         y_ = 0;
-   //         if(x > half_size_x-c_x && x < half_size_x+c_x &&
-   //            y > half_size_y-c_y && y < half_size_y+c_y){
-   //             x_ = 1 - (x + c_x - half_size_x) / c_x;
-			//	y_ = 1 - (y + c_y - half_size_y) / c_y;
-   //         }
-
-
-			// huge pointy cone
 			x_ = (x - half_size_x) / half_size_x;
 			y_ = (y - half_size_y) / half_size_y;
 			r_ = std::max(0.f, 1.f - sqrtf(x_*x_ + y_*y_));
@@ -222,10 +172,50 @@ void Terrain::generate_terrain() {
 
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
 			v.uv = CALC_UV(x,y);
-			vertices_[i] = v;
+			tmp_vertices[i] = v;
 			map_[i] =  h*vertical_scale_;
 		}
 	}
+	return 0;
+}
+
+void Terrain::generate_terrain() {
+	unsigned long numVertices = size_.x*size_.y;
+
+	map_ = new float[numVertices];
+
+	Logging::verbose("Generating terrain...\n"
+	                 "  - World size: %dx%d\n"
+	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
+
+	int num_threads = Threading::num_cores();
+	
+	
+	std::vector<Threading::thread_t*> threads;
+	thread_data_t * thread_data = new thread_data_t[num_threads];
+
+	int partition = size_.y / num_threads;
+	for(int i=0; i<num_threads - 1; ++i) {
+		int num_local_vertices = size_.x * partition;
+		thread_data_t td = { new Shader::vertex_t[num_local_vertices], i * partition, (i + 1) * partition, num_local_vertices, i };
+		thread_data[i] = td;
+		threads.push_back(Threading::create(std::bind(&Terrain::generate_vertices, this, std::placeholders::_1), thread_data + i));
+	}
+	int num_local_vertices = size_.x * (size_.y - (num_threads - 1) * partition);
+	thread_data_t td = { new Shader::vertex_t[num_local_vertices],(num_threads - 1) * partition, size_.y, num_local_vertices , num_threads };
+	thread_data[num_threads - 1] = td;
+	threads.push_back(Threading::create(std::bind(&Terrain::generate_vertices, this, std::placeholders::_1),thread_data + num_threads - 1));
+
+	vertices_ = std::vector<Shader::vertex_t>();
+
+	for(int i = 0; i< num_threads; ++i) {
+		Threading::join(threads[i]);
+		vertices_.insert(vertices_.end(), thread_data[i].tmp_vertices,  thread_data[i].tmp_vertices + thread_data[i].num_vertices);
+		delete thread_data[i].tmp_vertices;
+	}
+
+	delete thread_data;
+
 	unsigned long indexCount[TERRAIN_LOD_LEVELS];
 	indexCount[0] = (size_.y - 1 ) * (size_.x -1) * 6;
 

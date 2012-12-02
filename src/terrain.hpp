@@ -67,6 +67,16 @@ private:
 
 	float lod_base_step;
 
+	struct thread_data_t {
+		Shader::vertex_t * tmp_vertices;
+		int start;
+		int end;
+		int num_vertices;
+		int id;
+	};
+
+	unsigned int generate_vertices(void * data);
+
 	public:
 
 

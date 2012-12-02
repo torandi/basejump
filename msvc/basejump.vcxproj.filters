@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\src\basejump.cpp" />
+    <ClCompile Include="..\src\Controller.cpp" />
+    <ClCompile Include="..\src\game.cpp" />
+    <ClCompile Include="..\src\GLDebugDrawer.cpp" />
+    <ClCompile Include="..\src\Kinect.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Protagonist.cpp" />
+    <ClCompile Include="..\src\XboxController.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\platform.hpp" />
+    <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\crt.hpp" />
+    <ClInclude Include="..\src\Controller.hpp" />
+    <ClInclude Include="..\src\game.hpp" />
+    <ClInclude Include="..\src\GLDebugDrawer.hpp" />
+    <ClInclude Include="..\src\Kinect.hpp" />
+    <ClInclude Include="..\src\Protagonist.hpp" />
+    <ClInclude Include="..\src\XboxController.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\basejump\levels\default\level.cfg" />
+    <None Include="..\basejump\levels\default\terrain.cfg" />
+  </ItemGroup>
+</Project>
