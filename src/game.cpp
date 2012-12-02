@@ -30,7 +30,7 @@
 
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
-	, hdr(resolution, /* exposure = */ 2.0f, /* bright_max = */ 3.6f, /* bloom_amount = */ 2.0f)
+	, hdr(resolution, /* exposure = */ 1.8f, /* bright_max = */ 5.0f, /* bloom_amount = */ 2.0f)
 	//, dof(resolution, 1, GL_RGBA32F)
 	, controller(nullptr)
 {
