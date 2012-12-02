@@ -22,11 +22,7 @@
 #include "utils.hpp"
 #include "logging.hpp"
 
-#include "debug_mesh.hpp"
-
 #include "Controller.hpp"
-
-static DebugMesh * debug;
 
 #ifdef WIN32
 #include "Kinect.hpp"
@@ -51,15 +47,6 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	Config config = Config::parse("/level.cfg");
 	terrain = new Terrain("/terrain.cfg");
-
-	debug = new DebugMesh(GL_POINTS);
-	static unsigned int indices[16*16];
-	for(int y=0; y<16; ++y) {
-		for(int x=0;x<16; ++x) {
-			indices[y*16 + x ] = y*16 + x;
-		}
-	}
-	debug->set_indices(indices, 16*16);
 
 	std::vector<std::string> texture_paths;
 	for(const ConfigEntry * entry : config["/particles/textures"]->as_list()) {
@@ -149,10 +136,6 @@ void Game::initPhysics()
 	solver = new btSequentialImpulseConstraintSolver();
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(0,-9.82f,0));
-/*
-	glDebugDrawer = new GLDebugDrawer();
-	glDebugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-	((btSoftRigidDynamicsWorld*) dynamicsWorld)->setDebugDrawer(glDebugDrawer);*/
 }
 
 
@@ -181,7 +164,6 @@ void Game::cleanupPhysics()
 {
 	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
 	
-	//delete glDebugDrawer;
 	delete dynamicsWorld;
 	delete solver;
 	delete collisionConfiguration;
@@ -215,11 +197,7 @@ void Game::render_scene(){
 
 			//protagonist->draw();
 
-//			glPointSize(2.f);
-
-//			debug->render();
-
-			//particles->render();
+			particles->render();
 	});
 }
 
@@ -239,9 +217,6 @@ void Game::render_blit(){
 void Game::render(){
 	render_scene();
 	render_blit();
-
-/*	glDebugDrawer->drawLine(btVector3(0,0,0), btVector3(1000,1000,1000), btVector3(.5f,1.f,.5f));
-	glDebugDrawer->commit();*/
 }
 
 void Game::run_particles(float dt) {
@@ -271,21 +246,7 @@ void Game::update(float t, float dt) {
 	if(terrain->height_at(body_pos.x, body_pos.z) > body_pos.y) {
 		restart();
 	}
-/*
-	std::vector<DebugMesh::vertex_t> vertices;
-	DebugMesh::vertex_t v;
-	v.color = glm::vec4(1.f, 0, 0, 1.f);
-	for(int y=0; y<16; ++y) {
-		for(int x=0; x < 16; ++x) {
-			v.pos.x = 4.f * (x - 8) + body_pos.x;
-			v.pos.z = 4.f * (y - 8) + body_pos.z;
-			v.pos.y = terrain->height_at(v.pos.x, v.pos.z);
-			vertices.push_back(v);
-		}
-	}
 
-	debug->set_vertices(vertices);
-*/
 	camera.set_matrix(protagonist->matrix());
 
 	run_particles(dt);
