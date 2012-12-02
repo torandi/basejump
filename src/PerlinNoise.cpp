@@ -200,7 +200,8 @@ double PerlinNoise::ridgedMultifractalNoise(double x, double y, double H, double
 		frequency *= lacunarity;
 	}
 	
-	result = calculateSignal(x, y, offset); // assign initial values
+	signal = calculateSignal(x, y, offset); // assign initial values
+	result = signal;
 	
 	for(int i=1; i<octaves; ++i)
 	{
