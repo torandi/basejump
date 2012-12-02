@@ -4,7 +4,7 @@
 #include "aabb.hpp"
 #include "lights_data.hpp"
 #include "techniques/hdr.hpp"
-#include "techniques/dof.hpp"
+#include "techniques/temporalblur.hpp"
 
 #include <string>
 
@@ -58,7 +58,7 @@ class Game {
 
 		AABB scene_aabb;
 		Technique::HDR hdr;
-		//Technique::DoF dof;
+		Technique::TemporalBlur temporal;
 		Shader * shader_normal, *shader_passthru;
 		Sky * sky;
 

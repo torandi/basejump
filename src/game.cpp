@@ -31,7 +31,7 @@
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
 	, hdr(resolution, /* exposure = */ 1.8f, /* bright_max = */ 5.0f, /* bloom_amount = */ 2.0f)
-	//, dof(resolution, 1, GL_RGBA32F)
+	, temporal(resolution, 0.2)
 	, controller(nullptr)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
@@ -46,6 +46,9 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	Data::add_search_path(base_dir);
 
 	Config config = Config::parse("/level.cfg");
+
+	temporal.set_factor(config["/environment/temporal_amount"]->as_float());
+
 	terrain = new Terrain("/terrain.cfg");
 
 	std::vector<std::string> texture_paths;
@@ -216,9 +219,11 @@ void Game::render_blit(){
 
 	hdr.render(scene);
 
+	temporal.render(&hdr);
+
 
 	RenderTarget::clear(Color::magenta);
-	hdr.draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));
+	temporal.draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));
 }
 
 void Game::render(){
