@@ -27,6 +27,8 @@ class SubMesh {
 		virtual void render();
 		virtual void render_geometry();
 
+		void * extra; //for inheriting classes of mesh to use
+
 	protected:
 		void generate_normals();
 		void generate_tangents_and_bitangents();

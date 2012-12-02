@@ -63,9 +63,15 @@ Mesh::~Mesh() {
 	}
 }
 
-SubMesh::SubMesh(Mesh &mesh) : parent(mesh) { }
+SubMesh::SubMesh(Mesh &mesh)
+	: extra(nullptr)
+	, parent(mesh) { }
 
-SubMesh::~SubMesh() { }
+SubMesh::~SubMesh() {
+	if(extra != nullptr) {
+		Logging::warning("Warning! SubMesh was destroyed with extra not null!\n");
+	}
+}
 
 void Mesh::add_vertices(const std::vector<Shader::vertex_t> &vertices) {
    verify_immutable("set_vertices");
