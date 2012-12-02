@@ -76,6 +76,7 @@ class Game {
 		float particle_keep_far;
 
 		Sound* wind_sound;
+		Sound* strong_wind_sound;
 
 		enum {
 			STATE_MENU,

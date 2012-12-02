@@ -63,7 +63,9 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	initPhysics();
 
-	wind_sound = new Sound("/sound/34338__erh__wind.wav",1);
+	wind_sound = new Sound("/sound/wind_medium.mp3",2);
+	strong_wind_sound = new Sound("/sound/wind_strong.mp3",18);
+	strong_wind_sound->set_volume(0);
 
 	particle_textures = TextureArray::from_filename(texture_paths);
 
@@ -111,6 +113,7 @@ void Game::setup() {
 
 void Game::start() {
 	wind_sound->play();
+	strong_wind_sound->play();
 }
 
 void Game::restart() {
@@ -271,6 +274,14 @@ void Game::update(float t, float dt) {
 		restart();
 	}
 	
+	//Update sound
+
+	//Set volume of strong_wind 
+	float v = 30/(protagonist->position().y - terrain->height_at(protagonist->position().x, protagonist->position().z));
+	if(v > 1){
+		v = 1;
+	}
+	strong_wind_sound->set_volume(v);
 	
 	/*if(input.down(Input::ACTION_4)) {
 		hdr.set_bloom_factor(hdr.bloom_factor() - 0.1f);

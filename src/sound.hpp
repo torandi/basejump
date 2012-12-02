@@ -46,6 +46,8 @@ class Sound {
 		 */
 		void seek(double t);
 
+		void set_volume(float v);
+
 	private:
 		static FMOD::System * system_;
 		static unsigned int system_usage_; //usage count
