@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 #include <glm/gtx/norm.hpp>
+
+#include <glm/gtc/matrix_access.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define RENDER_DEBUG 0
@@ -35,8 +37,6 @@ float Terrain::culling_fov_factor = 1.2f;
 float Terrain::culling_near_padding = 1.f;
 float Terrain::lod_distance[TERRAIN_LOD_LEVELS];
 
-RenderObject * Terrain::tree = nullptr;
-
 Terrain::~Terrain() {
 	if(map_ != NULL)
 		delete map_;
@@ -48,7 +48,7 @@ Terrain::~Terrain() {
 		if(qt->data != nullptr) {
 			SubMesh * mesh = (SubMesh*) qt->data;
 			if(mesh->extra != nullptr) {
-				delete (std::vector<glm::mat4>*) mesh->extra;
+				delete (std::vector<tree_t>*) mesh->extra;
 				mesh->extra = nullptr;
 			}
 		};
@@ -288,7 +288,7 @@ void Terrain::generate_terrain() {
 			SubMesh * m = static_cast<SubMesh*>(qt->data);
 
 			if(qt->level() == 0) {
-				m->extra = new std::vector<glm::mat4>();
+				m->extra = new std::vector<tree_t>();
 			}
 
 			// find bounds
@@ -361,23 +361,26 @@ void Terrain::generate_terrain() {
 });
 
 	Logging::info("[Terrain] Adding trees\n");
-	tree = new RenderObject("/models/tree1.obj");
+	tree = new RenderObject("/models/lyktstolpe2.obj");
+	tree->set_position(glm::vec3(0.f, 0.f, 0.f));
+	tree->set_scale(50.f);
 
 	int c = 0;
-	for(int y=0; y<size_.y; ++y) {
-		for(int x=0; x<size_.x; ++x) {
-			if(glm::acos(glm::abs(glm::dot(glm::normalize(normal_at(x, y)), glm::vec3(0.f, 1.f, 0.f)))) < glm::radians(20.f)) {
+	for(int y=0; y<size_.y; y+=10) {
+		for(int x=0; x<size_.x; x+=10) {
+			if(glm::acos(glm::abs(glm::dot(glm::normalize(normal_at(x, y)), glm::vec3(0.f, 1.f, 0.f)))) < glm::radians(20.f) && frand() > 0.9f) {
 				glm::vec2 pos = glm::vec2(static_cast<float>(x) * horizontal_scale_, static_cast<float>(y) * horizontal_scale_);
 				QuadTree * child = submesh_tree->child(pos);
 				if(child != nullptr) {
 					SubMesh * mesh = (SubMesh*) child->data;
-					std::vector<glm::mat4> * trees = static_cast< std::vector<glm::mat4>* > ( mesh->extra );
+					std::vector<tree_t> * trees = static_cast< std::vector<tree_t>* > ( mesh->extra );
 					++c;
 					//float scale = frand(0.8, 1.2);
-					glm::mat4 m;
+					tree_t t;
 					//glm::rotate(m, frand(
-					glm::translate(m, glm::vec3(pos.x, height_at(x, y) ,pos.y) );
-					trees->push_back(m);
+					t.pos =  glm::vec3(pos.x, height_at(x, y) ,pos.y);
+					t.m = glm::translate(t.m, t.pos);
+					trees->push_back(t);
 				}
 			}
 		}
@@ -487,7 +490,9 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 	glLineWidth(2.f);
 	debug_shader->bind();
 #endif
-	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, this, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
+	submesh_tree->traverse([&](QuadTree * tree) -> bool {
+		return cull_or_render(cam.position(),cam_tri, near_aabb, aabb2d, false, tree);
+	});
 }
 
 void Terrain::render_geometry_cull( const Camera &cam, const glm::mat4& m) {
@@ -503,7 +508,9 @@ void Terrain::render_geometry_cull( const Camera &cam, const AABB &aabb, const g
 
 	AABB_2D aabb2d(glm::vec2(aabb.min.x, aabb.min.z), glm::vec2(aabb.max.x, aabb.max.z));
 
-	submesh_tree->traverse(std::bind(&Terrain::cull_or_render, this, cam_tri, near_aabb, aabb2d, std::placeholders::_1));
+	submesh_tree->traverse([&](QuadTree * tree) -> bool {
+		return cull_or_render(cam.position(), cam_tri, near_aabb, aabb2d, true, tree);
+	});
 }
 
 Triangle2D Terrain::calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb) {
@@ -534,7 +541,7 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb) 
 
 }
 
-bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D & near_aabb, const AABB_2D &limiting_box, QuadTree * node) {
+bool Terrain::cull_or_render(const glm::vec3 &camera_pos, const Triangle2D &cam_tri, const AABB_2D & near_aabb, const AABB_2D &limiting_box, bool geometry_only, QuadTree * node) {
 	if(intersect2d::aabb_aabb(node->aabb, limiting_box) 
 			&& (
 				intersect2d::aabb_aabb(node->aabb, near_aabb)
@@ -555,13 +562,17 @@ bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D & near_aab
 				SubMesh * mesh = (SubMesh*) node->data;
 				mesh->render_geometry();
 				if(mesh->extra != nullptr) {
-					std::vector<glm::mat4> * trees = (std::vector<glm::mat4>*) mesh->extra;
-					for(glm::mat4 & m : *trees) {
-						normal_shader->bind();
-						tree->render(m);
-						prepare_shader();
-						prepare_submesh_rendering();
+					std::vector<tree_t> * trees = (std::vector<tree_t>*) mesh->extra;
+					if(!geometry_only) normal_shader->bind();
+					for(tree_t & t : *trees) {
+						if(glm::distance(t.pos, camera_pos) < 1000.f) {
+							tree->render(t.m);
+						}
 					}
+					if(!geometry_only) {
+						prepare_shader();
+					}
+					prepare_submesh_rendering();
 				}
 			}
 			return false;

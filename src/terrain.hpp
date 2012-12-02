@@ -22,10 +22,14 @@ class Terrain : public Mesh
 {
 private:
 	PerlinNoise perlin;
-	static RenderObject * tree;
 
 	double H, lacunarity, octaves, offset, gain;
 	double amplitude, density, offsetX, offsetY;
+
+	struct tree_t {
+		glm::mat4 m;
+		glm::vec3 pos;
+	};
 
 	float horizontal_scale_;
 	float vertical_scale_;
@@ -54,7 +58,7 @@ private:
 
 	const glm::ivec2& heightmap_size() const;
 
-	bool cull_or_render(const Triangle2D &cam_tri, const AABB_2D &near_aabb, const AABB_2D &limiting_box, QuadTree * node);
+	bool cull_or_render(const glm::vec3 &camera_pos,const Triangle2D &cam_tri, const AABB_2D &near_aabb, const AABB_2D &limiting_box, bool geometry_only, QuadTree * node);
 
 	/**
 	 * Calculates camera 2d triangle approximation, and fills near_aabb aabb for near
@@ -68,6 +72,7 @@ private:
 	float lod_base_step;
 
 	public:
+		RenderObject * tree;
 
 
 		float vertical_scale() { return vertical_scale_; };
