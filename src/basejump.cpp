@@ -24,9 +24,7 @@ namespace Engine {
 			);
 	}
 
-	void start(double seek) {
-		game->start();
-	}
+	void start(double seek) {	}
 
 	void cleanup(){
 		delete game;

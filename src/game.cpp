@@ -28,6 +28,8 @@
 #include "Kinect.hpp"
 #endif
 
+static Quad * fullscreen_quad;
+
 Game::Game(const std::string &level, float near, float far, float fov)
 	: camera(fov, (float)resolution.x/(float)resolution.y, near, far)
 	, hdr(resolution, /* exposure = */ 1.8f, /* bright_max = */ 5.0f, /* bloom_amount = */ 2.0f)
@@ -35,10 +37,15 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	, controller(nullptr)
 {
 	scene = new RenderTarget(resolution, GL_RGBA32F, RenderTarget::DEPTH_BUFFER);
-	//shader_normal = Shader::create_shader("/shaders/normal");
+	shader_blood = Shader::create_shader("/shaders/blood");
 	shader_passthru = Shader::create_shader("/shaders/passthru");
 
+	u_dead_step = shader_blood->uniform_location("step");
+
 	printf("Loading level %s\n", level.c_str());
+
+	fullscreen_quad = new Quad(glm::vec2(1.f, -1.f), false);
+	fullscreen_quad->set_scale(glm::vec3(resolution, 1));
 
 	std::string base_dir = std::string(srcdir) + "/basejump/levels/" + level;
 
@@ -46,6 +53,12 @@ Game::Game(const std::string &level, float near, float far, float fov)
 	Data::add_search_path(base_dir);
 
 	Config config = Config::parse("/level.cfg");
+
+	blood = Texture2D::from_filename("/blood.jpg");
+	menu = Texture2D::from_filename("/menu.jpg");
+
+	dead_time = config["/dead_time"]->as_float();
+	dead_time_left = 0.f;
 
 	temporal.set_factor(config["/environment/temporal_amount"]->as_float());
 
@@ -88,7 +101,7 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	setup();
 
-	state = STATE_GAME;
+	state = STATE_MENU;
 }
 
 void Game::setup() {
@@ -117,6 +130,7 @@ void Game::setup() {
 void Game::start() {
 	wind_sound->play();
 	strong_wind_sound->play();
+	state = STATE_GAME;
 }
 
 void Game::restart() {
@@ -132,6 +146,14 @@ void Game::restart() {
 
 	setup();
 	start();
+}
+
+void Game::die() {
+	state = STATE_DEAD;
+	dead_time_left = dead_time;
+	//TODO: Death sound
+	wind_sound->stop();
+	strong_wind_sound->stop();
 }
 
 void Game::initPhysics()
@@ -215,19 +237,31 @@ void Game::render_blit(){
 	Shader::upload_projection_view_matrices(screen_ortho, glm::mat4());
 	Shader::upload_model_matrix(glm::mat4());
 
-	//dof.render(scene);
-
-	hdr.render(scene);
-
-	temporal.render(&hdr);
-
+	if(state != STATE_MENU) {
+		hdr.render(scene);
+		temporal.render(&hdr);
+	}
 
 	RenderTarget::clear(Color::magenta);
-	temporal.draw(shader_passthru, glm::vec2(0,0), glm::vec2(resolution));
+	Shader * s = shader_passthru;
+	switch(state) {
+		case STATE_DEAD:
+			s = shader_blood;
+			blood->texture_bind(Shader::TEXTURE_2D_1);
+			shader_blood->uniform_upload(u_dead_step, 1.f - (dead_time_left / dead_time));
+		case STATE_GAME:
+			temporal.draw(s, glm::vec2(0,0), glm::vec2(resolution));
+			break;
+		case STATE_MENU:
+			shader_passthru->bind();
+			menu->texture_bind(Shader::TEXTURE_COLORMAP);
+			fullscreen_quad->render();
+			break;
+	}
 }
 
 void Game::render(){
-	render_scene();
+	if(state != STATE_MENU) render_scene();
 	render_blit();
 }
 
@@ -249,55 +283,54 @@ void Game::run_particles(float dt) {
 
 void Game::update(float t, float dt) {
 	/* Update game logic */
+	switch(state) {
+	case STATE_GAME:
+		{
+		dynamicsWorld->stepSimulation(dt, 30, 1.f/300.f);
+		protagonist->update();
 
-	dynamicsWorld->stepSimulation(dt, 30, 1.f/300.f);
-	protagonist->update();
+		glm::vec3 body_pos = protagonist->position();
 
-	glm::vec3 body_pos = protagonist->position();
+		if(terrain->height_at(body_pos.x, body_pos.z) > body_pos.y) {
+			die();
+		}
 
-	if(terrain->height_at(body_pos.x, body_pos.z) > body_pos.y) {
-		restart();
-	}
+		camera.set_matrix(protagonist->matrix());
 
-	camera.set_matrix(protagonist->matrix());
+		run_particles(dt);
 
-	run_particles(dt);
-
-	//Check Controller for input
-	//We should probably not need to do this check, as the init should fail if no controller can be found
-	//(or simply fall back on keyboard and mouse)
-	if(controller != nullptr && controller->active()){
-		controller->update_object(*protagonist, dt);
-	} else {
-		input.update_object(*protagonist, dt);
-	}
-
-	//Debug stuff
-//	input.update_object(camera, dt);
+		if(controller != nullptr && controller->active()){
+			controller->update_object(*protagonist, dt);
+		} else {
+			input.update_object(*protagonist, dt);
+		}
 	
-	if(input.current_value(Input::ACTION_0) > 0.9f) {
-		protagonist->activateThruster();
-	}
+		if(input.current_value(Input::ACTION_0) > 0.9f) {
+			protagonist->activateThruster();
+		}
 
-	if(input.down(Input::ACTION_3)) {
-		restart();
-	}
+		if(input.down(Input::ACTION_3)) {
+			restart();
+		}
 	
-	//Update sound
+		//Update sound
 
-	//Set volume of strong_wind 
-	float v = 30/(protagonist->position().y - terrain->height_at(protagonist->position().x, protagonist->position().z));
-	if(v > 1){
-		v = 1;
+		//Set volume of strong_wind 
+		float v = 30/(protagonist->position().y - terrain->height_at(protagonist->position().x, protagonist->position().z));
+		if(v > 1){
+			v = 1;
+		}
+		strong_wind_sound->set_volume(v);
 	}
-	strong_wind_sound->set_volume(v);
-	
-	/*if(input.down(Input::ACTION_4)) {
-		hdr.set_bloom_factor(hdr.bloom_factor() - 0.1f);
-		print_values(hdr);
+		break;
+	case STATE_DEAD:
+		dead_time_left -= dt;
+		if(dead_time_left < 0) restart();
+		break;
+	case STATE_MENU:
+		if(input.down(Input::ACTION_0)) {
+			restart();
+		}
+		break;
 	}
-	if(input.down(Input::ACTION_5)) {
-		hdr.set_bloom_factor(hdr.bloom_factor() + 0.1f);
-		print_values(hdr);
-	}*/
 }

@@ -116,6 +116,10 @@
       <Project>{af96a19c-362b-4f98-9560-1b793095b79e}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\basejump\levels\default\level.cfg" />
+    <None Include="..\shaders\blood.frag" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

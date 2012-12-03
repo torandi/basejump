@@ -17,7 +17,6 @@
 #include <BulletSoftBody/btSoftBodyHelpers.h>
 #pragma managed(pop)
 
-#include "GLDebugDrawer.hpp"
 #include "Protagonist.hpp"
 
 class Game {
@@ -33,6 +32,7 @@ class Game {
 
 		void start();
 		void restart();
+		void die();
 
 	private:
 		btDefaultCollisionConfiguration * collisionConfiguration;
@@ -40,8 +40,6 @@ class Game {
         btBroadphaseInterface * broadphase;
         btConstraintSolver * solver;
         btDynamicsWorld * dynamicsWorld;
-
-		GLDebugDrawer * glDebugDrawer;
 
 		void initPhysics();
 		void cleanupPhysics();
@@ -59,8 +57,14 @@ class Game {
 		AABB scene_aabb;
 		Technique::HDR hdr;
 		Technique::TemporalBlur temporal;
-		Shader * shader_normal, *shader_passthru;
+		Texture2D * blood, *menu;
+		Shader * shader_blood, *shader_passthru;
 		Sky * sky;
+
+		float dead_time_left;
+		float dead_time;
+
+		GLuint u_dead_step;
 
 		Terrain * terrain;
 		TextureArray * particle_textures;
@@ -80,6 +84,7 @@ class Game {
 
 		enum {
 			STATE_MENU,
+			STATE_DEAD,
 			STATE_GAME
 		} state;
 };
