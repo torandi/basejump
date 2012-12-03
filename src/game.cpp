@@ -336,7 +336,7 @@ void Game::update(float t, float dt) {
 		if(dead_time_left < 0) {
 			if(death->is_playing())
 			death->stop();
-			restart();
+			state = STATE_MENU;
 		}
 		break;
 	case STATE_MENU:
