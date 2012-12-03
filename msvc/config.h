@@ -5,7 +5,7 @@
 #define VERSION "0.1"
 
 /* frob-specific settings */
-#define FULLSCREEN 0
+#define FULLSCREEN 1
 #define srcdir ""
 #define datadir ""
 
