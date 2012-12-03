@@ -118,6 +118,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\basejump\levels\default\level.cfg" />
+    <None Include="..\basejump\levels\default\terrain.cfg" />
+    <None Include="..\basejump\sky.cfg" />
     <None Include="..\shaders\blood.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -74,6 +74,7 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez") {
 	material_specular_[0] = config["/materials/flat/specular"]->as_color().to_vec4();
 	material_specular_[1] = config["/materials/steep/specular"]->as_color().to_vec4();
 
+
 	diffuse_textures_->texture_bind(Shader::TEXTURE_ARRAY_0);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -81,6 +82,9 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez") {
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	normal_textures_->texture_unbind();
+
+	
+	cone_amplitude = config["cone_amplitude"]->as_float();
 
 	shader_ = Shader::create_shader("/shaders/terrain");
 	u_texture_selection_[0] = shader_->uniform_location("texture_fade_start");
@@ -186,7 +190,6 @@ void Terrain::generate_terrain() {
 
 
 			// huge pointy cone
-			static const double cone_amplitude = 4.f;
 			x_ = (x - half_size_x) / half_size_x;
 			y_ = (y - half_size_y) / half_size_y;
 			r_ = std::max(0.f, 1.f - sqrtf(x_*x_ + y_*y_));

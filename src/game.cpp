@@ -79,12 +79,6 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	initPhysics();
 
-	death = new Sound("/sound/death.wav",2);
-
-	wind_sound = new Sound("/sound/wind_medium.mp3",2);
-	strong_wind_sound = new Sound("/sound/wind_strong.mp3",18);
-	strong_wind_sound->set_volume(0);
-
 	particle_textures = TextureArray::from_filename(texture_paths);
 
 	particles = new ParticleSystem(config["/particles/count"]->as_int(), scene_aabb, particle_textures);
@@ -127,6 +121,12 @@ void Game::setup() {
 	protagonist = new Protagonist(pos);
 	dynamicsWorld->addRigidBody(protagonist->rigidBody);
 	protagonist->syncTransform(&camera);
+
+	death = new Sound("/sound/death.wav",2);
+
+	wind_sound = new Sound("/sound/wind_medium.mp3",5);
+	strong_wind_sound = new Sound("/sound/wind_strong.mp3",100);
+	strong_wind_sound->set_volume(0);
 }
 
 void Game::start() {
@@ -139,6 +139,9 @@ void Game::restart() {
 	delete sky;
 	dynamicsWorld->removeRigidBody(protagonist->rigidBody);
 	delete protagonist;
+	delete wind_sound;
+	delete strong_wind_sound;
+	delete death;
 
 	/* clear particles */
 	particles->set_bounds(AABB());
@@ -291,8 +294,8 @@ void Game::update(float t, float dt) {
 	switch(state) {
 	case STATE_GAME:
 		{
-		dynamicsWorld->stepSimulation(dt, 30, 1.f/300.f);
-		protagonist->update();
+		dynamicsWorld->stepSimulation(dt, 10, 1.f/60.f);
+		protagonist->update(dt);
 
 		glm::vec3 body_pos = protagonist->position() + protagonist->local_z();
 

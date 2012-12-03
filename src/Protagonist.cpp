@@ -45,15 +45,18 @@ static const btVector3 R_WING_OFFSET(OFFSET_X, 0, 0);// m
 	
 // warn: TARGET_ROTATION_FACTOR and ANGULAR_VELOCITY_FACTOR dampens angular velocity, if factors are too high we will get inverse damping
 static const btScalar TARGET_ROTATION_FACTOR = .1f;// strength of auto rotation towards target direction
-static const btScalar ANGULAR_VELOCITY_FACTOR = .8f;// dampens current angular velocity
+static const btScalar ANGULAR_VELOCITY_FACTOR = .5f;// dampens current angular velocity
 	
-static const btScalar ROLL_FACTOR = 3.f;// controls roll force magnitude
-static const btScalar YAW_FACTOR = .4f;
-static const btScalar PITCH_FACTOR = 3.f;
+static const btScalar ROLL_FACTOR = 1.5f;// controls roll force magnitude
+static const btScalar YAW_FACTOR = .5f;
+static const btScalar PITCH_FACTOR = 2.f;
 
 
 
-Protagonist::Protagonist(const glm::vec3 &position) : MovableObject(position), lWing(L_WING_OFFSET), rWing(R_WING_OFFSET)
+const float Protagonist::INTERVAL = 1/60.f;
+
+
+Protagonist::Protagonist(const glm::vec3 &position) : MovableObject(position), lWing(L_WING_OFFSET), rWing(R_WING_OFFSET), time_buffer(0)
 {
 	initPhysics();
 #if RENDER_DEBUG
@@ -110,15 +113,22 @@ void Protagonist::initPhysics()
 }
 
 
-void Protagonist::update()
+void Protagonist::update(float dt)
 {
 	rigidBody->getMotionState()->getWorldTransform(trans_);
 	rot_ = trans_.getBasis();
 	pos_ = trans_.getOrigin();
+	
+	time_buffer += dt;
 
-	rotateTowardsTargetDirection();
-	applyAerodynamics();
-	applyThrust();
+	while(time_buffer >= INTERVAL)
+	{
+		time_buffer -= INTERVAL;
+		rotateTowardsTargetDirection();
+		applyAerodynamics();
+		applyThrust();
+	}
+
 	syncTransform(this);
 }
 
@@ -148,9 +158,9 @@ void Protagonist::rotateTowardsTargetDirection()
 		
 	// apply rolling, involves MASS since its an applied force
 	rigidBody->applyTorque(rot_ * btVector3(0, 0,
-		-(ROLL_FACTOR - lWing.normal().z()) * MASS * lWing.normal().x()));
+		-(ROLL_FACTOR - 2*lWing.normal().z()) * MASS * lWing.normal().x()));
 	rigidBody->applyTorque(rot_ * btVector3(0, 0,
-		-(ROLL_FACTOR - rWing.normal().z()) * MASS * rWing.normal().x()));
+		-(ROLL_FACTOR - 2*rWing.normal().z()) * MASS * rWing.normal().x()));
 }
 
 

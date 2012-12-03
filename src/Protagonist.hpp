@@ -106,6 +106,9 @@ protected:
 	btCollisionShape* shape;
 	btDefaultMotionState* motionState;
 
+	static const float INTERVAL;
+	float time_buffer;
+
 	void initPhysics();
 
 	void rotateTowardsTargetDirection();
@@ -137,7 +140,7 @@ public:
 	Protagonist(const glm::vec3 &position);
 	virtual ~Protagonist();
 
-	void update();
+	void update(float dt);
 	void draw();
 	void syncTransform(MovableObject * obj);
 

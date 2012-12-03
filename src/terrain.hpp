@@ -33,6 +33,8 @@ private:
 	glm::ivec2 size_;
 	float * map_;
 
+	float cone_amplitude;
+
 	float texture_selection_[2];
 	GLuint u_texture_selection_[2];
 
