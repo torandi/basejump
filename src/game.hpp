@@ -81,6 +81,7 @@ class Game {
 
 		Sound* wind_sound;
 		Sound* strong_wind_sound;
+		Sound * death;
 
 		enum {
 			STATE_MENU,

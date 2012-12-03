@@ -79,6 +79,8 @@ Game::Game(const std::string &level, float near, float far, float fov)
 
 	initPhysics();
 
+	death = new Sound("/sound/death.wav",2);
+
 	wind_sound = new Sound("/sound/wind_medium.mp3",2);
 	strong_wind_sound = new Sound("/sound/wind_strong.mp3",18);
 	strong_wind_sound->set_volume(0);
@@ -154,6 +156,7 @@ void Game::die() {
 	//TODO: Death sound
 	wind_sound->stop();
 	strong_wind_sound->stop();
+	death->play();
 }
 
 void Game::initPhysics()
@@ -174,7 +177,9 @@ Game::~Game() {
 	if(strong_wind_sound->is_playing())
 		strong_wind_sound->stop();
 	delete strong_wind_sound;
-
+	if(death->is_playing())
+		death->stop();
+	delete death;
 	cleanupPhysics();
 
 	delete protagonist;
@@ -289,9 +294,11 @@ void Game::update(float t, float dt) {
 		dynamicsWorld->stepSimulation(dt, 30, 1.f/300.f);
 		protagonist->update();
 
-		glm::vec3 body_pos = protagonist->position();
+		glm::vec3 body_pos = protagonist->position() + protagonist->local_z();
 
 		if(terrain->height_at(body_pos.x, body_pos.z) > body_pos.y) {
+			protagonist->set_position(protagonist->position() - protagonist->local_z());
+			camera.set_matrix(protagonist->matrix());
 			die();
 		}
 
@@ -325,7 +332,12 @@ void Game::update(float t, float dt) {
 		break;
 	case STATE_DEAD:
 		dead_time_left -= dt;
-		if(dead_time_left < 0) restart();
+		death->set_volume(glm::clamp(1.f - (dead_time_left /dead_time) + 0.2f, 0.f, 1.f));
+		if(dead_time_left < 0) {
+			if(death->is_playing())
+			death->stop();
+			restart();
+		}
 		break;
 	case STATE_MENU:
 		if(input.down(Input::ACTION_0)) {
