@@ -240,12 +240,12 @@ void Input::update_object(Protagonist & protagonist, float dt)
 #ifdef WIN32
 	/* controls are inverted in windows */
 	protagonist.lWing.normal(
-		normalized_axis_value(0),
+		-normalized_axis_value(0),
 		normalized_axis_value(1),
 		1-2*std::max(.0f, normalized_axis_value(2)));
 
 	protagonist.rWing.normal(
-		normalized_axis_value(4),
+		-normalized_axis_value(4),
 		normalized_axis_value(3),
 		1+2*std::min(.0f, normalized_axis_value(2)));
 #else
