@@ -22,7 +22,25 @@
     <ClInclude Include="..\src\XboxController.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\basejump\levels\default\level.cfg" />
-    <None Include="..\basejump\levels\default\terrain.cfg" />
+    <None Include="..\shaders\blood.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\basejump\levels\default\level.cfg">
+      <Filter>Configs</Filter>
+    </None>
+    <None Include="..\basejump\sky.cfg">
+      <Filter>Configs</Filter>
+    </None>
+    <None Include="..\basejump\levels\default\terrain.cfg">
+      <Filter>Configs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{2e2d289a-e1e4-4962-ab07-81de87c3ae92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Configs">
+      <UniqueIdentifier>{7f06156b-b134-4248-b25e-53ee9bafa332}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
