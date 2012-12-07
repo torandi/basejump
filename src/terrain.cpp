@@ -27,7 +27,7 @@
 #define RENDER_DEBUG 0
 
 #if RENDER_DEBUG
-	static Shader * debug_shader;
+static Shader * debug_shader;
 #endif
 
 #define CALC_UV(xpos,ypos) glm::vec2(static_cast<float>(xpos) / static_cast<float>(size_.x), 1.f - static_cast<float>(ypos) / static_cast<float>(size_.y)) * uv_scale_
@@ -55,19 +55,19 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez") {
 	texture_selection_[0] = glm::radians(texture_selection[0]->as_float());
 	texture_selection_[1] = glm::radians(texture_selection[1]->as_float()) - texture_selection_[0];
 	/* 
-	 * second value is given as end, but algorithm handles length (delta)
+	* second value is given as end, but algorithm handles length (delta)
 	*/
 
 	diffuse_textures_ = TextureArray::from_filename(
-			config["/materials/flat/diffuse"]->as_string().c_str(),
-			config["/materials/steep/diffuse"]->as_string().c_str(),
-			nullptr
+		config["/materials/flat/diffuse"]->as_string().c_str(),
+		config["/materials/steep/diffuse"]->as_string().c_str(),
+		nullptr
 		);
 
 	normal_textures_ = TextureArray::from_filename(
-			config["/materials/flat/normal"]->as_string().c_str(),
-			config["/materials/steep/normal"]->as_string().c_str(),
-			nullptr
+		config["/materials/flat/normal"]->as_string().c_str(),
+		config["/materials/steep/normal"]->as_string().c_str(),
+		nullptr
 		);
 
 	material_shininess_[0] = config["/materials/flat/shininess"]->as_float();
@@ -85,7 +85,7 @@ Terrain::Terrain(const std::string &file) : Mesh(32.f), perlin("mario rulez") {
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	normal_textures_->texture_unbind();
 
-	
+
 	cone_amplitude = config["cone_amplitude"]->as_float();
 
 	shader_ = Shader::create_shader("/shaders/terrain");
@@ -127,10 +127,11 @@ unsigned int Terrain::generate_vertices(void * data) {
 	thread_data_t * d = (thread_data_t*) data;
 	Shader::vertex_t * tmp_vertices = d->tmp_vertices;
 	printf("%d: %d, %d\n", d->id, d->start, d->end);
-	for(int y=d->start ; y < d->end ; ++y) {
+	for(int y=d->start; y<d->end; ++y) {
 		for(int x=0; x<size_.x; ++x) {
 			Shader::vertex_t v;
-			int i = y * size_.x + x - d->start * size_.x;
+			int vi = (y - d->start) * size_.x + x;
+			int i = y * size_.x + x;
 
 			float x_ = 0.f;
 			float y_ = 0.f;
@@ -140,6 +141,24 @@ unsigned int Terrain::generate_vertices(void * data) {
 			float half_size_x = size_.x / 2.f;
 			float half_size_y = size_.y / 2.f;
 
+			// get inverse distance from center of world in range [0,1]
+			//float x_ = 1 - (float) abs(size_.x / 2 - x) / (size_.x / 2);
+			//float y_ = 1 - (float) abs(size_.y / 2 - y) / (size_.y / 2);
+
+
+			// previous huge pointy cone
+			//int c_x = 300;
+			//int c_y = 300;
+			// x_ = 0;
+			// y_ = 0;
+			// if(x > half_size_x-c_x && x < half_size_x+c_x &&
+			// y > half_size_y-c_y && y < half_size_y+c_y){
+			// x_ = 1 - (x + c_x - half_size_x) / c_x;
+			// y_ = 1 - (y + c_y - half_size_y) / c_y;
+			// }
+
+
+			// huge pointy cone
 			x_ = (x - half_size_x) / half_size_x;
 			y_ = (y - half_size_y) / half_size_y;
 			r_ = std::max(0.f, 1.f - sqrtf(x_*x_ + y_*y_));
@@ -172,8 +191,9 @@ unsigned int Terrain::generate_vertices(void * data) {
 
 			v.pos = glm::vec3(horizontal_scale_*static_cast<float>(x), h*vertical_scale_, horizontal_scale_*static_cast<float>(y));
 			v.uv = CALC_UV(x,y);
-			tmp_vertices[i] = v;
-			map_[i] =  h*vertical_scale_;
+
+			tmp_vertices[vi] = v;
+			map_[i] = h*vertical_scale_;
 		}
 	}
 	return 0;
@@ -185,28 +205,29 @@ void Terrain::generate_terrain() {
 	map_ = new float[numVertices];
 
 	Logging::verbose("Generating terrain...\n"
-	                 "  - World size: %dx%d\n"
-	                 "  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
+		"  - World size: %dx%d\n"
+		"  - scale: %fx%f\n", size_.x, size_.y, horizontal_scale_, vertical_scale_);
 
 	int num_threads = Threading::num_cores();
-	
-	
+
+
 	std::vector<Threading::thread_t*> threads;
 	thread_data_t * thread_data = new thread_data_t[num_threads];
 
 	int partition = size_.y / num_threads;
-	for(int i=0; i<num_threads - 1; ++i) {
+	for(int i=0; i<(num_threads - 1) ; ++i) {
 		int num_local_vertices = size_.x * partition;
 		thread_data_t td = { new Shader::vertex_t[num_local_vertices], i * partition, (i + 1) * partition, num_local_vertices, i };
 		thread_data[i] = td;
 		threads.push_back(Threading::create(std::bind(&Terrain::generate_vertices, this, std::placeholders::_1), thread_data + i));
 	}
+	
 	int num_local_vertices = size_.x * (size_.y - (num_threads - 1) * partition);
 	thread_data_t td = { new Shader::vertex_t[num_local_vertices],(num_threads - 1) * partition, size_.y, num_local_vertices , num_threads };
 	thread_data[num_threads - 1] = td;
 	threads.push_back(Threading::create(std::bind(&Terrain::generate_vertices, this, std::placeholders::_1),thread_data + num_threads - 1));
-
-	vertices_ = std::vector<Shader::vertex_t>();
+	
+	vertices_.clear();
 
 	for(int i = 0; i< num_threads; ++i) {
 		Threading::join(threads[i]);
@@ -228,15 +249,15 @@ void Terrain::generate_terrain() {
 	std::vector<unsigned int> indices[TERRAIN_LOD_LEVELS];
 
 	std::map<glm::vec2, unsigned int, bool(*)(const glm::vec2&, const glm::vec2&)> skirt_vertices([](const glm::vec2& v1, const glm::vec2& v2) -> bool {
-			if(v1.x < v2.x) {
-				return true;
-			} else if(v1.x > v2.x) {
-				return false;
-			} else if(v1.y < v2.y) {
-				return true;
-			} else {
-				return false;
-			}
+		if(v1.x < v2.x) {
+			return true;
+		} else if(v1.x > v2.x) {
+			return false;
+		} else if(v1.y < v2.y) {
+			return true;
+		} else {
+			return false;
+		}
 	});
 
 	indices[0] = std::vector<unsigned int>(indexCount[0]);
@@ -352,8 +373,8 @@ void Terrain::generate_terrain() {
 			m->indices.insert(m->indices.end(), extra.begin(), extra.end());
 		}
 		return true;
-	
-});
+
+	});
 
 	Logging::info("[Terrain] Ortonormalize tangent space.\n");
 	ortonormalize_tangent_space();
@@ -376,7 +397,7 @@ float Terrain::height_at(int x, int y) const {
 float Terrain::height_at(float x_, float y_) const {
 	int x = (int) (x_/horizontal_scale_);
 	int y = (int) (y_/horizontal_scale_);
-	
+
 	if(x > size_.x || x < 0 || y > size_.y || y_ < 0)
 		return 0.f;
 	return height_at(x, y);
@@ -446,7 +467,7 @@ void Terrain::render_cull(const Camera &cam, const glm::mat4& m) {
 	AABB_2D near_aabb;
 
 	Triangle2D cam_tri = calculate_camera_tri(cam, near_aabb);
-	
+
 	AABB_2D aabb2d;
 	aabb2d.add_point(cam_tri.p1);
 	aabb2d.add_point(cam_tri.p2);
@@ -498,36 +519,36 @@ Triangle2D Terrain::calculate_camera_tri(const Camera& cam, AABB_2D &near_aabb) 
 	points[0] = glm::vec2(cam.position().x, cam.position().z) - lz * culling_near_padding;
 	points[1] = far_center + lx * half_far_split; 
 	points[2] = far_center - lx * half_far_split; 
-	
+
 	return Triangle2D(
-			points[0],
-			points[1],
-			points[2]
-			);
+		points[0],
+		points[1],
+		points[2]
+	);
 
 }
 
 bool Terrain::cull_or_render(const Triangle2D &cam_tri, const AABB_2D & near_aabb, const AABB_2D &limiting_box, QuadTree * node) {
 	if(intersect2d::aabb_aabb(node->aabb, limiting_box) 
-			&& (
-					intersect2d::aabb_aabb(node->aabb, near_aabb)
-			||	intersect2d::aabb_triangle(node->aabb, cam_tri)
-				)
-			) {
-		float d = glm::distance2(node->aabb.middle(), cam_tri.p1);
-		int lod = TERRAIN_LOD_LEVELS - 1;
-		for(int i=0; i< TERRAIN_LOD_LEVELS; ++i) {
-			if(d < lod_distance[i]) {
-				lod = i;
-				break;
+		&& (
+		intersect2d::aabb_aabb(node->aabb, near_aabb)
+		||	intersect2d::aabb_triangle(node->aabb, cam_tri)
+		)
+		) {
+			float d = glm::distance2(node->aabb.middle(), cam_tri.p1);
+			int lod = TERRAIN_LOD_LEVELS - 1;
+			for(int i=0; i< TERRAIN_LOD_LEVELS; ++i) {
+				if(d < lod_distance[i]) {
+					lod = i;
+					break;
+				}
 			}
-		}
 
-		if(node->level() <= lod) {
-			if(node->data != nullptr) ( (SubMesh*) node->data )->render_geometry();
-			return false;
-		}
-		return true;
+			if(node->level() <= lod) {
+				if(node->data != nullptr) ( (SubMesh*) node->data )->render_geometry();
+				return false;
+			}
+			return true;
 	} else {
 		return false;
 	}
